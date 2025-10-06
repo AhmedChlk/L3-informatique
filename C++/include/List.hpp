@@ -1,24 +1,22 @@
+#pragma once
 #include <memory>
 #include <iostream>
 #include <stdexcept>
 
-template <typename T> class List{
- private:
-    // structure d'un noeud
-    struct Node{
-      T value;
-      std::unique_ptr<Node> next;
-      explicit Node(const T& val) : value(val), next(nullptr) {}
+template <typename T>
+class List {
+private:
+    struct Node {
+        T value;
+        std::unique_ptr<Node> next;
+        explicit Node(const T& val) : value(val), next(nullptr) {}
     };
-    // variables d'une Liste
     std::size_t size;
     std::unique_ptr<Node> head;
 
- public:
-    // constructeur par défaut
+public:
     List() : size(0), head(nullptr) {}
 
-    // constructeur de copie
     List(const List& other) : size(0), head(nullptr) {
         if (!other.empty()) {
             const Node* current = other.head.get();
@@ -64,6 +62,52 @@ template <typename T> class List{
             current->next = std::move(new_node);
         }
         size++;
+    }
+
+    void insert(int pos, const T& e) {
+        if (pos < 0 || pos >= static_cast<int>(size)) {
+            throw std::out_of_range("Position invalide");
+        }
+        auto new_node = std::make_unique<Node>(e);
+        Node* current = head.get();
+        for (int i = 0; i < pos; ++i) {
+            current = current->next.get();
+        }
+        new_node->next = std::move(current->next);
+        current->next = std::move(new_node);
+        ++size;
+    }
+
+    void erase(int pos) {
+        if (pos < 0 || pos >= static_cast<int>(size)) {
+            throw std::out_of_range("Position invalide");
+        }
+        if (pos == 0) {
+            head = std::move(head->next);
+        } else {
+            Node* current = head.get();
+            for (int i = 0; i < pos - 1; ++i) {
+                current = current->next.get();
+            }
+            current->next = std::move(current->next->next);
+        }
+        --size;
+    }
+
+    void clear() {
+        head.reset();
+        size = 0;
+    }
+
+    const T& getAt(int pos) const {
+        if (pos < 0 || pos >= static_cast<int>(size)) {
+            throw std::out_of_range("Position invalide");
+        }
+        Node* current = head.get();
+        for (int i = 0; i < pos; ++i) {
+            current = current->next.get();
+        }
+        return current->value;
     }
 
     void print_list() const {
