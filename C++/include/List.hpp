@@ -1,112 +1,77 @@
-template <typename T> class List
-{
-    private :
-        struct Node {
-            T data;
-            Node* next;
-            Node(const T& value) : data(value), next(nullptr) {}
-        };
-        Node* head;   
-        int count;
-    public : 
-        List() : head(nullptr), count(0) {}
-        int size() {return count;}
-        T front(){ return head;}
-        T back();
-        void push_front(T e);
-        void push_back(T e);
-        void insert(int pos, T e);
-        void erase(int pos);
-        void clear();
-        void print_list();
+#include <memory>
+#include <iostream>
+#include <stdexcept>
 
-};
+template <typename T> class List{
+ private:
+    // structure d'un noeud
+    struct Node{
+      T value;
+      std::unique_ptr<Node> next;
+      explicit Node(const T& val) : value(val), next(nullptr) {}
+    };
+    // variables d'une Liste
+    std::size_t size;
+    std::unique_ptr<Node> head;
 
-template <typename T> 
-T List<T>::back(){
-    Node* Temp = head;
-    while(Temp->next != nullptr){ Temp = Temp->next;}
-    return Temp;
-}
+ public:
+    // constructeur par défaut
+    List() : size(0), head(nullptr) {}
 
-template <typename T> 
-void List<T>::push_front(T e){
-    Node* newNode = new Node(e);
-    newNode->next = head;
-    head = newNode;
-    ++count;
-}
-
-template <typename T> 
-void List<T>::push_back(T e){
-    Node* newNode = new Node(e);
-    Node* Temp = head;
-    while(Temp->next != nullptr){ Temp = Temp->next;}
-    Temp->next = newNode;
-    ++count;
-}
-
-template <typename T> 
-void List<T>::insert(int pos, T e){
-    if(pos>count || pos < 0){ 
-        std::cout << "erreur position invalide \n";
-    }else{
-        Node* Temp = head;
-        int act = 0;
-        while (act != pos){
-            if(Temp->next != nullptr) Temp = Temp->next;
-            act++;
-        }
-        Node* newNode = new Node(e);
-        newNode->next = Temp->next;
-        Temp->next = newNode;
-    }
-}
-
-template <typename T> 
-void List<T>::erase(int pos){
-        if(pos>count || pos < 0){ 
-        std::cout << "erreur position invalide \n";
-    }else{
-        if(pos == 0){
-            Node* Temp = head;
-            head = head->next;
-            delete Temp;
-        }else{
-            int act = 0;
-            Node* Prev = head;
-            Node* Temp = head->next;
-            while(act != pos){
-                if(Temp->next != nullptr){
-                Prev = Prev->next;
-                Temp = Temp->next;
-                }
-                act++;
+    // constructeur de copie
+    List(const List& other) : size(0), head(nullptr) {
+        if (!other.empty()) {
+            const Node* current = other.head.get();
+            while (current != nullptr) {
+                push_back(current->value);
+                current = current->next.get();
             }
-            Prev->next = Temp->next;
-            delete Temp;
         }
     }
-}
 
-template <typename T> 
-void List<T>::clear(){
-    if(head != nullptr){
-        while(head != nullptr){
-            Node* Temp = head;
-            head=head->next;
-            delete Temp;
+    bool empty() const { return head == nullptr; }
+    std::size_t get_size() const { return size; }
+
+    const T& front() const {
+        if (empty()) throw std::runtime_error("empty List");
+        return head->value;
+    }
+
+    const T& back() const {
+        if (empty()) throw std::runtime_error("empty List");
+        Node* current = head.get();
+        while (current->next != nullptr)
+            current = current->next.get();
+        return current->value;
+    }
+
+    void push_front(const T& element) {
+        auto new_node = std::make_unique<Node>(element);
+        new_node->next = std::move(head);
+        head = std::move(new_node);
+        size++;
+    }
+
+    void push_back(const T& element) {
+        auto new_node = std::make_unique<Node>(element);
+        if (empty()) {
+            head = std::move(new_node);
+        } else {
+            Node* current = head.get();
+            while (current->next != nullptr) {
+                current = current->next.get();
+            }
+            current->next = std::move(new_node);
+        }
+        size++;
+    }
+
+    void print_list() const {
+        Node* current = head.get();
+        int pos = 0;
+        while (current != nullptr) {
+            std::cout << "element : " << pos++ << " valeur : " << current->value << "\n";
+            current = current->next.get();
         }
     }
-}
-
-template <typename T> 
-void List<T>::print_list(){
-    Node* Temp = head;
-    int pos = 0;
-    while(Temp!= nullptr){
-        std::cout << "element : " << pos++ << " valeur : " << Temp->data << "\n";
-        Temp = Temp->next;
-    }
-
-}
+};
