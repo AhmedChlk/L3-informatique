@@ -1,0 +1,404 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages ajoutés pour l'enrichissement pédagogique ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% CONFIGURATION LISTINGS %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=C,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% ENVIRONNEMENTS TCOLORBOX %%%%%%%%%%%%%%%%%%
+
+% Rappel de cours (fond bleu clair)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Rappel de cours},
+    #1
+}
+
+% Point clé (fond vert clair)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Point clé à retenir},
+    #1
+}
+
+% Attention (fond orange clair)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Attention},
+    #1
+}
+
+% Avertissement éthique (fond rouge)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Avertissement éthique et légal},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large TD5 Sécurité}  \\
+ Techniques d'intrusion -- Débordement de tampon
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Avertissement éthique ---
+\begin{ethique}
+Les techniques présentées dans ce TD sont étudiées dans un \textbf{cadre strictement académique} afin de comprendre les mécanismes utilisés par les attaquants et ainsi pouvoir mieux s'en protéger.
+
+\textbf{Toute utilisation de ces techniques en dehors du cadre pédagogique est illégale} et passible de sanctions pénales (chapitre III du Code pénal, articles 323-1 à 323-8 -- \textit{Des atteintes aux systèmes de traitement automatisé de données}) :
+\begin{itemize}
+    \item Accès ou maintien frauduleux dans un STAD (art.~323-1) : \textbf{3 ans} d'emprisonnement et \textbf{100\,000\,\texteuro{}} d'amende
+    \item Entrave au fonctionnement d'un STAD (art.~323-2) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+    \item Introduction frauduleuse de données dans un STAD (art.~323-3) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+\end{itemize}
+Peines portées à \textbf{7 ans} et \textbf{300\,000\,\texteuro{}} lorsque le système visé traite des données à caractère personnel mis en \oe uvre par l'État, et jusqu'à \textbf{10 ans} et \textbf{300\,000\,\texteuro{}} en bande organisée (art.~323-4-1). \textit{Peines mises à jour par la loi LOPMI n\textsuperscript{o}2023-22 du 24 janvier 2023.}
+\end{ethique}
+
+\bigskip
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!60!black, title={Options de compilation}]
+Les options suivantes sont à utiliser lorsque l'on veut déborder sur la pile (\texttt{-fno-stack-protector}) et connaître les adresses du code (\texttt{-no-pie}) qui ne sont plus randomisées :
+\begin{lstlisting}[language=bash,numbers=none]
+gcc -fno-stack-protector -no-pie -g code.c
+\end{lstlisting}
+Une dernière option que l'on n'utilisera pas : si l'on souhaite exécuter du code injecté dans la pile (\texttt{-z execstack}).
+\end{tcolorbox}
+
+\medskip
+
+\begin{rappel}
+\textbf{Organisation de la pile (stack) :} lors de l'appel d'une fonction, le processeur empile :
+\begin{enumerate}
+    \item Les paramètres de la fonction (en partie via registres en x86-64)
+    \item L'adresse de retour \texttt{savedRIP} (empilée par \texttt{call})
+    \item L'ancien \texttt{RBP} (\texttt{savedRBP}) sauvegardé par \texttt{push rbp}
+    \item Les variables locales de la fonction
+\end{enumerate}
+Le registre \texttt{RSP} pointe sur le sommet de la pile ; \texttt{RBP} pointe sur la base du cadre de pile courant.
+\end{rappel}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 1 : Débordement de tampon simple
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Débordement de tampon]
+\begin{enumerate}
+\item
+On considère le programme suivant :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+  int valeur=5;
+  char tampon_un[8], tampon_deux[8];
+
+  strcpy(tampon_un,"un");
+  strcpy(tampon_deux,"deux");
+
+  printf("[AVANT] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[AVANT] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[AVANT] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  printf("\n [STRCPY] copie de %d octets dans tampon_deux\n\n",
+         (int)strlen(argv[1]));
+  strcpy(tampon_deux, argv[1]);
+
+  printf("[APRES] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[APRES] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[APRES] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  return(0);
+}
+\end{lstlisting}
+
+En faisant varier l'argument, provoquer un débordement de tampon, analysez-le avec \texttt{gdb}.
+
+\begin{pointcle}
+La fonction \texttt{strcpy} ne vérifie \textbf{pas} la taille du tampon destination. Si la source est plus longue que le tampon, les octets en surplus écrasent les données adjacentes dans la pile.
+\end{pointcle}
+
+\item  On considère maintenant le bout de programme ci-dessous qui restreint les droits d'accès :
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int verif_authentication(char *password){
+  int auth_flag = 0;
+  char password_tampon[16];
+
+  strcpy(password_tampon, password);
+
+  if( strcmp(password_tampon, "brillig") == 0)
+    auth_flag = 1;
+  if(strcmp(password_tampon, "outgrabe") == 0)
+    auth_flag = 1;
+
+  return auth_flag;
+}
+
+int main( int argc, char *argv[]){
+  if(argc < 2){
+    printf("Usage: %s <password>\n", argv[0]);
+    exit(0);
+  }
+
+  if(verif_authentication(argv[1])){
+    printf("\n-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+    printf("      Acces accorde.\n");
+    printf("-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+  }
+  else
+    printf("     Acces refuse\n");
+}
+\end{lstlisting}
+Est-il possible de faire un débordement de tampon pour forcer l'accès (\texttt{auth\_flag} $\neq 0$) ? Que se passe-t-il si les variables sont déclarées dans l'ordre suivant :
+\begin{lstlisting}[language=C,numbers=none]
+  char password_buffer[16];
+  int auth_flag = 0;
+\end{lstlisting}
+Peut-on contourner ce problème pour faire afficher quand même \texttt{Acces accorde} par débordement de tampon ? Expliquez en détail pourquoi ça fonctionne.
+\end{enumerate}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 2 : Modification d'adresse de retour (incrément)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Modification d'adresse de retour dans la pile]
+Reprenez le code vu en cours (donné ci-dessous) et ajustez les valeurs de $a$ et de $b$ afin d'exécuter en retour de fonction :
+\begin{itemize}
+\item Directement la fin de la fonction \texttt{main} (donc pas de \texttt{printf("coucou1")} et \texttt{printf("coucou2")}).
+  \item Que se passera-t-il si on revient à l'instruction \texttt{b=15} ?
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+void function(long a, long b)
+{
+  long buffer[2]={0,1};
+  buffer[a]+=b;
+}
+void main()
+{
+  long a,b;
+  a=1;
+  b=15;
+  function(a,b);
+  printf("coucou1\n");
+  printf("coucou2\n");
+}
+\end{lstlisting}
+
+\begin{rappel}
+Pour trouver les bonnes valeurs de \texttt{a} et \texttt{b}, il faut :
+\begin{enumerate}
+    \item Analyser le code assembleur avec \texttt{gdb} pour connaître la taille du cadre de pile de \texttt{function}
+    \item Calculer le décalage entre \texttt{buffer[0]} et \texttt{savedRIP}
+    \item Déterminer l'incrément nécessaire pour sauter par-dessus les instructions souhaitées
+\end{enumerate}
+\end{rappel}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 3 : Écrasement d'adresse de retour (débordement)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Écrasement d'adresse de retour par débordement]
+On considère le code suivant :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void f(char *s)
+{
+  char nom[10];
+  strcpy(nom,s);
+  printf("\n");
+  printf("%lx\n",*((unsigned long *)(nom+18)));
+  printf("Bonjour %s, on est dans f\n",nom);
+}
+
+void secret()
+{
+  printf("on est dans secret\n");
+}
+
+int main(int argc, char **argv)
+{
+  printf("adresse de f=%p, et de secret=%p\n",f,secret);
+  f(argv[1]);
+}
+\end{lstlisting}
+En écrasant l'adresse de retour de l'appel à la fonction \texttt{f}, faire en sorte d'exécuter la fonction \texttt{secret}.
+
+\begin{attention}
+Pour passer en paramètre une chaîne de caractères spécifiés par leur code ASCII, on peut utiliser \texttt{python3} comme suit (pour les deux codes ASCII \texttt{0x11} et \texttt{0xff}) :
+\begin{lstlisting}[language=bash,numbers=none]
+$ python3 -c "print('\x11\xff')"
+\end{lstlisting}
+\end{attention}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 4 : Chaîne de format printf
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Exploitation de la chaîne de format \texttt{printf}]
+On considère le code suivant compilé avec les options \texttt{-fno-stack-protector -no-pie} :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+  unsigned long d;
+  char texte[512];
+
+  static int test_var = 100*256*256+100*256+100;
+  if(argc < 3) {
+    printf("Usage: %s <text to print> <entier>\n", argv[0]);
+    exit(0);
+  }
+  d=atoi(argv[2]);
+
+  strcpy(texte, argv[1]);
+  printf("La bonne facon d'afficher des entrees utilisateurs:\n");
+  printf("%s", texte);
+  printf("\nLa mauvaise facon d'afficher des entrees utilisateurs:\n");
+  printf(texte);
+  printf("\n");
+  // Debug output
+  printf("[*] test_var @ %p = %lu, %04x\n", &test_var, &test_var, test_var);
+  printf("[*] adresse de d=%p, valeur de d=0x%016lx\n", &d, d);
+  printf("[*] adresse de texte=%p\n", texte);
+  exit(0);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Comprendre et tester le programme, puis appliquer ce que l'on a vu en cours pour afficher le contenu de la pile de \texttt{main} en choisissant bien l'argument du programme dans la ligne de commande.
+\item Si l'argument du programme contient le format \texttt{"\%s"}, que va-t-il se passer ? Peut-on choisir l'adresse qui concerne \texttt{"\%s"} et l'appliquer pour lire la valeur de \texttt{test\_var} ?
+\end{enumerate}
+
+\begin{pointcle}
+L'appel \texttt{printf(texte)} est dangereux car l'attaquant contrôle la chaîne de format. Il peut utiliser \texttt{\%x}, \texttt{\%lx}, \texttt{\%s} pour lire la mémoire, et même \texttt{\%n} pour écrire en mémoire !
+\end{pointcle}
+\end{exercice}
+
+
+\end{document}

@@ -1,0 +1,375 @@
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{ProblÃ¨me}
+\newtheorem*{cout}{CoÃ»t}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+\definecolor{shadecolor}{RGB}{110,110,110}
+
+
+
+\newenvironment{terminal}{\color{white}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+ \hfill C. Legrand \\
+
+\begin{center}
+{  {\scshape \large CC1 de  S\'ecurit\'e}  \\
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  \item Durée : 2h30. 
+\item Seuls les documents fournis sont autorisés.
+\item Pour les exercices 1 et 2 vous rendrez, au choix une copie papier ou numérique. Pour l'exercice 3 vous rendrez les scripts sous format numériques dans une archive ou répertoire portant votre nom. 
+\end{itemize}
+
+
+
+
+\begin{exercice}
+  On considère dans cet exercice le chiffrement par bloc décrit dans la figure~\ref{fig:chiffrement-par-bloc}:
+\begin{figure}[h] \caption{Chiffrement par bloc de l'exercice 4}
+\label{fig:chiffrement-par-bloc}
+\medskip
+\begin{center}
+\scalebox{0.45}{\input{block-cipher-exo1.pdf_t}}
+\end{center}
+\end{figure}
+  
+\begin{itemize}
+\item Le bloc $M=[m_7,m_6,m_5,m_4,m_3,m_2,m_1,m_0]$ est chiffré en  $C=[c_7,c_6,c_5,c_4,c_3,c_2,c_1,c_0]$
+\item Les deux clefs de ronde $K_1$ et $K_2$ se déduisent de la clef de chiffrement $K=[k_7,k_6,k_5,k_4,k_3,k_2,k_1,k_0]$.
+\item La subsitution $S$ est donnée par
+$$
+\begin{array}{|c||c|c|c|c|}
+\hline
+X & [0,0] & [0,1] & [1,0] & [1,1] \\
+\hline
+S(X) & [1,0] & [0,0] & [1,1] & [0,1] \\
+\hline
+\end{array}
+$$
+\end{itemize}
+\
+
+\begin{enumerate}
+\item  Chiffrer le bloc $M=[1,1,0,0,0,0,0,1]$ avec la clef $K=[1,1,0,0,0,0,0,0]$ 
+\item Déchiffrer le bloc $C=[0,0,1,1,1,0,1,0]$ avec la clef $K=[1,1,0,0,0,0,0,0]$
+
+
+\item On suppose que l'on a intercepté un message qui a été chiffré comme suit 
+\begin{itemize}
+\item Le texte est un message en alphabet latin avec uniquement des lettres majuscules (pas de ponctuations, accents, espaces, $\ldots$).
+\item chaque lettre alphabétique a été encodé en ASCII étendu (8bits).
+\item Ensuite il a été appliqué le chiffrement par bloc de la Figure~\ref{fig:chiffrement-par-bloc} en mode ECB (c'est à dire on a appliqué à chaque code ASCII le la fonction chiffrement de bloc de la Figure~\ref{fig:chiffrement-par-bloc}).
+\end{itemize}
+Le message intercepté est le suivant:
+\begin{verbatim}
+
+E6 67 6C 65 61 E0 67 E6 E0 61 61 E0 65 ED 67 E4 66 E0 EB E0 66 61 65 E4 
+
+66 E4 EC 66 E0 EF E0 E4 EB E6 ED 67 EC 66 61 EA 65 ED E0 
+\end{verbatim}
+Sachant que l'auteur dont le prénom est JEAN CHRISTOPHE, termine toujours ses messages par son nom, déchiffrer le message ci-dessus.
+
+\end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+\begin{enumerate}
+
+\item Le chiffré c'est 10111111: étape étape:
+\begin{itemize}
+\item Message clair :11000001
+\item Apres S-boxes : 01101000
+\item Apres permutation : 01110000
+\item Apres XOR avec $K_1$ : 10110000
+\item Apres S-boxes : 11011010
+\item Apres permutation : 10111100
+\item Chiffre final (Apres XOR avec $K_2$)  : 10111111
+\end{itemize}
+
+
+\item Le déchiffré c'est 11010100 obtenu étape par étape comme suit:
+\begin{itemize}
+\item Message chifrre : 00111010
+\item XOR avec $K_2$ : 00111001
+\item permutation inverse: 01001110
+\item S-boxes inverse : 11011000
+\item XOR avec $K_1$ :  00011000
+\item permutation inverse: 01000010
+\item  S-boxes inverse  (donne le clair) :  11010100
+
+\end{itemize}
+
+%\item On remarque que l'IV est égale au message clair de la question 1, donc son chiffré est 10111111. Le premier bloc du message clair c'est 
+%$10111111 XOR 11010100 = 01101011,$
+%On remarque ensuite que le premier bloc du chiffré est égal au déchiffré de la question 2, donc son chiffré est 00111010. On obtient  deuxieme bloc du messsage clair 
+%$00111010 XOR 10111101 = 10000111$
+
+\item On fait correspondre au derniere lettre les lettre de la signature ``jean christophe''. Comme on utilise le mode ECB une lettre est toujours chiffré de la meme manière quelle que soit sa place dans le message. Donc on peut déchiffrer chaque lettre ayant meme chiffré que la signature on obtient :
+\begin{verbatim}
+ C  R  ?  P  T  E  R  C  E  T  T  E  P  H  R  A  S  E  N  E  S  T  P  A
+E6 67 6C 65 61 E0 67 E6 E0 61 61 E0 65 ED 67 E4 66 E0 EB E0 66 61 65 E4 
+
+ S  A  I  S  E  J  E  A  N  C  H  R  I  S  T  O  P  H  E
+66 E4 EC 66 E0 EF E0 E4 EB E6 ED 67 EC 66 61 EA 65 ED E0 
+\end{verbatim}
+
+\end{enumerate}
+\end{correction}
+
+
+
+\begin{exercice}
+\begin{enumerate}%4897 ,
+\item Bob  a publié sa clef publique RSA $N= 31921$  et l'exposant public $k=9$. Parmi les couples de message/signature $m,s$ suivants lesquels ont une signature valide de Bob:
+$$
+\begin{array}{l}
+m=8,s=14072 \\%14072
+m=11,s=28015 \\ %s=28015\\
+\end{array}
+$$
+ 
+\item  On va voir maintenant que La connaissance $\phi(N)$ permet de factoriser $N$. On considère $N=pq$ un produit de deux grands entiers premiers $q$ et $q$.
+  \begin{enumerate}    
+  \item Soit $ \phi(N) = (p-1)(q-1)$ vérifiez que $p$ et $q$ sont racines de l'équation du second degré en $X$ suivante:
+$$ X^2 + (\phi(N)-N-1) X + N = 0. $$ 
+    
+  \item Pour
+    $$
+    \begin{array}{rl}
+N=& 3414860012222657306893040179799789634006543636882092316116250137597878520445 \\
+&7582601554419688829117118438620862292315404726655753908262720280890095142596195 \\
+&3289940592955609358183753724046462882762678631859945307235507938544631020116980 \\
+&821058629553650809989054944724012051401563491233147348016359571729959687, \\[2mm]
+\phi(N)=& 3414860012222657306893040179799789634006543636882092316116250137597878520445758 \\
+&2601554419688829117118438620862292315404726655753908262720280890095142596060805 \\
+&5807221300902864264069721211842517330748858273371957313643940462034144643186237 \\
+&331780631833247153833062479324728576441721962699178775740870600420656 \\
+    \end{array}
+    $$
+    (qui sont de tailles $\cong$ 1024 bits donc pas factorisable) calculez les facteurs  $p$ et $q$ de $N$ dans ce cas. Pour faire des calcul avec de grandes précisions vous pouvez le faire en python:
+    avec la bibliothèque decimal: par exemple calcul de racine avec une précision 100
+\begin{verbatim}
+  >>> from decimal import *
+  >>> getcontext().prec = 100
+  >>> Decimal(1203120321942342342423423).sqrt()
+  Decimal('1096868415965.35285706604873901598163585327921144187806066097904498634
+  0264919094330599368309811625348')
+\end{verbatim}
+
+    
+  \end{enumerate}
+\end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+  \begin{enumerate}
+    \item On calcule $s^k \mod N$ et on doit retrouver $m$. 
+\begin{itemize}
+\item Pour la première signature on a :
+  $$14072^9 \mod 31921 = 8 $$
+  donc c'est bien égal à $m$ et la signature est valide.
+  
+\item  Pour la seconde signature on procède de la même manière :
+
+$$20015^9 \mod 31921 = 3595 $$ 
+qui est différent de $m=11$ donc la deuxieme signature n'est pas valide.
+\end{itemize}
+    \begin{enumerate}
+    \item On remplace remplace  $X$ par $p$ (pour $q$ c'est la même chose)  et $N$ et $\phi(N)$ par leur expressions en termes de $q$ et $q$:
+      $$
+\begin{array}{rcl}
+  p^2  + (\phi(N)-N-1) p + N &=& p^2 + ((p-1)(q-1)-pq-1) \times p + p \times q \\
+  &=& p^2 + ( (pq-p-q+1) -pq-1) \times p + p \times q \\
+  &=& p^2 -p^2 -pq + pq = 0
+\end{array}
+$$
+   \item L'expression des racines d'une equation $X^2+bX+c=0$ en fonction de $b$ et $c$ (et $\Delta=b^2-4c$):
+$$
+\begin{array}{rcl}
+p&=& (-b+\sqrt{\Delta})/2 \\
+q&=& (-b-\sqrt{\Delta})/2
+\end{array}
+$$
+Ici $b=\phi(N)-N-1$ et  $\Delta = (\phi(N)-N-1)^2 - 4 N$, on remplace $\phi(N)$ et $N$ par leurs valeurs  et le calcul avec python de $p$ $q$ donne:
+\begin{small}
+\begin{verbatim}
+>>> N = 341486001222265730689304017979978963400654363688209231611625013759787852044575
+82601554419688829117118438620862292315404726655753908262720280890095142596195328994059
+29556093581837537240464628827626786318599453072355079385446310201169808210586295536508
+09989054944724012051401563491233147348016359571729959687
+>>>phiN = 3414860012222657306893040179799789634006543636882092316116250137597878520445
+75826015544196888291171184386208622923154047266557539082627202808900951425960608055807
+22130090286426406972121184251733074885827337195731364394046203414464318623733178063183
+3247153833062479324728576441721962699178775740870600420656
+>>> Delta=(phiN-N-1)**2-4*N
+>>> Delta
+44371086869912396011234618070154013267206393792867075259149220422225925969475099841527
+81287880799336638945295911253167956118122779715651136063804929231924100884481413958742
+09179669951735015674363993408030435461408884063422187515479985861514158579749192174190
+821679633826223702736437541852168616937891658276
+>>> getcontext().prec = 2500
+>>> Decimal(Delta).sqrt()
+Decimal('66611625764510804357698013127295678408010793110092818536526934426428453485123
+7930116762431022376111452583614025357733842032313570986606325629059254423674')
+>>> x1=(phiN-N-1-666116257645108043576980131272956784080107931100928185365269344264284
+534851237930116762431022376111452583614025357733842032313570986606325629059254423674)//2
+>>> x2=(phiN-N-1+666116257645108043576980131272956784080107931100928185365269344264284
+534851237930116762431022376111452583614025357733842032313570986606325629059254423674)//2
+>>> x1
+-1005675195508381375035449907637895702222769930437257379357595604131183565863355862350
+244639972096837143902748135022528333577041420717387783123880191981353
+>>> x2
+-3395589378632733314584697763649389181426619993363291939923262598668990310121179322334
+82208949720725691319134109664794491544727849730781457494820937557679
+>>> N-x1*x2
+0
+\end{verbatim}
+\end{small}
+Donc finalement : 
+$$
+\begin{array}{rcl}
+  p &=& 100567519550838137503544990763789570222276993043725737935759560413118356586335586 \\
+   &&      2350244639972096837143902748135022528333577041420717387783123880191981353 \\
+  q &=&   339558937863273331458469776364938918142661999336329193992326259866899031012117932 \\
+    &&     233482208949720725691319134109664794491544727849730781457494820937557679 \\
+\end{array}
+$$
+  
+\end{enumerate}
+\end{enumerate}
+\end{correction}
+
+
+
+\begin{exercice}
+  \begin{enumerate}
+  \item Donnez un code bash qui inverse les ``mots'' d'une phrase/ligne (un mot  est constitué d'une séquence de caractères différents du caractère espace).
+  \item Donnez un script bash \verb|ajout-diese-b.sh| qui prend un nom de fichier en paramètre et affiche sur la sortie standard les lignes du fichier une à une en ajoutant un \verb|#0| ou   \verb|#1| en fin de ligne (ici 0 ou 1 sont tirés aléatoirement pour chaque ligne). Voici un exemple d'exécution :
+    
+\begin{terminal}
+\begin{verbatim}
+clegrand@pc:~$ cat fichier.txt 
+ligne1
+ligne2
+ligne3
+ligne4
+clegrand@pc:~$ ./ajout-diese-b.sh fichier.txt 
+ligne1#0
+ligne2#0
+ligne3#0
+ligne4#1
+\end{verbatim}
+\end{terminal}
+    
+
+ Rappel/indication: la variable \verb|$RANDOM| permet de tirer un entier aléatoirement.
+\item Donnez un script qui prend en paramètre un fichier et pour chaque ligne
+  \begin{itemize}
+  \item il tire aléatoirement $b \in \{0,1\}$
+   \item si $b=1$ il renverse l'ordre des mots de la ligne et ajoute $\#1$ à la fin de la ligne.
+    \item si $b=0$ il conserve l'ordre des mots et ajoute $\#0$ à la fin de la ligne.
+  \end{itemize}
+  Les lignes sont écrites sur la sortie standard.
+\item Donnez un script qui restaure un fichier qui a été modifié comme dans la question précédente : il enlève les $\#0$ et les $\#1$ et remet les mots dans l'ordre initial.
+
+  Indication : vous pourrez utiliser la commande \verb|cut| avec l'option \verb|-c| pour sélectionner des caractères consécutifs d'une ligne. Par exemple ci-dessous on sélectionne les caractère 2,3 et 4 de ``coucou'':
+\begin{terminal}
+\begin{verbatim}
+clegrand@pc:~$ echo "coucou" | cut -c 2-4 
+ouc
+\end{verbatim}
+\end{terminal}
+
+\item  Ecrivez un virus en script bash qui se propage comme suit:
+\begin{itemize}
+\item Il infecte les fichiers exécutables  du répertoire courant qui contiennent le terme ``echo''.
+\item Il infecte par ajout de code à la fin. 
+\end{itemize}
+%\item Modifiez votre virus afin qu'il choisisse d'infecter de façon aléatoire : soit le répertoire courant, soit un des sous-répertoire éventuel.
+\item Modifez le virus de la question 5) afin que pour chaque ligne virale à insérer il tire aléatoire $b \in \{0,1\}$ si $b=0$ il copie la ligne sans la modifier, si $b=1$  il renverse l'ordre des ``mots'' comme traité dans la question 3).
+\end{enumerate}
+\end{exercice}
+
+\end{document}
+
+\begin{correction}
+Les  solutions proposées (il y a d'autres approches possibles) sont données dans les fichiers sur le moodle (sauf pour le 5. et le 6.). 
+\end{correction}
+
+

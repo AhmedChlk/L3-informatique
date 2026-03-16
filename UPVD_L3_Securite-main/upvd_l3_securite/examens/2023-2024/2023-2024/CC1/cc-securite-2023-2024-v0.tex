@@ -1,0 +1,326 @@
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+
+\newtheorem*{correction}{Correction}
+%\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problème}
+\newtheorem*{cout}{Coût}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+\definecolor{shadecolor}{RGB}{110,110,110}
+
+
+
+\newenvironment{terminal}{\color{white}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+ \hfill C. Legrand \\
+
+\begin{center}
+{  {\scshape \large CC1 de  S\'ecurit\'e}  \\
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  \item Durée : 3h00. 
+\item Seuls les documents fournis sont autorisés.
+\item Pour les exercices  2 et 3 vous rendrez, au choix une copie papier ou numérique. Pour l'exercice 1 vous rendrez votre code C sous format numériques. Le fichier doit contenir votre nom. 
+\end{itemize}
+
+\begin{exercice}
+  \noindent \textbf{Objectifs :}  Implanter le chiffrement/déchiffrement Enigma et monter une attaque basée sur l'indice de coincidence. Le schéma du chiffrement Enigma est décrit dans la figure ci-dessous.
+
+  \begin{center}
+    \includegraphics[width=10cm]{enigma.png}
+    \end{center}
+  
+  \begin{itemize}
+  \item Tableau de connexion : il y a 6 connexions qui permettent d'échanger des lettres (par exemple si une connexion entre $C$ et $N$ alors $C$ est substitué par $N$ et $N$ substitué par $C$). 
+  \item Le réflecteur échange les lettres en miroir: $A \leftrightarrow Z$, $B \leftrightarrow Y$, ...
+    \item Les rotorts sont des substitutions de l'alphabet. Mais ils sont tournés d'un cran (à chaque tour pour le premier rotor, tous les 26 tours pour le second et tous les 26*26 tours pour le troisième).
+  \end{itemize}
+  
+
+
+\noindent Le squelette du programme C à compléter est dans le fichier \verb|tp-enigma.c|  sur le moodle du cours.
+
+\begin{enumerate}
+\item \textbf{Chiffrement Enigma. }
+\begin{enumerate}
+\item La clef est donnée par la structure suivante
+\begin{verbatim}
+struct key{
+  int pos[3]; // 3 entiers dans 0..25 qui donnent les positions initiales
+             // des rotors RI,RII,RIII
+  int connecteur[6][2]; // les 6  connecteurs : 
+                        // la lettre connecteur[i][0] est échangée
+                        // avec  la lettre connecteur[i][1]
+};
+\end{verbatim}
+
+\item Les trois rotors et le réflecteur sont donnés par les tableaux suivants :
+\begin{small}
+\begin{verbatim}
+// RI
+int RI[26]={9,6,3,16,14,23,20,18,2,0,12,8,5,17,21,19,15,13,4,22,10,1,11,25,24,7};
+int inv_RI[26]={9,21,8,2,18,12,1,25,11,0,20,22,10,17,4,16,3,13,7,15,6,14,19,5,24,23};
+// RII
+int RII[26]={13,19,25,15,18,5,1,14,10,12,22,17,2,9,3,8,21,11,0,4,24,20,23,7,6,16};
+int inv_RII[26]={18,6,12,14,19,5,24,23,15,13,8,17,9,0,7,3,25,11,4,1,21,16,10,22,20,2};
+// RIII
+int RIII[26]={9,21,8,20,1,7,19,2,3,24,0,10,4,16,25,15,14,18,6,23,13,17,12,22,5,11};
+int inv_RIII[26]={10,4,7,8,12,24,18,5,2,0,11,25,22,20,16,15,13,21,17,6,3,1,23,19,9,14};
+// reflecteur
+int reflecteur[26]={24,17,20,7,16,18,11,3,15,23,13,6,14,10,12,8,4,1,5,25,2,22,21,9,0,19};
+\end{verbatim}
+\end{small}
+substituer une lettre \texttt{c} (entier dans 0,..25) par \verb|RI| consiste à calculer \verb|u=RI[c]|.
+\item  Compléter la fonction \texttt{chiffrement} pour que pour la $i$-ème lettre  du message clair, on applique successivement:
+\begin{itemize}
+\item Les connecteurs.
+\item  Les trois rotors \texttt{RI,RII} et \texttt{RIII} dans les bonnes positions.
+\item  Le réflecteur.
+\item Les trois rotors \texttt{invRIII,invRII} et \texttt{invRI} dans les bonnes positions.
+\item Les connecteurs.
+\end{itemize}
+\end{enumerate}
+\item \textbf{Analyse d'Enigma. } On a un message $C$ chiffré avec Enigma (vous le génèrerez avec la question 1 dans un premier temps). On admet le résultat suivant: si l'on déchiffrement un message avec 
+\begin{itemize}
+\item les rotors bien positionnés ,
+\item sans connecteurs en début et en fin de chiffrement.
+\end{itemize}
+alors la fréquence des lettres du message $M'$ obtenu est le suivant :
+\begin{equation}
+  \label{eq:frequence-enigma}
+g_i = \left( \frac{12}{26}\times \frac{1}{26}+\frac{14}{26}\times f_i\right) \mbox{ pour } i \in\{0,1,\ldots,25\}
+\end{equation}
+où $f_i$ est la fréquence de la lettre $i$ en fran\c cais.  Les  $f_i$ se déduisent du tableau ci-dessous donnant les pourcentages:
+\begin{verbatim}
+double pourcentages_francais[26]={9.42, 1.02, 2.64, 3.39, 15.87, 0.95, 
+1.04, 0.77, 8.41, 0.89, 0.00, 5.34, 3.24, 7.15, 5.14, 2.86, 1.06,
+ 6.46, 7.90, 7.26, 6.24,  2.15, 0.00, 0.30, 0.24, 0.32};
+\end{verbatim}
+Si les rotors sont mal positionnés les fréquences des lettre du message $M'$ seront tous plus ou moins égale à $1/26$. 
+\begin{enumerate}
+\item Fonction \texttt{indice\_confiance} : cette fonction prend un message (char *) en paramettre et calcule : 
+\begin{itemize}
+\item Les fréquences $f'_i$ d'apparition dans le message M' pour chaque lettre de l'alphabet $i=0,\ldots,25$.
+\item Calcule et renvoie le réél (\texttt{double}) suivant : 
+  $$IndConf=\left|(\sum_{i=0}^{25} (f'_i\times 100)^2) -(\sum_{i=0}^{25} (g_i\times 100)^2)\right|$$
+  où $g_i$ est donné par~\eqref{eq:frequence-enigma}. Remarque : ici pour des raisons de précision de calcul il vaut mieux faire des calcul avec des pourcentages.
+\end{itemize}
+ \item Fonction \texttt{analyse} : prend un message chiffré. Et pour toutes les positions des trois rotors, 
+ \begin{itemize}
+\item il déchiffre le message C (juste avec les rotors positionnés et sans connecteurs) et calcule  l'indice de confiance à partir du message M' obtenu.
+\item il se souvient de la position des rotors qui donne l'indice de confiance le plus faible.
+ \end{itemize}
+ \item vous tezrez l'attaque et vérifierez si les positions des rotors trouvées sont les bonnes (celles que vous avez utilisées pour chiffrer votre message).
+\end{enumerate}
+\end{enumerate}
+\end{exercice}
+
+
+
+
+\begin{exercice}[Cryptographie \`a clef publique (5 points)]
+Supposons que l'administrateur système dans une organisation donne le même modulo RSA (par simplicité) à tous les utilisateurs et  génère des exposants publiques et privés pour chaque utilisateur. Nous allons voir  que  c'est une faille de sécurité.
+\smallskip
+
+ Soient deux utilisateurs Bob et Bernard qui ont pour clef publique $N,e_1$ et $N,e_2$, respectivement. Supposons qu'en plus $\mbox{pgcd} (e_1,e_2) = 1$.  Supposons qu'Alice communique de fa\c con confidentielle le même message $m$ à Bob et Bernard:
+\begin{itemize}
+\item Alice chiffre $m$ en $c_1$ avec la clef publique RSA de Bob. Elle l'envoie ensuite à Bob.
+\item Alice chiffre $m$ en $c_2$ avec la clef publique RSA de Bernard. Elle l'envoie ensuite à Bernard. 
+  %$c_1 = m^{e_1}\mod N$ et l'envoie à Bob.
+%\item Alice chiffre %$ c_2 = m^{e_2} \mod N$ et l'envoie à Bernard. 
+\end{itemize}
+
+
+ Répondre aux questions suivantes.
+\begin{enumerate}
+\item On se place ici dans le cas où $e_1 = 7 ,e_2 = 17 $ et $N= 5293 $. Choisir un message $m$ quelconque et calculer $c_1$ et $c_2$ le chiffré de $m$ suivant $e_1$ et $e_2$ respectivement. % Vous utiliserez la méthode d'exponentiation rapide et détaillerez vos calculs.
+\item Déterminer $u_1$ et $u_2$  (relation de Bezout) pour $e_1 = 7 $ et $e_2 = 17 $ tels que 
+$$u_1 e_1 + u_2 e_2 = 1. $$
+\item En utilisant la question 2  expliquer ce que vaut $(c_1^{u_1} \times c_2^{u_2}) \mod N$ (Indication:  remplacer $c_i$ par son expression en fonction de $m$ et $e_i$).
+\item On suppose maintenant que Bob et Bernard ont système RSA qui est robuste (i.e., $N \geq 2^{1024}$) mais on tous deux le même module commun et des exposants satisfaisant $\mbox{pgcd} (e_1,e_2) = 1$.  En déduire  que si Eve intercepte $c_1$ et $c_2$, elle peut calculer $m$ même si le système RSA lui-même  est sûr utilisé de fa\c con  individuelle (i.e., Eve peut calculer $m$ même sans avoir la clef privée de Bob ou Bernard ni la décomposition de $N$). 
+%\item Illustrer l'attaque en calculant $m$ quand $N=18721$, $e_1=43,e_2=7717,c_1=12677,c_2 = 14702
+\end{enumerate}
+\end{exercice}
+
+\begin{correction}
+\begin{enumerate}
+\item On a l'expression binaire des exposants : $e_1=2^0+2^1+2^2$ et $e_2=2^0+2^{4}$, on choisi $m=4$, et on cacule les carrés successifs de $m$
+$$
+ \begin{array}{rcl}
+m^{2^0} \mod N &=& m = 4 \\ 
+m^{2^1} \mod N &=& m^2 \mod N = 16 \\ 
+m^{2^2} \mod N &=& (m^2)^2 \mod N = 256 \\ 
+m^{2^3} \mod N &=& (m^4)^2 \mod N = 465536 \mod 5293 = 2020  \\ 
+m^{2^3} \mod N &=& (m^4)^2 \mod N = (2020^2) \mod 5293 = 4790  \\ 
+\end{array}
+$$
+On calcule ensuite :
+$$
+\begin{array}{rcl}
+c_1 &=&m^{e_1} = m^{2^0} \times m^{2^1} \times m^{2^2} \mod N = \overbrace{4 \times  16}^{=32} \times  256 \mod 5293 = 2899 \\
+c_2&=& m^{e_2} = m^{2^0} \times m^{2^4} \mod N = 4 \times 4790 \mod 5293 = 3281 \\
+\end{array}
+$$
+\item On applique Euclide étendu : 
+$$
+\begin{array}{ccccc}
+u_0 = 1 & v_0 = 0 & r_0 = 17      & \mbox{ satisfont }  &  u_0e_1+v_0e_2=r_0,  \\
+u_1 = 0 & v_1 = 1 & r_1 = 7       & \mbox{ satisfont }  &  u_1e_1+v_1e_2=r_1, \\
+u_2 = 1 & v_2 = -2 & r_2 = 3      & \mbox{ satisfont }  &  u_2e_1+v_2e_2=r_2,  \\
+u_3 = -2 & v_3 = 5 & r_3 = 1      & \mbox{ satisfont }  &  u_3e_1+v_3e_2=r_3,  \\
+u_4 =  7 & v_3 = -17  & r_4 = 0   & \mbox{ satisfont }  &  u_3e_1+v_4e_2=r_4.  \\
+\end{array}
+$$
+Donc la relation de Bezout cherchée est :
+$$-2 \times 17 + 5 \times 7 = 1. $$
+\item On a
+$$
+\begin{array}{rcl}
+c_1^{u_1} \times c_2^{u_2} \mod N &=& (m^{e_1})^{u_1} \times (m^{e_2})^{u_2} \mod  N \\
+               &=& (m^{e_1u_1 + e_2u_2} \mod  N \\
+               &=& m^1 \mod N = m
+\end{array}
+$$
+Donc $c_1^{u_1} \times c_2^{u_2} \mod N = m$.
+\item Si Eve connait $e_1$ et $e_2$ satisfaisant pgcd$(e_1,e_2)=1$ alors il existe une relation de Bezout comme suit:
+                $$u_1 e_1+ u_2e_2=1$$
+et cette relation de Bezout peut être calculée en temps polynomial avec l'algorithme d'Euclide étendu.  Si Eve intercepte le chiffré $c_1$ et $c_2$ d' un même message $m$ elle peut retrouver ce message en calculant:
+$$c_1^{u_1} \times c_2^{u_2} \mod N = m^{e_1u_1 + e_2u_2} \mod N = m$$
+Donc elle sait dans ce cas déchiffrer RSA sans avoir factorisé $N$. 
+\end{enumerate}
+\end{correction}
+
+
+\begin{exercice}[injection Javascript/SQL]
+  Pour vos tests vous pouvez utiliser la machine virtuelle ubuntu. Pour rappel: login et mot de passe sont \verb|l2info| et la base de données utilisée est aussi nommée \verb|l2info|, pour se connecter à mysql faire dans le terminal \verb|mysql -p l2info| et taper \verb|l2info|). Les pages web et bases de données sont déjà présentes dessus.
+  \begin{enumerate}
+  \item Expliquez comment faire apparaitre une fenetre de type \verb|alert| pour la page \verb|page-image.php| comme dans la capture ci-dessous.
+     \begin{center}
+\includegraphics[width=8cm]{injection-page-image.png}
+      \end{center}.
+  \item La page \verb|page-image-protegee.php| empeche l'injection de la question 1: expliquez comment elle le fait. Proposez une méthode qui contourne cette protection en utilisant l'attribut  \verb|onerror| de la balise IMG pour faire apparaitre la fenetre alert.
+  \item La page \verb|recherche.php| permet de rechercher des titres de livre en entrant un mot clef contenu dans le titre (dans la table Livres). Expliquez  comment faire en sorte d'avoir sur la sortie la totalité de la table Users (comme dans la capture ci-dessous). Notez que vous pouvez si besion, réinitialiser la base de données  avec \verb|bd.sql|
+    \begin{center}
+\includegraphics[width=8cm]{sql-injection-bd-livres.png}
+    \end{center}.
+    \end{enumerate}
+\end{exercice}
+
+
+  \begin{correction}
+
+\begin{enumerate}
+\item \verb| <script> alert() </script>|  réponse vue en cours et en TD.
+
+\item  La page a été sécurisé en remplacant les \verb|<| par des \verb|&lt;| et \verb|>| des \verb|&gt;| rendant impossible d'injecter des balises, en particulier des balise de script.
+  Pour faire l'injection, on met dans l'entree du formulaire
+\begin{verbatim}
+    31.jpg" onerror="alert()" alt="1
+\end{verbatim}
+qui a pour effet de provoquer une erreur avec une image qui n'existe pas,le code pointé par onerror est alors exécuté.
+
+\item Il faut rendre vide la recherche normale sur le titre, en faisant un \verb|AND 0=1|.
+ Puis on fait une union avec un SELECT sur la table Users qui concatene toutes les données de la table Users. 
+On termine par un \verb|#| et un \verb|'| pour fermer le \verb|'| qui suivra dans le code php.
+\begin{verbatim}
+Durant' AND '1'='0' UNION SELECT CONCAT(login,',',passwd,',',email) AS titre FROM Users; # '
+\end{verbatim}
+  \end{enumerate}
+    \end{correction}
+
+
+  
+\end{document}
+
+\begin{correction}
+\begin{enumerate}
+\item Le tableau de connexions de la machine Enigma opère une substitution mono-alphabétique, donc elle ne change pas l'indice de co\" incidence.
+\item On suppose que dans le chiffré chaque caractère apparait avec une fréquence de $1/26$. Il y a 12 lettres qui sont modifiées par les connexions en fin de chiffrement, et 14 lettres qui ne  sont pas modifiées. Autrement dit: en appliquant le dechiffrement sans ces connexions il y aura 6/13 des lettres qui seront mal déchiffrées (et qui se répartiront sur l'ensemble des lettres claires de facon homogène), et par contre $7/13$ seront correctement déchiffrées.
+\item Si on déchiffre avec la bonne configuration des rotors sans connexions on a pour une lettre $i$ "claire" aura pour frequence:
+$$ g_i =\frac{6}{13}\cdot \frac{1}{26} + \frac{7}{13} \cdot f_i$$
+\item On peut calculer l'indice de coincidence, obtenu:
+$$
+\begin{array}{rcl}  
+I&=&\sum_{i=0}^{25} g_i^2 \\
+&=& \sum_{i=0}^{25} \frac{3^2}{ 13^4})+ \frac{2 \cdot 3 \cdot 7 \cdot f_i }{13^3} + \frac{f_i^2}{13^2}  \\
+&=&  \frac{60}{13^3} + \frac{7^2}{13^2} (\sum_{i=0}^{25} f_i^2)\\
+&=& \frac{120}{13^2} I_0 + \frac{7^2}{13^2} I_1 \\
+&=& \frac{120}{169} I_0 + \frac{49}{169} I_1 \\
+\end{array}
+$$
+Ce qui donne $0.51$
+\end{enumerate}
+\end{correction}
+
+\end{document}

@@ -1,0 +1,249 @@
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problème}
+\newtheorem*{cout}{Coût}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+\definecolor{shadecolor}{RGB}{210,210,210}
+
+
+
+\newenvironment{terminal}{\color{black}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+ \hfill C. Legrand \\
+
+\begin{center}
+{  {\scshape \large CC1 de  S\'ecurit\'e Informatique}  \\
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  \item Durée : 2h45. 
+\item Seuls les documents fournis sont autorisés.
+\item Pour les exercices  1  vous rendrez, au choix, une copie papier ou numérique. Pour l'exercice 2 vous rendrez votre code bash sous format numérique. Le fichier doit contenir votre numéro étudiant. 
+\end{itemize}
+
+\begin{exercice}
+ \begin{enumerate}
+ \item On considère le réseau local ci-dessous qui  contient une 50-aines de machines connectées au réseau via un switch et un routeur. L'adresse réseau est 177.12.11.0/24.
+   \begin{center}
+\includegraphics[width=8cm]{reseau-empoisonement.pdf}
+     \end{center}
+
+Un utilisateur malveillant souhaite rendre inaccessible un servuer distant S. Ce serveur n'accepte qu'une 100aines de connexions  TCP simultanées provenant d'adresse différentes. Le serveur a une protection contre l'attaque SYN flooding utilisant : une connexion est ouverte uniquement lors de la reception de l'ACK du client. Proposez une stratégie pour que l'attaquant puisse rendre inopérant le serveur distant. 
+
+\item On considère le réseau ci-dessous interconnecté par des pares-feu. 
+  Dans la Zone2 il y a un serveur web (131.159.20.1) sur TCP (ports 80 et 443) et un serveur de mail (131.159.20.2) sur TCP port 25. Les utilisateurs du réseau se trouve dans la Zone1.
+
+   \begin{center}
+\includegraphics[width=12cm]{parefeu.pdf}
+     \end{center}
+On souhaite mettre en place la politique suivante :
+\begin{itemize}
+\item Les utilisateurs peuvent accéder librement à des services Web, sur le sports 80 et 443, qui se trouvent n'importent où, seulement si c'est eux qui initient la la connexion. Aucune machine extérieur à Zone1 peut initier une connexion avec une machine de la Zone1.
+
+\item Les utiliseurs (Zone1) peuvent accéder aux serveurs de la Zone2 via SSH. Ils peuvent aussi utiliser SSH (port 22) pour  communiquer avec une machine se trouvant sur le \textit{Dangereux Internet}. Cependant, les machines de la Zone2 ne peuvent être contactées sur le port 22 que  par des machines de la Zone1.
+
+\item Tout le monde (inclus le Méchant Internet) peux accéder aux serveur web  et mail  dans la Zone2. Le serveur Web de la Zone 2 doit être accessible en TCP que sur les ports 80 et 443 et le serveur de mail ne doit etre accessible que sur le port 25.
+
+\item Seul le serveur de mail peut initier des connexions vers des serveurs mail situés sur le \textit{Dangereux internet}. 
+
+
+\end{itemize}
+\begin{enumerate}
+\item Donnez les règles du pare-feu \textbf{sans état} pour assurer les règles de sécurité ci-dessus.
+  \item Donnez les règles du pare-feu \textbf{avec état} pour assurer les règles de sécurité ci-dessus.
+\end{enumerate}
+\end{enumerate}
+ \end{exercice}
+
+ \begin{correction}
+%Complétez dans le tableau suivant, les règles du pare-feu permettant de réaliser cette politique.
+%\begin{center}
+%\begin{tabular}{|c|c|c|c|c|c|c|}
+%\hline
+%Règle & IP Source & Port Source & IP Dest. & Port Dest. & Protocole & Action \\
+%\hline
+%& & & & & & \\
+%\hline
+%\end{tabular}
+%\end{center}
+
+
+  \begin{enumerate}
+  \item L'attaquant doit pouvoir répondre aux SYN-ACK qu'il envoie au serveur distant. Il doit donc les recevoirs, il doit donc envoyer des segment SYN avec des adresses IP du réseau local 177.12.11.0/24.
+
+\begin{itemize}
+\item \textit{Choix des adresses.}   Il y a 254 adresses IP utilisables, 50 sont utilisées. Il doit d'abord connaitre les adresses utilisées: il fait 254 ping pour cela. 
+\item \textit{Empoisonnement du cache.} L'attaquant envoie ensuite une à une les  100 segment SYN aux 100  adresses disponibles qu'il a choisies.  Lorsque le routeur recoit un paquet SYN-ACK du routeur à l'un des adresses, il envoie une requete ARP, l'attaquant doit alors répondre à la requête ARP avec son adresse MAC (ou éventuellement une forgée si c'est nécéssaire d'en avoir des différentes). Il recevra les segment SYN-ACK et pourra répondre avec le bon numero d'acquittement au serveur. 
+\end{itemize}
+\item
+\begin{enumerate}
+
+\item Voici les règles de filtrage pour le pare-feu avec état. Notons que pour que les utilisateurs puissent accéder à un service web il faut d'abord qu'il fasse une requete DNS pour avoir l'adresse IP du serveur, donc il doivent avoir la possibilité en plus de 80,443 et 22 de faire des requetes DNS(UDP) sur le port 53(DNS).
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+Règle & IP Source & Port Source & IP Dest. & Port Dest. & Protocole & Action \\
+\hline
+1 & DMZ1 & *  & *  & 80,443 & TCP & autorisé \\
+2 & DMZ1 & *  & *  & 53 & UDP & autorisé \\
+3 & DMZ1 & *  & *  & 22 & TCP & autorisé \\
+4 & DMZ1 & *  & *  & * & * & refusé \\
+5 & *    & *  & DMZ1  & * & * & refusé \\
+\hline
+6 & * & *  & DMZ2 & 80,443,25 & TCP & autorisé \\
+7 &  DMZ2 & *  & Dangereux Internet & 25 &TCP &autorisé \\
+\hline
+8 & * & * & * & * & * & refusé\\
+\hline
+\end{tabular}
+\end{center}
+
+\item Voici les règles pour le pare-feu sans état:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Règle & IP Source & Port Source & IP Dest. & Port Dest. & Protocole & SYN &Action \\
+\hline
+1 & DMZ1 & *  & *  & 53 & UDP & *  &autorisé \\
+2 & DMZ1 & *  & *  & 80,443 & TCP & *  &autorisé \\
+3 & * & 53 & DMZ1 & $>$ 1024 & UDP & *  &autorisé \\
+4 & * & 80,443 & DMZ1 & $>$ 1024 & TCP & No  &autorisé \\
+5 & DMZ1 & *  & *  & 22 & TCP & * & autorisé \\
+6 & * & 22 & DMZ1 & $>$1024 & TCP &  No &autorisé \\
+7 & *  & * & DMZ1 & * & * & * & refusé \\
+8 &  DMZ1 & * & *  &*  & * & * & refusé \\
+\hline
+9 & * & *  & Zone2 & 80,443,25 & TCP & * & autorisé \\
+10 &  Zone2 & 80,443,25 & * & * & TCP & No & autorisé \\
+11 &  Zone2 &  * & * & 25 & TCP & * & autorisé \\
+12 &   * & 25 & Zone2 & * & TCP & No & autorisé \\
+13 & * & * & DMZ2 & * & * & * & refusé\\
+14 & DMZ2 & * & * & * & *  & *  & refusé \\
+\hline
+15 & * & * & * & * & * & * & refusé\\
+\hline
+\end{tabular}
+\end{center}
+\end{enumerate}
+
+\end{enumerate}
+\end{correction}
+
+\begin{exercice}
+  L'objectif de l'exercice est de faire un virus par entrelacement de code caractère par caractère. Vous pouvez utiliser les fichiers fic.txt et quizz.sh pour tester vos scripts. 
+
+  \begin{enumerate}
+  \item On considère le code suivant qui affiche une chaîne de caractères mot à mot:
+\begin{terminal}
+\begin{verbatim}
+  ligne="une petite phrase"
+  for mot in $ligne
+  do
+    echo "$mot"
+  done
+\end{verbatim}
+\end{terminal}
+
+modifier ce script afin d'inverser l'ordre de lettres dans chaque mot. Vous n'utiliserez que les commandes \verb|echo|, \verb|wc|,\verb|head| et \verb|tail| pour manipuler les mots.
+
+\item Faire un script \verb|entrelacement.sh| qui prend en paramètre un fichier \verb|fic|, une chaîne de caractères \verb|str|, et un nom de fichier \verb|fic_out|. Ce script extrait les caractères de \verb|str| un à un et les ajoute un à un à la fin des mots de \verb|fic| et les écrits dans \verb|fic_out|.  Vous avez un exemple de résultat d'exécution ci-dessous.
+\begin{terminal}
+\begin{verbatim}
+clegrand@pc-home:~/virus-cc$ cat fic
+hello it is a nice day
+the sky is blue
+and the sun is rising
+clegrand@pc-home:~/virus-cc$ ./entrelacement.sh fic "abcdefghijkl" fic_out
+fichier=fic, chaine="abcdefghijkl", output=fic_out
+clegrand@pc-home:~/virus-cc$ cat fic_out 
+helloa itb isc ad nicee dayf 
+theg skyh isi bluej 
+andk thel sun is rising 
+\end{verbatim}
+\end{terminal}
+
+  
+\item Faire un script \verb|restauration.sh| qui prend en paramètre un fichier \verb|fic_out| produit avec le script \verb|entrelacement.sh|, un nombre de caractères à extraire \verb|n|, et le nom du fichier de restauration de \verb|fic| \verb|fic_rest|. Le script produit le fichier initial \verb|fic| et affiche la chaine  \verb|str|. 
+
+\item Combinez les script  \verb|entrelacement.sh| et \verb|restauration.sh| pour faire un virus par entrelacement. Les cibles du virus sont les fichiers \verb|.sh| exécutable du répertoire courant. 
+ \item Proposez une méthode de randomisation de la méthode propagation de ce virus.
+  \end{enumerate}
+\end{exercice}
+
+
+\end{document}

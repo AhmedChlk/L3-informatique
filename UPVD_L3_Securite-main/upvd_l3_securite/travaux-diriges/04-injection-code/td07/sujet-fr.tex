@@ -1,0 +1,604 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages ajoutés pour l'enrichissement pédagogique ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% CONFIGURATION LISTINGS %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=PHP,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% ENVIRONNEMENTS TCOLORBOX %%%%%%%%%%%%%%%%%%
+
+% Rappel de cours (fond bleu clair)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Rappel de cours},
+    #1
+}
+
+% Point clé (fond vert clair)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Point clé à retenir},
+    #1
+}
+
+% Attention (fond orange clair)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Attention},
+    #1
+}
+
+% Avertissement éthique (fond rouge)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Avertissement éthique et légal},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large TD7 Sécurité}  \\
+ Injection de code
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Avertissement éthique ---
+\begin{ethique}
+Les techniques présentées dans ce TD sont étudiées dans un \textbf{cadre strictement académique} afin de comprendre les mécanismes utilisés par les attaquants et ainsi pouvoir mieux s'en protéger.
+
+\textbf{Toute utilisation de ces techniques en dehors du cadre pédagogique est illégale} et passible de sanctions pénales (chapitre III du Code pénal, articles 323-1 à 323-8 -- \textit{Des atteintes aux systèmes de traitement automatisé de données}) :
+\begin{itemize}
+    \item Accès ou maintien frauduleux dans un STAD (art.~323-1) : \textbf{3 ans} d'emprisonnement et \textbf{100\,000\,\texteuro{}} d'amende
+    \item Entrave au fonctionnement d'un STAD (art.~323-2) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+    \item Introduction frauduleuse de données dans un STAD (art.~323-3) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+\end{itemize}
+Peines portées à \textbf{7 ans} et \textbf{300\,000\,\texteuro{}} lorsque le système visé traite des données à caractère personnel mis en \oe uvre par l'État, et jusqu'à \textbf{10 ans} et \textbf{300\,000\,\texteuro{}} en bande organisée (art.~323-4-1). \textit{Peines mises à jour par la loi LOPMI n\textsuperscript{o}2023-22 du 24 janvier 2023.}
+\end{ethique}
+
+\bigskip
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!60!black, title={Mise en place avec Docker}]
+Pour ce TD, l'environnement (serveur Apache + PHP + MySQL) est fourni sous forme de conteneurs Docker. Aucune machine virtuelle n'est nécessaire.
+
+\medskip
+\textbf{Prérequis : installer Docker}
+
+\medskip
+\textit{Sous Ubuntu/Debian :}
+\begin{lstlisting}[language=bash,numbers=none]
+# Installation de Docker
+sudo apt update
+sudo apt install -y docker.io docker-compose-v2
+# Ajouter votre utilisateur au groupe docker
+sudo usermod -aG docker $USER
+# Deconnectez-vous puis reconnectez-vous pour
+# que le changement de groupe prenne effet
+\end{lstlisting}
+
+\textit{Sous macOS/Windows :} installer \href{https://www.docker.com/products/docker-desktop/}{Docker Desktop}.
+
+\medskip
+\textbf{Lancement de l'environnement}
+
+\begin{lstlisting}[language=bash,numbers=none]
+# Se placer dans le repertoire du TD
+cd travaux-diriges/04-injection-code/td07/
+
+# Lancer les conteneurs (premiere fois : ~2 min)
+docker compose up -d
+
+# Verifier que tout fonctionne
+docker compose ps
+\end{lstlisting}
+
+Au premier lancement, Docker :
+\begin{itemize}
+    \item construit un conteneur Apache+PHP avec l'extension \texttt{mysqli},
+    \item lance un conteneur MySQL 8.0 avec la base \texttt{l2info},
+    \item charge automatiquement les tables et données depuis \texttt{bd.sql}.
+\end{itemize}
+
+\medskip
+\textbf{Accès aux pages web}
+
+Les fichiers du TD sont accessibles dans le navigateur à l'adresse :
+
+\begin{center}
+\texttt{http://localhost:8080/td7/}
+\end{center}
+
+Par exemple : \texttt{http://localhost:8080/td7/page-5-commentaires.php}
+
+\medskip
+\textbf{Arrêt et nettoyage}
+
+\begin{lstlisting}[language=bash,numbers=none]
+# Arreter les conteneurs (les donnees sont conservees)
+docker compose stop
+
+# Relancer
+docker compose start
+
+# Arreter et supprimer tout (conteneurs + donnees)
+docker compose down -v
+\end{lstlisting}
+
+\medskip
+\begin{attention}
+Dans les fichiers PHP, le serveur MySQL est accessible via le nom d'hôte \texttt{"db"} (le nom du service Docker), et non \texttt{"localhost"}. C'est le fonctionnement normal de Docker : chaque service est un conteneur séparé, identifié par son nom.
+\end{attention}
+
+\end{tcolorbox}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 1 : Manipulation de formulaire HTML
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Manipulation de formulaire HTML]
+
+On considère une application web d'achat en ligne dont le formulaire HTML est le suivant (fichier \texttt{achat-iphone5.html}) :
+
+\begin{lstlisting}[language=HTML]
+<html>
+<body>
+
+<form method="post" action="enregistre-achat.php">
+Produit: iphone5 <br/>
+Prix : 500 euros <br/>
+Quantit&eacute <input type="text" name ="quantite">
+  (Quantite max est 90) <br/>
+<input type="hidden" name="prix" value="500" >
+<input type="submit" value="buy">
+</form>
+
+</body>
+</html>
+\end{lstlisting}
+
+Le script PHP \texttt{enregistre-achat.php} enregistre l'achat en base de données en utilisant les valeurs envoyées par le formulaire.
+
+\begin{enumerate}
+    \item Analysez le formulaire HTML. Identifiez la vulnérabilité liée à la manière dont le prix est transmis au serveur.
+    \item Proposez une méthode pour acheter un iPhone au prix de 5\,\texteuro{} au lieu de 500\,\texteuro{}.
+    \item Proposez une correction côté serveur pour empêcher cette attaque.
+\end{enumerate}
+
+\begin{pointcle}
+Les champs \texttt{hidden} et toute donnée côté client peuvent être modifiés par l'utilisateur. La validation doit toujours se faire côté serveur.
+\end{pointcle}
+
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 2 : Cross-Site Scripting (XSS)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Cross-Site Scripting (XSS)]
+
+\begin{rappel}
+Il existe trois types de XSS :
+\begin{itemize}
+    \item \textbf{XSS réfléchi (reflected)} : le payload est inclus dans la requête (URL, paramètre GET/POST) et renvoyé immédiatement dans la réponse sans être stocké.
+    \item \textbf{XSS stocké (stored)} : le payload est enregistré sur le serveur (base de données, fichier) et affiché à tous les visiteurs ultérieurs de la page.
+    \item \textbf{XSS basé sur le DOM (DOM-based)} : le payload est interprété directement par le JavaScript côté client, sans transiter par le serveur.
+\end{itemize}
+\end{rappel}
+
+\medskip
+
+\textbf{a) XSS stocké -- alerte JavaScript}
+
+\medskip
+
+On considère la page \texttt{page-5-commentaires.php} dont le code est le suivant :
+
+\begin{lstlisting}[language=PHP]
+<html>
+<H1> Computer Security  </H1>
+<IMG src="img_security.jpeg"> Computer security...
+<BR/><hr/>
+<h3> Visitors comments :</h3>
+<?php
+$conn = new mysqli("db", "l2info", "l2info", "l2info");
+if ($conn->connect_error) {
+  die("Connection failed: " . $conn->connect_error);
+}
+
+if( isset($_POST['login']) && isset($_POST['commentaire']) )
+{
+    $sql = 'INSERT INTO Commentaires(login,commentaire)
+      VALUES("' . $_POST['login']. '","'
+      . $_POST['commentaire'].'");';
+    $result0 = $conn->query($sql);
+}
+
+$sql = 'SELECT id,login, commentaire FROM Commentaires
+  ORDER BY id DESC LIMIT 4 ;';
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    echo "<ul>";
+    while($row = $result->fetch_assoc()) {
+        echo "<li>";
+        echo "[" . $row["login"]. "]: "
+          . $row["commentaire"]."<br>";
+        echo "</li>";
+    }
+    echo "</ul>";
+} else {
+    echo "Aucun commentaire.";
+}
+$conn->close();
+?>
+<BR/><hr/><BR/>
+<form name="postcomment" method="POST"
+  action="page-5-commentaires.php">
+Pseudo : <input name="login"> <BR/>
+Commentaire : <input type="text" name="commentaire"><BR/>
+<input type="submit">
+</form>
+</html>
+\end{lstlisting}
+
+\begin{enumerate}
+    \item Expliquez ce que fait cette page.
+    \item Proposez une injection dans le champ commentaire pour qu'un message d'alerte JavaScript s'affiche au chargement de la page.
+\end{enumerate}
+
+\medskip
+
+\textbf{b) XSS stocké -- défacement}
+
+\medskip
+
+En utilisant la même page, injectez du HTML frauduleux pour faire apparaître une fausse section \og Références \fg{} avec un lien vers un site fictif.
+
+\medskip
+
+\textbf{c) XSS réfléchi via GET}
+
+\medskip
+
+On considère le code PHP suivant :
+
+\begin{lstlisting}[language=PHP]
+<html>
+<body>
+<?php
+if( isset($_GET['UserInput'])){
+  $out ='vous avez saisi: "'
+    . $_GET['UserInput'] . '".';
+}
+else {
+  $out = '<form method="GET">
+    saisissez quelque chose ici :';
+  $out .= '<input name="UserInput" size="50">';
+  $out .= '<input type="submit">';
+  $out .= '</form>';
+}
+print $out;
+?>
+</body>
+</html>
+\end{lstlisting}
+
+Soumettez une entrée qui fait apparaître une alerte JavaScript dans le résultat.
+
+\medskip
+
+\textbf{d) XSS réfléchi via POST}
+
+\medskip
+
+On considère maintenant le code suivant :
+
+\begin{lstlisting}[language=PHP]
+<html>
+<body>
+<?php
+if( isset($_POST['UserInput'])){
+  $out ='vous avez saisi: "'
+    . $_POST['UserInput'] . '".';
+}
+else {
+  $out='Aucune donnee transmise au script';
+}
+print $out;
+?>
+</body>
+</html>
+\end{lstlisting}
+
+Construisez une page HTML externe contenant un formulaire POST caché qui soumet automatiquement un payload XSS à cette page.
+
+\medskip
+
+\textbf{e) XSS basé sur le DOM}
+
+\medskip
+
+On considère la page HTML suivante :
+
+\begin{lstlisting}[language=HTML]
+<html>
+<body>
+<div id="welcome"></div>
+<script>
+  var name = document.location.hash.substring(1);
+  document.getElementById("welcome").innerHTML
+    = "Bienvenue " + name;
+</script>
+</body>
+</html>
+\end{lstlisting}
+
+\begin{enumerate}
+    \item Construisez une URL qui exploite cette vulnérabilité pour exécuter du JavaScript.
+    \item Expliquez pourquoi ce type de XSS est plus difficile à détecter côté serveur.
+\end{enumerate}
+
+\begin{attention}
+Le XSS stocké est le plus dangereux car il affecte tous les visiteurs de la page, sans nécessiter de lien piégé.
+\end{attention}
+
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 3 : Injection SQL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Injection SQL]
+
+\begin{rappel}
+\textbf{Différence entre XSS et injection SQL :}
+\begin{itemize}
+    \item Le \textbf{XSS} injecte du code malveillant dans le \textit{navigateur de la victime} (côté client). L'attaque vise les utilisateurs du site.
+    \item L'\textbf{injection SQL} injecte du code malveillant dans la \textit{base de données du serveur} (côté serveur). L'attaque vise directement les données du site.
+\end{itemize}
+\end{rappel}
+
+\medskip
+
+\textbf{a) Analyse du code vulnérable}
+
+\medskip
+
+On considère la page \texttt{page-transaction-sql.php} :
+
+\begin{lstlisting}[language=PHP]
+<html>
+<?php
+$servername = "db";
+$username = "l2info";
+$password = "l2info";
+$dbname = "l2info";
+
+$conn = new mysqli($servername, $username,
+  $password, $dbname);
+if ($conn->connect_error) {
+  die("Connection failed: "
+    . $conn->connect_error);
+}
+echo 'Nom : "' . $_POST['UserInput'].'"<BR/>';
+$sql = 'SELECT montant FROM Transaction WHERE nom="'
+  . $_POST['UserInput']  . '";';
+echo "Requete SQL=" . $sql . "<BR/>";
+$result = $conn->query($sql);
+echo "Resultat:<BR/>";
+if ($result->num_rows > 0) {
+  while($row = $result->fetch_assoc()) {
+    echo "Nom: ". $_POST['UserInput']
+      ." Montant :" . $row["montant"]."<br/>";
+  }
+} else {
+  echo "0 results";
+}
+$conn->close();
+?>
+</html>
+\end{lstlisting}
+
+Et le formulaire \texttt{injection-sql.html} :
+
+\begin{lstlisting}[language=HTML]
+<html>
+<body>
+<form name="exploit-sql" method="POST"
+  action="http://localhost:8080/td7/page-transaction-sql.php">
+<input name="UserInput">
+<input type="submit">
+</form>
+</body>
+</html>
+\end{lstlisting}
+
+\begin{enumerate}
+    \item Expliquez comment la requête SQL est construite. Identifiez la vulnérabilité.
+\end{enumerate}
+
+\medskip
+
+\textbf{b) Afficher toute la table}
+
+\medskip
+
+Proposez une injection pour afficher l'intégralité de la table \texttt{Transaction}. Expliquez pas-à-pas la requête résultante.
+
+\medskip
+
+\textbf{c) Tentative de DROP TABLE}
+
+\medskip
+
+Tentez de supprimer la table \texttt{Test} par injection SQL. Expliquez pourquoi cela peut échouer avec MySQL.
+
+\medskip
+
+\textbf{d) UNION-based}
+
+\medskip
+
+Extraire les données de la table \texttt{Test} (colonne \texttt{val}) via une injection \texttt{UNION SELECT}.
+
+\textit{Indice :} commencez par déterminer le nombre de colonnes du \texttt{SELECT} original en utilisant \texttt{ORDER BY 1}, \texttt{ORDER BY 2}, etc. jusqu'à obtenir une erreur. Puis construisez le \texttt{UNION SELECT} avec le bon nombre de colonnes.
+
+\medskip
+
+\textbf{e) Réflexion sur le blind SQL}
+
+\medskip
+
+On suppose maintenant que la page n'affiche plus les résultats de la requête mais seulement \og Transaction trouvée \fg{} ou \og Aucune transaction \fg{}.
+
+\begin{enumerate}
+    \item Comment pourrait-on déterminer si la version de MySQL est 5.x ? (concept \textit{boolean-based blind SQL injection})
+    \item Quel serait le principe pour extraire des données caractère par caractère ?
+\end{enumerate}
+
+\begin{pointcle}
+L'injection SQL fonctionne car la requête mélange code SQL et données utilisateur dans une même chaîne. La solution est de les séparer avec des \textbf{requêtes préparées} (\textit{prepared statements}).
+\end{pointcle}
+
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 4 : Contre-mesures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Contre-mesures]
+
+\textbf{a) Corriger le XSS}
+
+\medskip
+
+Modifiez le code de \texttt{page-5-commentaires.php} pour empêcher l'injection XSS. Quelle fonction PHP permet d'échapper les caractères spéciaux HTML ? Donnez le code corrigé de la ligne d'affichage des commentaires.
+
+\medskip
+
+\textbf{b) Corriger l'injection SQL}
+
+\medskip
+
+Réécrivez \texttt{page-transaction-sql.php} en utilisant des requêtes préparées PDO au lieu de la concaténation avec \texttt{mysqli}. Donnez le code complet corrigé.
+
+\medskip
+
+\textbf{c) Défenses complémentaires}
+
+\begin{enumerate}
+    \item Qu'est-ce que le header HTTP \texttt{Content-Security-Policy} et comment protège-t-il contre le XSS ?
+    \item Qu'est-ce qu'un cookie \texttt{HttpOnly} et pourquoi est-ce utile ?
+    \item Pourquoi le principe du moindre privilège est-il important pour la base de données ?
+\end{enumerate}
+
+\begin{pointcle}
+La défense en profondeur combine plusieurs mécanismes : échappement en sortie, requêtes préparées, CSP, cookies \texttt{HttpOnly}, validation des entrées.
+\end{pointcle}
+
+\end{exercice}
+
+
+\end{document}

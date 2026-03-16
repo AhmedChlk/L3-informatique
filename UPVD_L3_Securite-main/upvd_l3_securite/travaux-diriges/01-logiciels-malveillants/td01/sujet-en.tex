@@ -1,0 +1,189 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{color}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{ Algorithm }
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Theorem}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercise}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Lab Work 1 - Security \\ Malware}  \\
+ %Généralité
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\begin{exercice}
+\begin{enumerate}
+\item To what extent are worms more dangerous than viruses?
+\item Some worms that spread over the Internet do not cause any damage to infected machines. Why are they still harmful?
+\item Name two techniques that allow viruses to evade detection by antivirus software.
+\end{enumerate}
+\end{exercice}
+
+
+
+\begin{exercice}
+Consider the following program (in C language)
+\begin{verbatim}
+//... includes omitted
+int main(int argc, char **argv)
+{
+  if(argc >= 1)
+    {
+       system("cp argv[0] argv[1]");
+    }
+}
+\end{verbatim}
+Is this a virus?
+\end{exercice}
+
+
+\begin{exercice}
+In this exercise, we consider a variant of the W32/Beagle worm. This worm spreads as an email containing an attachment that is both compressed and encrypted. The password to decrypt the file is included in the message body. If the victim executes the file obtained after decompression using the provided password (which is an \texttt{.exe} file), the worm propagates by selecting its next victim from the current victim's address book.
+
+Why is the compressed file encrypted if the password is provided in the message?
+
+\end{exercice}
+
+
+%\begin{exercice}
+%\'Ecrire un virus par écrasement de code (en Langage C, ou en un langage de script). Imaginer une/des stratégie pour que la taille du fichier infecté ne change pas.
+%\end{exercice}
+
+
+\begin{exercice}
+Here is a description of the \texttt{Kork} malware
+\begin{verbatim}
+Kork
+ALIAS:	Linux/Kork, Unix/Kork,
+
+Kork  uses the known vulnerability in lpd service to propagate from a vulnerable
+Linux system to another. This service is part of the default installation of Red
+Hat Linux 7.0.
+
+VARIANT:	Kork.A
+If Kork.A finds a vulnerable host, it first creates two users, "kork" and "kork2",
+to the system without a password. "kork2" user has a root priviledge. Kork also
+adds an open shell to port 666.
+
+Next it attempts to download a trojanized login and the main part of the trojan
+from a web site. Since April 26th, 2001, neither of these files are available, so
+it cannot replicate any further. However, already infected machines are able to
+compromise other vulnerable machines by adding an open shell and users to the
+system.
+
+If the download is completed, Kork install an infected "/bin/login" and "/bin/ps"
+to the system. It attemps to send sensitive system data propably to the author of
+Kork. Original "/bin/ps" is copied to "/usr/bin/.ps" and the original "/bin/login"
+is copied to "/bin/.login". Finally Kork starts to scan random Class-B subnets for
+vulnerable hosts.
+\end{verbatim}
+
+\begin{enumerate}
+\item What type of malware is Kork (logic bomb, Trojan horse, etc.)?
+\item What are the potential targets of this malware? Briefly evaluate its impact.
+\end{enumerate}
+\end{exercice}
+
+\begin{exercice}
+Consider a report about a malicious executable named \texttt{Staog}.
+\begin{verbatim}
+NAME: Staog
+SIZE: 4744
+
+Staog spreads only under Linux operating system, infecting
+Elf-style executables.Its first appearance was  in the fall of 1996,
+
+Staog is written in assembler. It attempts to stay resident and
+infect binaries as they are executed by any user. Stoag tries to
+subvert root access via three known vulnerabilities (mount buffer
+overflow, tip buffer overflow and one suidperl bug).
+
+Staog contains several text strings, including:
+
+Staog by Quantum / VLAD
+/dev/kmemx/etc/mtab~
+/sbin/mount
+/tmp/t.dip
+/bin/sh
+/sbin/dip /tmp/t.dip
+chatkey
+/tmp/hs
+#!/bin/sh\nchmod 666 /dev/kmem\n/tmp/hs
+#!/usr/bin/suidperl -U\n$ENV{PATH}=\"/bin:/usr/bin\";
+\n$>=0;$<=0;\nexec(\"chmod 666 /dev/kmem\");\n
+
+
+Staog can be detected by searching all binaries for the following hex
+search string:
+
+215B31C966B9FF0131C0884309884314B00FCD80
+
+Staog is not known to be in the wild at the time of this writing
+(February 1997).
+\end{verbatim}
+
+\begin{enumerate}
+\item What type of malware is Staog (logic bomb, Trojan horse, etc.)?
+\item What are its potential targets and mode of operation? Briefly evaluate its impact.
+\item What is its stealth strategy and its weakness?
+\end{enumerate}
+
+\end{exercice}
+
+\end{document}

@@ -1,0 +1,30 @@
+
+// récupérer les caractère 3 
+echo ${param:3:4}
+param="abcdefgh"
+
+vir=$(cat -E texte.txt)
+
+while [ $i -le $l ]
+do
+ligne=$(cat $fichier | head -n $i |  tail -n 1)
+echo "ligne=$ligne"
+for mot in $ligne
+do
+#cf=$(echo $mot | wc -c )    
+#cd=$(($cf-1))
+#echo  -n "$mot $cd,$cf "
+#c=$(echo -n "$mot" | cut -c $cd-$cf)
+#echo "$mot$chaine{$j,1} "
+echo "j=$j n=$n"
+if [ $j -lt $n ]
+then
+echo "$mot$chaine{$j,1} "
+else
+echo "$mot "
+fi
+j=$(($j+1))
+done
+i=$(($i+1))
+done
+    

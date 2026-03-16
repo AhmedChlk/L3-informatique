@@ -1,0 +1,4 @@
+le virus contenu dans virus1.sh combine restaurer1.sh et code-viral.sh:
+-> restaurer1.sh est une modification de restaurer.sh de la question 2
+-> code-viral fait une boucle sur les fichiers .sh du repertoire courant, ajoute le code de retauration, puis le code viral entrelacer avec le code cible.
+J'ai laisser quelques affichages de debug, mais il pourrait etre facilement désactivé 

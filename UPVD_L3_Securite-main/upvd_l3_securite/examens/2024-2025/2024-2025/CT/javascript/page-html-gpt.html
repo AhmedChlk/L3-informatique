@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galerie d'Images et Commentaires</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .image-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .image-item {
+            width: 30%;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .image-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .comments-section {
+            margin-top: 30px;
+        }
+        .comment {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .comment .user-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .comment .comment-text {
+            margin-top: 5px;
+            font-size: 16px;
+            color: #555;
+        }
+        .add-comment {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .add-comment textarea {
+            padding: 10px;
+            font-size: 16px;
+            resize: none;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            width: 100%;
+        }
+        .add-comment button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .add-comment button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Galerie d'Images et Commentaires</h1>
+    <div class="image-container">
+        <!-- Image 1 -->
+        <div class="image-item">
+            <img src="https://via.placeholder.com/300x200" alt="Image 1">
+            <div class="comments-section">
+                <div class="comment">
+                    <span class="user-name">Alice</span>
+                    <p class="comment-text">Superbe photo ! J'adore la lumière.</p>
+                </div>
+                <div class="comment">
+                    <span class="user-name">Bob</span>
+                    <p class="comment-text">C'est un endroit incroyable, il faut absolument que j'y aille !</p>
+                </div>
+                <!-- Ajouter un commentaire -->
+                <div class="add-comment">
+                    <textarea rows="3" placeholder="Laissez un commentaire..."></textarea>
+                    <button>Ajouter Commentaire</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 2 -->
+        <div class="image-item">
+            <img src="https://via.placeholder.com/300x200" alt="Image 2">
+            <div class="comments-section">
+                <div class="comment">
+                    <span class="user-name">Jean</span>
+                    <p class="comment-text">Les couleurs sont magnifiques !</p>
+                </div>
+                <div class="comment">
+                    <span class="user-name">Marie</span>
+                    <p class="comment-text">Ça me donne envie de partir en voyage !</p>
+                </div>
+                <!-- Ajouter un commentaire -->
+                <div class="add-comment">
+                    <textarea rows="3" placeholder="Laissez un commentaire..."></textarea>
+                    <button>Ajouter Commentaire</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Image 3 -->
+        <div class="image-item">
+            <img src="https://via.placeholder.com/300x200" alt="Image 3">
+            <div class="comments-section">
+                <div class="comment">
+                    <span class="user-name">Lucas</span>
+                    <p class="comment-text">C'est tellement paisible ici...</p>
+                </div>
+                <div class="comment">
+                    <span class="user-name">Emma</span>
+                    <p class="comment-text">J'aime beaucoup ce paysage, il me rappelle mes vacances.</p>
+                </div>
+                <!-- Ajouter un commentaire -->
+                <div class="add-comment">
+                    <textarea rows="3" placeholder="Laissez un commentaire..."></textarea>
+                    <button>Ajouter Commentaire</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

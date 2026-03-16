@@ -1,0 +1,11 @@
+SYN flooding sur une machine qui prend 128 connexion pour des adresses IP différentes. 
+Requete HTTP dans un reseau local avec un hub
+
+Queques question débilent ? 
+Empoisonnement de cache et NAT. 
+
+Empoisonnement de cache et firewall
+Firewall 
+
+
+Hijaking HTTP. 

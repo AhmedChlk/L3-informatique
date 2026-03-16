@@ -1,0 +1,104 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
+\hypersetup{colorlinks=true, linkcolor=blue!60!black, urlcolor=blue!60!black}
+
+\title{\textbf{Projet CryptoShell --- Rapport d'analyse}\\
+\large TP Not\'e S\'ecurit\'e Informatique --- L3 Informatique}
+\author{Nom : \underline{\hspace{5cm}} \quad Pr\'enom : \underline{\hspace{5cm}} \\[0.5em]
+Num\'ero \'etudiant : \underline{\hspace{5cm}}}
+\date{Date de rendu : 08/03/2026}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Instructions :} Remplissez chaque section ci-dessous. Le rapport est \'evalu\'e sur la \textbf{qualit\'e de l'analyse} et la \textbf{pr\'ecision des r\'eponses}, pas sur la longueur. Soyez concis mais rigoureux.
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R1 --- Classification d'Adleman (2 points)}
+
+\textbf{Question :} O\`u se situe CryptoShell dans la classification d'Adleman ? Est-ce un programme simple ou auto-reproducteur ? Justifiez.
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{4cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R2 --- Cycle de vie (4 points)}
+
+\textbf{Question :} Dessinez (en ASCII art ou sch\'ema) le cycle de vie complet de CryptoShell en identifiant les 3 phases classiques (infection, incubation, maladie). Indiquez quelle phase du TP correspond \`a chaque \'etape.
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{6cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R3 --- Virus, Ver ou Cheval de Troie ? (3 points)}
+
+\textbf{Question :} CryptoShell tel qu'impl\'ement\'e est-il un virus, un ver, ou un cheval de Troie ? Comment le modifier pour qu'il devienne un ver (propagation r\'eseau) ? Comment le transformer en cheval de Troie ?
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R4 --- Comparaison avec les virus de documents (3 points)}
+
+\textbf{Question :} Un macro-virus Word et CryptoShell ciblent tous deux des fichiers de donn\'ees. Quelles sont les similitudes et diff\'erences fondamentales (vecteur d'infection, format cible, interpr\'eteur, persistance) ?
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{5cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R5 --- Tableau des IoC par phase (4 points)}
+
+\textbf{Question :} Remplissez le tableau ci-dessous pour chaque phase du projet.
+
+\bigskip
+\begin{center}
+\begin{tabular}{|c|p{3.5cm}|p{4cm}|p{3.5cm}|}
+\hline
+\textbf{Phase} & \textbf{Technique utilis\'ee} & \textbf{IoC d\'etectable} & \textbf{Type de d\'etection} \\
+\hline
+1 --- Reconnaissance & & & \\[1.5em]
+\hline
+2 --- Chiffrement XOR & & & \\[1.5em]
+\hline
+3 --- Propagation & & & \\[1.5em]
+\hline
+4 --- D\'eclencheur & & & \\[1.5em]
+\hline
+5 --- Furtivit\'e & & & \\[1.5em]
+\hline
+\end{tabular}
+\end{center}
+
+\bigskip
+\noindent\textbf{Strat\'egie de d\'etection combin\'ee :} Proposez une strat\'egie qui combine les 3 approches (signature, heuristique, comportementale).
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{4cm}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{R6 --- R\'eflexion \'ethique (4 points)}
+
+\textbf{Question :} En quoi l'\'etude de la construction de malware dans un cadre acad\'emique est-elle b\'en\'efique pour la cybers\'ecurit\'e ? Citez au moins un exemple concret o\`u la compr\'ehension des techniques offensives a permis d'am\'eliorer les d\'efenses.
+
+\bigskip
+\noindent\textit{Votre r\'eponse :}
+\vspace{5cm}
+
+\end{document}

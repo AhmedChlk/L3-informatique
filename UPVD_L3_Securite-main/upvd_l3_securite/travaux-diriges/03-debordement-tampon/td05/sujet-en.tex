@@ -1,0 +1,404 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages added for pedagogical enrichment ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=C,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% TCOLORBOX ENVIRONMENTS %%%%%%%%%%%%%%%%%%
+
+% Course reminder (light blue background)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Course Reminder},
+    #1
+}
+
+% Key takeaway (light green background)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Key Takeaway},
+    #1
+}
+
+% Warning (light orange background)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Warning},
+    #1
+}
+
+% Ethical disclaimer (red background)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Ethical and Legal Disclaimer},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Lab Work 5 -- Security}  \\
+ Intrusion Techniques -- Buffer Overflow
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Ethical disclaimer ---
+\begin{ethique}
+The techniques presented in this lab work are studied within a \textbf{strictly academic context} in order to understand the mechanisms used by attackers and thus be better able to defend against them.
+
+\textbf{Any use of these techniques outside the educational context is illegal} and punishable by criminal penalties (Chapter III of the French Penal Code, Articles 323-1 to 323-8 -- \textit{Offences against Automated Data Processing Systems}):
+\begin{itemize}
+    \item Unauthorized access to or remaining in an ADPS (Art.~323-1): \textbf{3 years} imprisonment and \textbf{\texteuro{}100,000} fine
+    \item Obstructing the operation of an ADPS (Art.~323-2): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+    \item Fraudulent introduction of data into an ADPS (Art.~323-3): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+\end{itemize}
+Penalties increased to \textbf{7 years} and \textbf{\texteuro{}300,000} when the targeted system processes personal data operated by the State, and up to \textbf{10 years} and \textbf{\texteuro{}300,000} for organized crime (Art.~323-4-1). \textit{Penalties updated by the LOPMI law no.~2023-22 of January 24, 2023.}
+\end{ethique}
+
+\bigskip
+
+\begin{tcolorbox}[colback=gray!5!white, colframe=gray!60!black, title={Compilation Options}]
+The following options should be used when you want to overflow the stack (\texttt{-fno-stack-protector}) and know the code addresses (\texttt{-no-pie}) which are no longer randomized:
+\begin{lstlisting}[language=bash,numbers=none]
+gcc -fno-stack-protector -no-pie -g code.c
+\end{lstlisting}
+One last option that we will not use: if you wish to execute code injected into the stack (\texttt{-z execstack}).
+\end{tcolorbox}
+
+\medskip
+
+\begin{rappel}
+\textbf{Stack organization:} when a function is called, the processor pushes:
+\begin{enumerate}
+    \item The function parameters (partially via registers in x86-64)
+    \item The return address \texttt{savedRIP} (pushed by \texttt{call})
+    \item The old \texttt{RBP} (\texttt{savedRBP}) saved by \texttt{push rbp}
+    \item The local variables of the function
+\end{enumerate}
+The \texttt{RSP} register points to the top of the stack; \texttt{RBP} points to the base of the current stack frame.
+\end{rappel}
+
+\bigskip
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 1: Simple Buffer Overflow
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Buffer Overflow]
+\begin{enumerate}
+\item
+Consider the following program:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, char *argv[]){
+  int valeur=5;
+  char tampon_un[8], tampon_deux[8];
+
+  strcpy(tampon_un,"un");
+  strcpy(tampon_deux,"deux");
+
+  printf("[AVANT] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[AVANT] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[AVANT] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  printf("\n [STRCPY] copie de %d octets dans tampon_deux\n\n",
+         (int)strlen(argv[1]));
+  strcpy(tampon_deux, argv[1]);
+
+  printf("[APRES] tampon_deux est a %p et contient '%s'\n",
+         tampon_deux, tampon_deux);
+  printf("[APRES] tampon_un est a %p et contient '%s'\n",
+         tampon_un, tampon_un);
+  printf("[APRES] valeur est a %p et vaut %d (0x%08x)\n",
+         &valeur, valeur, valeur);
+
+  return(0);
+}
+\end{lstlisting}
+
+By varying the argument, trigger a buffer overflow and analyze it with \texttt{gdb}.
+
+\begin{pointcle}
+The \texttt{strcpy} function does \textbf{not} check the size of the destination buffer. If the source is longer than the buffer, the extra bytes overwrite adjacent data on the stack.
+\end{pointcle}
+
+\item  Now consider the following code snippet which restricts access rights:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int verif_authentication(char *password){
+  int auth_flag = 0;
+  char password_tampon[16];
+
+  strcpy(password_tampon, password);
+
+  if( strcmp(password_tampon, "brillig") == 0)
+    auth_flag = 1;
+  if(strcmp(password_tampon, "outgrabe") == 0)
+    auth_flag = 1;
+
+  return auth_flag;
+}
+
+int main( int argc, char *argv[]){
+  if(argc < 2){
+    printf("Usage: %s <password>\n", argv[0]);
+    exit(0);
+  }
+
+  if(verif_authentication(argv[1])){
+    printf("\n-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+    printf("      Acces accorde.\n");
+    printf("-=-=-=-=-=-=-=-=-=-=--=-=-\n");
+  }
+  else
+    printf("     Acces refuse\n");
+}
+\end{lstlisting}
+Is it possible to perform a buffer overflow to force access (\texttt{auth\_flag} $\neq 0$)? What happens if the variables are declared in the following order:
+\begin{lstlisting}[language=C,numbers=none]
+  char password_buffer[16];
+  int auth_flag = 0;
+\end{lstlisting}
+Can you work around this issue to still display \texttt{Acces accorde} via buffer overflow? Explain in detail why it works.
+\end{enumerate}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 2: Return Address Modification (Increment)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Return Address Modification on the Stack]
+Take the code seen in the lecture (given below) and adjust the values of $a$ and $b$ in order to execute upon function return:
+\begin{itemize}
+\item Directly the end of the \texttt{main} function (thus skipping both \texttt{printf("coucou1")} and \texttt{printf("coucou2")}).
+  \item What will happen if we return to the instruction \texttt{b=15}?
+\end{itemize}
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+
+void function(long a, long b)
+{
+  long buffer[2]={0,1};
+  buffer[a]+=b;
+}
+void main()
+{
+  long a,b;
+  a=1;
+  b=15;
+  function(a,b);
+  printf("coucou1\n");
+  printf("coucou2\n");
+}
+\end{lstlisting}
+
+\begin{rappel}
+To find the correct values of \texttt{a} and \texttt{b}, you need to:
+\begin{enumerate}
+    \item Analyze the assembly code with \texttt{gdb} to determine the size of the stack frame of \texttt{function}
+    \item Calculate the offset between \texttt{buffer[0]} and \texttt{savedRIP}
+    \item Determine the necessary increment to jump over the desired instructions
+\end{enumerate}
+\end{rappel}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 3: Return Address Overwrite (Overflow)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Return Address Overwrite via Overflow]
+Consider the following code:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+void f(char *s)
+{
+  char nom[10];
+  strcpy(nom,s);
+  printf("\n");
+  printf("%lx\n",*((unsigned long *)(nom+18)));
+  printf("Bonjour %s, on est dans f\n",nom);
+}
+
+void secret()
+{
+  printf("on est dans secret\n");
+}
+
+int main(int argc, char **argv)
+{
+  printf("adresse de f=%p, et de secret=%p\n",f,secret);
+  f(argv[1]);
+}
+\end{lstlisting}
+By overwriting the return address of the call to function \texttt{f}, make it so that the function \texttt{secret} is executed.
+
+\begin{attention}
+To pass a string of characters specified by their ASCII code as a parameter, you can use \texttt{python3} as follows (for the two ASCII codes \texttt{0x11} and \texttt{0xff}):
+\begin{lstlisting}[language=bash,numbers=none]
+$ python3 -c "print('\x11\xff')"
+\end{lstlisting}
+\end{attention}
+\end{exercice}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 4: printf Format String
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Exploiting the \texttt{printf} Format String]
+Consider the following code compiled with the options \texttt{-fno-stack-protector -no-pie}:
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+int main(int argc, char *argv[]) {
+  unsigned long d;
+  char texte[512];
+
+  static int test_var = 100*256*256+100*256+100;
+  if(argc < 3) {
+    printf("Usage: %s <text to print> <entier>\n", argv[0]);
+    exit(0);
+  }
+  d=atoi(argv[2]);
+
+  strcpy(texte, argv[1]);
+  printf("La bonne facon d'afficher des entrees utilisateurs:\n");
+  printf("%s", texte);
+  printf("\nLa mauvaise facon d'afficher des entrees utilisateurs:\n");
+  printf(texte);
+  printf("\n");
+  // Debug output
+  printf("[*] test_var @ %p = %lu, %04x\n", &test_var, &test_var, test_var);
+  printf("[*] adresse de d=%p, valeur de d=0x%016lx\n", &d, d);
+  printf("[*] adresse de texte=%p\n", texte);
+  exit(0);
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Understand and test the program, then apply what was seen in the lecture to display the contents of the \texttt{main} stack by carefully choosing the program argument on the command line.
+\item If the program argument contains the format \texttt{"\%s"}, what will happen? Can you choose the address that \texttt{"\%s"} refers to and use it to read the value of \texttt{test\_var}?
+\end{enumerate}
+
+\begin{pointcle}
+The call \texttt{printf(texte)} is dangerous because the attacker controls the format string. They can use \texttt{\%x}, \texttt{\%lx}, \texttt{\%s} to read memory, and even \texttt{\%n} to write to memory!
+\end{pointcle}
+\end{exercice}
+
+
+\end{document}

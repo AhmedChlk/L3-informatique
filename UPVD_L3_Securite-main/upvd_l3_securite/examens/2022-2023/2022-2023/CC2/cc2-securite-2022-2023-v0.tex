@@ -1,0 +1,209 @@
+
+
+
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{comment}
+\usepackage{xcolor}
+\usepackage{framed}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{ProblÃ¨me}
+\newtheorem*{cout}{CoÃ»t}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+\definecolor{shadecolor}{RGB}{110,110,110}
+
+
+
+\newenvironment{terminal}{\color{white}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+ \hfill C. Legrand \\
+
+\begin{center}
+{  {\scshape \large CC1 de  S\'ecurit\'e}  \\
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  \item Durée : 2h30. 
+\item Seuls les documents fournis sont autorisés.
+\item Pour les exercices 1 et 2 vous rendrez, au choix une copie papier ou numérique. Pour l'exercice 3 vous rendrez les scripts sous format numériques dans une archive ou répertoire portant votre nom. 
+\end{itemize}
+
+
+\begin{exercice}
+On considère le code suivant qui emule un jeu de pile ou face.
+\begin{verbatim}
+//--------------- Debut code jeu pile ou face ----------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+static int points=20;
+
+int pileface(char *input)
+{
+  char PouF[2];
+  int r;
+
+  
+  // lecture de l entree utilisateur
+  // stockee dans PouF
+  strcpy(PouF,input);
+
+  // on lance la piece
+  r=rand() & 1;
+
+  printf("prediction = %c et lance = %d \n",PouF[0],r);
+
+  printf("pt = %p\n",PouF);
+
+  // on compare avec l entree utilisateur
+  if( (PouF[0] - '0') == r)
+    return(1);
+  else
+    return(0);
+}
+
+int main(int argc, char *argv[])
+{
+  int f=1;
+  
+  srand(time(NULL));
+
+  if(argc >= 2)
+    {
+      printf("Jeu de pile ou face\n");
+
+      f=pileface(argv[1]);           
+      if( f == 0)
+	points=points-10;	     
+      else
+	points=points+10;
+      printf("Vos points =%d\n",points);
+    }	    
+  return;
+}
+//--------------- Fin code jeu pile ou face ----------------
+\end{verbatim}
+%\end{exercice}
+
+%
+
+\begin{itemize}
+\item Expliquez brièvement  le code précédent.
+\item Après avoir compilé le code avec la commande 
+\begin{verbatim}
+       gcc -g  -fno-stack-protector code-debordement.c
+\end{verbatim}
+%\end{itemize}
+%\end{exercice}
+%\end{document}
+
+Donnez une trace (en ajoutant des commentaires) de vos commmandes sous gdb  vous permettant de visualiser la pile lorsque vous vous trouvez dans la fonction \verb|pileface|. Identifiez où se situe l'adresse de retour de fonction.
+\item En déduire une méthode par débordement de tampon vous permettant d'éxécuter systématiquement l'instruction \verb|points=points+10;| en retour de fonction \verb|pileface|.
+\end{itemize}
+\end{exercice}
+
+
+\begin{exercice}[Vulnerabilite Shelshock de bash] 
+On considère ici la vulnérabilité appelée Shellshock découverte récement (Automne 2014).
+\bigskip
+
+\begin{itshape}
+Bash permet d'exporter des variables mais aussi des fonctions à destination d'autres instances de bash. L'export de fonction utilise une variable d'environnement portant le nom de la-dite fonction dont la valeur commence par "\texttt{() \{}" :
+\begin{verbatim}
+foo=(){ 
+    du code; 
+      }
+\end{verbatim}
+ 
+A l'import, il se contente aveuglément d'interpréter cela en remplaçant le signe ``='' par un espace. C'est ainsi que bash ne se limite pas à interpréter le corps de la fonction mais qu'il poursuit le parsing et exécute les commandes qui suivent la définition de la fonction. Par exemple, définir une variable d'environnement de cette sorte :
+\begin{verbatim}
+ foo=(){  du code; } commande;
+\end{verbatim}
+executera \texttt{commande} quand l'environnement sera importé par bash.
+\end{itshape}
+\vspace{0.5cm}
+
+\begin{enumerate}
+\item On considère le simple script suivant
+\begin{verbatim}
+#!/bin/bash
+NOM=$1
+echo "Bonjour $1, content de faire votre connaissance" 
+\end{verbatim}
+quel argument donner au script pour le forcer à afficher \texttt{/etc/passwd}?
+\item Discuter de l'impact de cette vulnérabilité dans les applications en ligne.
+\end{enumerate}
+
+\end{exercice}
+\end{document}

@@ -1,0 +1,365 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{color}
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large TD2 Sécurité \\ Techniques d'infection et polymorphisme}  \\
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+\bigskip
+
+
+\begin{exercice}[Bombe logique avec déclencheur temporel]
+
+Une \textit{bombe logique} est un programme malveillant qui s'installe dans un système et attend un événement spécifique appelé \textbf{trigger} (déclencheur) pour exécuter sa fonction offensive (la \textbf{charge utile} ou \textit{payload}).
+
+On considère le programme C suivant :
+
+\begin{verbatim}
+#include <stdio.h>
+#include <time.h>
+
+int check_trigger() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    // Condition de declenchement
+    if (t->tm_mon == 3 && t->tm_mday == 1) {
+        return 1;
+    }
+    return 0;
+}
+
+void payload() {
+    printf("=== PAYLOAD ACTIVATED ===\n");
+    printf("All your files have been encrypted!\n");
+}
+
+void normal_operation() {
+    printf("System running normally...\n");
+}
+
+int main() {
+    if (check_trigger()) {
+        payload();
+    } else {
+        normal_operation();
+    }
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Identifier le \textit{trigger} utilisé dans ce programme et expliquer précisément son fonctionnement. À quelle date la charge utile sera-t-elle activée ?
+
+\item Modifier la fonction \texttt{check\_trigger()} pour que le déclenchement se produise uniquement si le programme a été exécuté plus de 100 fois. \textit{Indication : utiliser un fichier pour stocker le compteur d'exécutions.}
+
+\item Proposer deux techniques pour rendre le \textit{trigger} plus difficile à détecter lors d'une analyse statique du code.
+
+\item Du point de vue d'un antivirus, quelles techniques pourraient être utilisées pour détecter ce type de programme malveillant ?
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Chiffrement XOR et polymorphisme]
+
+Le \textbf{polymorphisme} est une technique utilisée par les virus pour échapper à la détection par signature. En chiffrant le code viral avec des clés différentes à chaque copie, le virus produit des signatures binaires différentes tout en conservant le même comportement.
+
+Le chiffrement \textbf{XOR} (ou exclusif) est souvent utilisé car il possède une propriété intéressante : appliquer deux fois la même opération avec la même clé redonne la valeur originale.
+
+On considère le programme C suivant :
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+
+void xor_crypt(char *data, int len, char key) {
+    for (int i = 0; i < len; i++) {
+        data[i] = data[i] ^ key;
+    }
+}
+
+int main() {
+    char payload[] = "FORMAT C: /Y";
+    char key = 0x42;
+
+    printf("Original : %s\n", payload);
+
+    // Chiffrement
+    xor_crypt(payload, strlen(payload), key);
+    printf("Chiffre  : ");
+    for (int i = 0; i < strlen(payload); i++) {
+        printf("%02X ", (unsigned char)payload[i]);
+    }
+    printf("\n");
+
+    // Dechiffrement
+    xor_crypt(payload, strlen(payload), key);
+    printf("Dechiffre: %s\n", payload);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Expliquer mathématiquement pourquoi l'opération XOR permet à la fois de chiffrer et de déchiffrer avec la même fonction. \textit{Indication : montrer que $A \oplus K \oplus K = A$.}
+
+\item Exécuter mentalement le programme avec la clé \texttt{0x42}. Quel est le premier octet du payload chiffré ? (Le code ASCII de 'F' est 0x46)
+
+\item Modifier la fonction \texttt{xor\_crypt()} pour qu'elle utilise une clé multi-octets (par exemple \texttt{"SECRET"}) au lieu d'un seul octet.
+
+\item Du point de vue d'un antivirus :
+\begin{enumerate}
+\item Pourquoi cette technique rend-elle la détection par signature inefficace ?
+\item Quelle technique alternative l'antivirus pourrait-il utiliser pour détecter ce type de code polymorphe ?
+\end{enumerate}
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Virus compagnon et détournement du PATH]
+
+Un \textbf{virus compagnon} est un type de malware qui ne modifie pas les fichiers existants mais se place à côté d'eux pour être exécuté à leur place. Une technique courante consiste à exploiter la variable d'environnement \texttt{PATH} pour intercepter l'exécution de commandes système.
+
+\textbf{Principe de l'attaque :} Lorsqu'un utilisateur tape une commande (par exemple \texttt{ls}), le système recherche l'exécutable dans les répertoires listés dans \texttt{PATH}, dans l'ordre. Si un attaquant place un faux \texttt{ls} dans un répertoire prioritaire, c'est ce programme malveillant qui sera exécuté.
+
+On considère le programme C suivant, conçu pour remplacer la commande \texttt{ls} :
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    // Phase 1: Code malveillant (simulation)
+    FILE *f = fopen("/tmp/log.txt", "a");
+    if (f) {
+        fprintf(f, "Commande interceptee: ls\n");
+        fprintf(f, "Repertoire: %s\n", getcwd(NULL, 0));
+        fclose(f);
+    }
+
+    // Phase 2: Execution de la vraie commande
+    execvp("/bin/ls", argv);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Expliquer le fonctionnement de ce programme. Pourquoi l'utilisateur ne remarque-t-il pas que son système est compromis ?
+
+\item Comment un attaquant pourrait-il installer ce virus compagnon sur un système Linux ? Proposer deux méthodes différentes.
+
+\item Que se passe-t-il si l'attaquant oublie la ligne \texttt{execvp("/bin/ls", argv)} ? Quelles conséquences cela aurait-il sur la furtivité de l'attaque ?
+
+\item Proposer deux contre-mesures que l'utilisateur ou l'administrateur système pourrait mettre en place pour se protéger contre ce type d'attaque.
+
+\item \textbf{Bonus :} Modifier le programme pour qu'il enregistre également les arguments passés à la commande \texttt{ls}.
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Routine de recherche de fichiers cibles]
+
+Avant de pouvoir infecter des fichiers, un virus doit d'abord les localiser sur le système. Cette phase de \textbf{recherche de cibles} est cruciale : elle doit être efficace pour maximiser la propagation tout en restant discrète pour éviter la détection.
+
+On considère le programme C suivant qui parcourt récursivement un répertoire à la recherche de fichiers ayant une extension spécifique :
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+void search_targets(const char *path, const char *extension) {
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
+
+    struct dirent *entry;
+    char fullpath[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        // Ignorer . et ..
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(fullpath, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            // Recursion dans les sous-repertoires
+            search_targets(fullpath, extension);
+        } else if (S_ISREG(st.st_mode)) {
+            // Verifier l'extension
+            char *ext = strrchr(entry->d_name, '.');
+            if (ext && strcmp(ext, extension) == 0) {
+                printf("Cible trouvee: %s (%ld octets)\n",
+                       fullpath, st.st_size);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <repertoire> <extension>\n", argv[0]);
+        return 1;
+    }
+
+    printf("Recherche de fichiers %s dans %s...\n", argv[2], argv[1]);
+    search_targets(argv[1], argv[2]);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Analyser le code et expliquer le rôle des fonctions \texttt{opendir()}, \texttt{readdir()}, \texttt{stat()} et \texttt{closedir()}.
+
+\item Pourquoi est-il important d'ignorer les entrées "." et ".." lors du parcours d'un répertoire ? Que se passerait-il sinon ?
+
+\item Modifier la fonction \texttt{search\_targets()} pour qu'elle recherche les fichiers exécutables (ayant la permission d'exécution) au lieu de filtrer par extension.
+\textit{Indication : utiliser \texttt{st.st\_mode \& S\_IXUSR} pour tester la permission d'exécution.}
+
+\item Le parcours récursif peut être problématique sur de grands systèmes de fichiers. Proposer une modification pour limiter la profondeur de récursion à $N$ niveaux maximum.
+
+\item Du point de vue d'un antivirus, quels comportements suspects ce type de programme pourrait-il déclencher ? Comment un antivirus comportemental pourrait-il détecter cette activité ?
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Infection par ajout de code (Appending)]
+
+L'\textbf{infection par ajout} (appending) est une technique classique où le virus ajoute son code à la fin d'un fichier cible. Pour éviter d'infecter plusieurs fois le même fichier (ce qui pourrait le corrompre ou le rendre suspect), le virus utilise un \textbf{marqueur d'infection}.
+
+On considère le programme C suivant qui simule ce mécanisme sur des fichiers texte :
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MARKER "[[INFECTED]]"
+#define PAYLOAD "\n--- MALICIOUS CODE SIMULATION ---\n"
+
+int is_infected(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) return -1;
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), f) != NULL) {
+        if (strstr(buffer, MARKER) != NULL) {
+            fclose(f);
+            return 1;  // Deja infecte
+        }
+    }
+    fclose(f);
+    return 0;  // Non infecte
+}
+
+int infect_file(const char *filename) {
+    if (is_infected(filename) == 1) {
+        printf("[SKIP] %s est deja infecte\n", filename);
+        return 0;
+    }
+
+    FILE *f = fopen(filename, "a");
+    if (f == NULL) {
+        printf("[ERROR] Impossible d'ouvrir %s\n", filename);
+        return -1;
+    }
+
+    fprintf(f, "%s", PAYLOAD);
+    fprintf(f, "%s\n", MARKER);
+    fclose(f);
+
+    printf("[INFECTED] %s\n", filename);
+    return 1;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <fichier1> [fichier2] ...\n", argv[0]);
+        return 1;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        infect_file(argv[i]);
+    }
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Expliquer le rôle du marqueur d'infection (\texttt{MARKER}). Que se passerait-il si le virus n'utilisait pas de marqueur ?
+
+\item Pourquoi le fichier est-il ouvert en mode "a" (append) dans la fonction \texttt{infect\_file()} ? Quel serait l'effet d'utiliser le mode "w" à la place ?
+
+\item La fonction \texttt{is\_infected()} parcourt tout le fichier ligne par ligne. Cette approche a des limites en termes de performance. Proposer une méthode plus efficace pour vérifier si un fichier est infecté.
+\textit{Indication : penser à la position du marqueur dans le fichier.}
+
+\item Le marqueur \texttt{[[INFECTED]]} est facilement détectable par un antivirus. Proposer une modification pour rendre le marqueur moins visible tout en restant fonctionnel pour le virus.
+
+\item Du point de vue d'un antivirus, quelles caractéristiques de ce programme pourraient être utilisées pour le détecter ? Proposer au moins deux techniques de détection.
+\end{enumerate}
+
+\end{exercice}
+
+
+\end{document}

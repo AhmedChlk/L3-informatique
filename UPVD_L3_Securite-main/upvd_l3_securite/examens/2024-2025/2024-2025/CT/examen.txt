@@ -1,0 +1,14 @@
+
+Faire un exercice de quizz avec un débordement de tampon qui permet de fixer la question posée (normalement choisie aléatoirement). Et de gagner à chaque fois.
+
+
+Débordement de tampon pour modifier une commande système ?
+
+
+Débordement de tampon pour visualiser une valeur en mémoire (comme le générateur aléatoire)?
+
+
+Injection de code:
+javascript, le truc simple avec le alert
+javascript modification page (lien d'une balise ou affichage d'un élément de type, 
+sql (le truc de la concatenation des élements de plusieurs tables). Aller chercher des éléments structurels de mysql (table users). 

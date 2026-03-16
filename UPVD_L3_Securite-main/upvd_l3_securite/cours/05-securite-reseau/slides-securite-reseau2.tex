@@ -1,0 +1,1648 @@
+
+%\documentclass[landscape]{slides}
+\documentclass{beamer}
+\usepackage{beamerfoils}
+\usetheme{Pittsburgh}
+%\usepackage[accumulated]{beamerseminar}
+                                % remove ``accumulated'' option
+                                % for original behaviour
+%\usepackage{beamerthemeclassic}
+\usepackage{ulem}
+\usepackage{comment}
+%\usepackage{beamerthemesplit}
+
+%\usepackage{beamerthemeshadow}
+
+%\usepackage{beamerthemeplain}
+%\usepackage{times}
+\usepackage{colortbl}
+\usepackage{pifont}
+%\usepackage{lslide}
+\def\emptyline{\vspace{10pt}}
+\usepackage{amssymb}
+%\usepackage{french}
+\usepackage[latin1]{inputenc}
+%\usepackage[T1]{fontenc}
+\usepackage[]{color}
+%\usepackage[pdftex]{color}
+%\usepackage[]{colorlslide,epsfig}
+%\usepackage{amsfonts,stmaryrd}
+\usepackage{epsfig}
+
+\usepackage{graphicx,array}
+\usepackage{amsmath}%,amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{multicol}
+
+%\renewcommand{\frame}{\end{slide}   \begin{slide}}
+%\newcommand{\frametitle}{\centerline}
+ 
+
+%\usepackage{beamerthemeshadow}
+\usepackage{graphicx}
+%\usepackage{beamerthemesplit}
+
+\definecolor{bluesky}{rgb}{0.8,0.95,1}
+
+%%%%%%%%%%%%%%%%%% ENVIRONEMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newtheorem{deft}{Définition}
+%\newtheorem{theorem}{Théorème}
+\newtheorem{proposition}{Proposition}
+\newtheorem{exemple}{Exemple}
+\newtheorem{postulat}{Postulat}
+
+
+%%%%%%%%%%%%%%%%%% COULEURS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\definecolor{coltitle}{rgb}{0.1, 0.1, 0.543}
+%\definecolor{colitemi}{rgb}{0, 0.75, 0.99}
+%\definecolor{colexemp}{rgb}{0.6, 0.4, 0}
+%\definecolor{colmult}{rgb}{0, 1, 0}
+\definecolor{grey}{rgb}{0.4, 0.4, 0.7}
+\definecolor{encre}{rgb}{0.2, 0, 0.4}
+%\definecolor{grisbleu}{rgb}{0.8, 0.8, 1}
+%\definecolor{cadre}{rgb}{0.7, 0.7, 0.7}
+%\definecolor{cadresubsec}{rgb}{0, 0.3, 0.3}
+%\definecolor{cadreombre}{rgb}{0.8, 0.8, 0.8}
+%\definecolor{colsection}{rgb}{0.4, 0.2, 0.2}
+
+%\definecolor{bleur}{rgb}{0.3, 0, 0.6}
+%\definecolor{bleuv}{rgb}{0, 0.3, 0.6}
+%\definecolor{rougeb}{rgb}{0.6, 0, 0.3}
+%\definecolor{rougev}{rgb}{0.6, 0.3, 0}
+%\definecolor{rougealert}{rgb}{1., 0.2, 0}
+%\definecolor{vertr}{rgb}{0.3, 0.6, 0}
+%\definecolor{vertb}{rgb}{0, 0.6, 0.3}
+%\definecolor{blanc}{rgb}{1, 1, 1}
+
+\newcommand{\red}[1]{\only<#1>{\color{red}}}
+\newcommand{\green}[1]{\only<#1>{\color{green}}}
+\newcommand{\lra}{\leftrightarrow}
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\enlight}[1]{\textit{\color{blue}#1}}
+
+%%   for the headline etc.
+\renewcommand\normalcolor{\color{coltitle}}
+\newcommand{\blue}{\color{blue}}
+\setbeamercolor{block body}{bg=bluesky} 
+
+%%   for the background
+%\pagecolor{grisbleu}
+%%   for the text
+\color{encre}
+
+%%%%%%%%%%%%%%% voir le style ....
+ \beamertemplatenavigationsymbolsempty
+\beamertemplatefootempty
+%\beamertemplatefootframenumber
+\setbeamertemplate{footline}[frame number]
+
+
+\title{Sécurité des Réseaux Informatiques}
+
+\author{Licence 3 - Informatique}
+\date{\the\year}
+\titlegraphic{\center 
+\pgfimage[height=0.5cm]{logo_upvd} \hspace{2cm}
+\pgfimage[height=0.5cm]{logo-dali}
+}
+
+\AtBeginSection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\begin{multicols}{2}
+\tableofcontents[currentsection,sectionstyle=show,subsectionstyle=show]
+\end{multicols}
+\end{frame}
+}
+
+\AtBeginSubsection[]
+{
+\begin{frame}
+\frametitle{Plan}
+\begin{multicols}{2}
+\tableofcontents[currentsubsection,sectionstyle=show/shaded,subsectionstyle=show/shaded]%/hide
+\end{multicols}
+
+\end{frame}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\maketitle
+
+\section{Vulnérabilité  des réseaux}
+\subsection{Dénis de service}
+
+\begin{frame}
+\frametitle{Le dénis de service (DOS) qu'est ce que c'est?}
+\begin{itemize}
+\item Une attaque par déni de service consiste à empêcher un système informatique de fonctionner correctement.
+\bigskip 
+\item On \alert{inonde un serveur de requêtes}, qui ne peut plus répondre à de nouvelle requête légitime.
+\bigskip 
+\item L'inondation  peut monopoliser d'autre type de ressource: nombre de connexions simultanées ou la mémoire disponible.
+%\item Les dénis de service les plus intéressants sont ceux qui peuvent être effectués de fa\c con anonyme.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{SYN flooding - Rappel du mécanisme d'ouverture de connexion TCP}
+
+
+\begin{columns}[t]
+ \begin{column}{0.3\textwidth}
+\begin{center}
+\includegraphics[width=3.5cm]{tcp-initialization}
+\end{center}
+\end{column}
+ \begin{column}{0.7\textwidth}
+%L'initialisation d'une connexion se fait comme suit:
+\begin{small}
+\begin{itemize}
+\item Le  client envoie un paquet SYN (le bit SYN = 1  le bit ACK = 0). Le numéro de séquence $x$ est le numéro de séquence initial (ISN).
+Le numéro d'acquittement est zéro  car l'ISN du serveur est inconnu.
+%\item Le numéro d'acquittement est zéro car le client ne connaît pas encore les numéros de séquence des données provenant du serveur.
+\item Le serveur répond par un paquet SYN-ACK (le bit SYN = 1 et le bit ACK = 1). Le numéro de séquence $y$ est le  numéro de séquence initial (ISN) choisit par le serveur, le numéro d'aquitement est $x+ 1$.
+\item Le client répond au SYN-ACK par un segment ACK (SYN est à 0 et le bit ACK est à 1), le numéro de séquence est  $x+1$, le numéro d'ACK est $y + 1$.
+\end{itemize}
+\end{small}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{SYN flooding}
+\begin{center}
+\includegraphics[height=6cm]{syn-flood.png}
+\end{center}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{SYN flooding - description}
+ Le SYN flooding est l'une des plus anciennes attaques de déni de service:
+\begin{itemize}
+\item {\color{blue} Principe :} L'attaque consomme toutes les ressources de la couche TCP d'un ordinateur.
+\medskip
+%Comme nous l'avons vu à la section 3.1 les paquets SYN sont utilisés pour initier les connexions TCP
+\item {\color{blue} But :} Lors de l'initialisation d'une connextion TCP, à la réception du paquet SYN,  \alert{le serveur met cette connexion dans une file d'attente}.
+\medskip
+\item Cela  maintient la file d'attente constamment remplie, le serveur refuse alors systématiquement de nouvelle connexion.
+\medskip
+
+\item L'attaquant peut utiliser des adresses IP arbitraires vu qu'il n'est pas intéressé par réellement ouvrir connexion TCP.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{SYN flooding - parades}
+\begin{itemize}
+\item {\color{blue} Stratégie 1 :} Les connexions en attente sont retirées de la file d'attente si l'ACK attendu n'arrive pas dans un délai raisonnable.
+\bigskip
+
+\item {\color{blue} Stratégie 2 :} On  en utilisant des SYN Cookies (Linux, FreeBSD) : 
+\smallskip
+
+\begin{itemize}
+\item Le serveur ne maintient plus de file d'attente,
+\item Les informations concernants la connexion sont encodées dans l'ISN, avec un mini-mécanisme de signature pour éviter des falsification.
+\item A la réception de l'ACK le serveur récupère les informations des ``vrai'' clients et peut poursuivre la communication TCP en mode connecté.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Attaque smurf}
+\begin{itemize}
+\item L'attaque smurf consiste à noyer la victime dans un flux de de réponses ICMP.
+\item {\color{blue} Rappel :} ICMP est un protocole qui sert entre autre à vérifier qu'une machine est atteignable sur le réseau.
+\item Quand une machine re\c coit un \textit{\color{red} ICMP echo request} elle envoie un paquet \textit{\color{red}ICMP echo reply} à l'adresse IP source indiquée dans le paquet
+ \begin{center}
+\includegraphics[width=3.5cm]{icmp-request}
+\end{center}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Attaque smurf}
+\begin{itemize}
+\item Pour attaquer une cible avec des {\color{red} réponses ICMP}, le pirate inscrit l'adresse cible comme adresse IP source dans l'en-tête IP du paquet ICMP de la requête.
+\item La destination de la requête enverra ainsi sa réponse à la cible.
+\item La cible ne saura d'ailleurs pas qui lui veut du mal.
+\item Pour amplifier son attaque le pirate peut envoyer sa requête à une adresse de diffusion réseau.
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=6cm]{schema-smurf.jpeg}
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Attaque smurf}
+\begin{itemize}
+\item Par exemple l'adresse par exemple on a fait un \texttt{ping -b 194.167.138.255} effectué à partir d'une machine dans le même sous-réseau.  
+\item Les machines 194.167.138.* du sous-réseau  ont répondu:
+\end{itemize}
+ 
+\begin{scriptsize}
+\begin{verbatim}
+64 bytes from 194.167.138.168: icmp_req=7 ttl=64 time=0.337 ms
+64 bytes from 192.168.138.150: icmp_req=7 ttl=254 time=0.356 ms (DUP!)
+64 bytes from 194.167.138.177: icmp_req=7 ttl=255 time=0.369 ms (DUP!)
+64 bytes from 194.167.138.180: icmp_req=7 ttl=64 time=0.373 ms (DUP!)
+64 bytes from 194.167.138.112: icmp_req=7 ttl=64 time=0.377 ms (DUP!)
+64 bytes from 194.167.138.240: icmp_req=7 ttl=64 time=0.380 ms (DUP!)
+64 bytes from 194.167.138.27: icmp_req=7 ttl=64 time=0.383 ms (DUP!)
+64 bytes from 192.168.138.1: icmp_req=7 ttl=255 time=0.740 ms (DUP!)
+64 bytes from 194.167.138.219: icmp_req=7 ttl=64 time=0.761 ms (DUP!)
+64 bytes from 194.167.138.163: icmp_req=7 ttl=64 time=0.765 ms (DUP!)
+64 bytes from 194.167.138.181: icmp_req=7 ttl=64 time=0.768 ms (DUP!)
+64 bytes from 194.167.138.161: icmp_req=7 ttl=64 time=0.772 ms (DUP!)
+64 bytes from 194.167.138.199: icmp_req=7 ttl=64 time=0.775 ms (DUP!)
+.
+.
+.
+\end{verbatim}
+\end{scriptsize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Autres attaques smurf et contre-mesure}
+
+\begin{itemize}
+\item L'utilisation de paquets ICMP est un exemple classique d'une attaque par réflexion amplifiée. 
+%\item Les pirates trouvent régulièrement d'autres manières de relayer et d'amplifier leurs attaques.
+\medskip
+\item On peut aussi utiliser des segments UDP  et qui génèrent des messages d'erreur plus longs que la requête du pirate.
+\medskip
+\item {\color{blue} Contre-mesure :} Pour limiter la multiplication de trafic à l'aide d'adresse de diffusion, beaucoup de routeur sont configurés pour ne pas relayer des paquet provenants de l'extérieur d'un sous-réseau. 
+\end{itemize}
+\end{frame}
+
+%\subsection{Dénis de service distribués (DDoS)}
+
+\begin{frame}
+\frametitle{Dénis de service distribués (DDoS)}
+\begin{center}
+\includegraphics[width=6cm]{DOS-Attack.jpg}
+\end{center}
+\begin{itemize}
+\item  Un grand nombre de machines sous le controle du pirate  attaque simultanément  une  cible.
+%\item Ce type de dénis de service distribués est apparu dès 1999. 
+\medskip
+
+\item Des \textit{backdoors} ou \textit{porte dérobée} sont installées malicieusement sur les machines  par le biais de  failles de sécurité ou de virus.
+\medskip
+
+\item Ces machines infectées s'appellent \alert{bots} (robots) ou zombies et ne communiquent pas directement avec le pirate mais par le biais d'un autre serveur (e.g. chat IRC ou encore twitter).
+\end{itemize}
+\end{frame}
+
+\begin{frame} 
+\frametitle{Dénis de service - un peu d'Histoire}
+\begin{itemize}
+\item La première attaque DoS médiatisée a été un SYN flooding contre le fournisseur d'accès à Internet Panix dans le New Jersey en 1996.
+\item Cela s'est produit une semaine après la publication dans \textit{Phrax} et \textit{2600} du code source nécessaire pour effectuer un SYN flooding.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame} 
+\frametitle{Dénis de service  - un peu d'Histoire}
+L'an 2000 a vu apparaitre les premières attaques DDoS:
+\begin{itemize}
+\item Le 7 février le portail Yahoo fut inaccessible pendant plusieurs heures.
+\item Le 8 février Amazon, Buy.com, eBay et CNN étaient à leur tour victime d'une attaque.
+\item et. %Le 9 février E Trade et ZDNet.
+\item Le 16 février un pirate nommé Mafiaboy était suspecté d'avoir perpétré ces attaques: il fut arrêté le 15 avril, il s'agissait d'un canadien de 15 ans.
+\item Il avait compromis 75 ordinateurs différents grâce à une faille dans leurs serveurs FTP. 
+\end{itemize}
+\end{frame}
+
+\subsection{IP spoofing}
+
+\begin{frame}
+\frametitle{IP spoofing}
+
+Le spoofing d'IP consiste en la \alert{falsification d'adresse IP.}
+
+%Dans de nombreux cas des paquets de données sont traités différemment en fonction de leur adresse IP d'origine
+\begin{itemize}
+\item Un routeur ou un pare-feu peut laisser des paquets qui proviennent de sites \textit{amis}. 
+\medskip
+
+\item Certaines applications offrent des privilèges aux connexions qui émanent de sous-réseaux connus.
+\medskip
+\item Par exemple \texttt{rsh} d'Unix peut permettre l'exécution de commande sans authentification préalable (s'assure que l'IP est dans la liste d'adresses IP amies). 
+
+\end{itemize}
+
+%Un pirate peut usurper cette confiance en falsifiant l'adresse source de ces paquets.
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Le Spoofing d'IP lors d'une session TCP}
+
+Il est particulièrement difficile de réussir une attaque par spoofing lors d'une session TCP:
+\begin{itemize}
+\item Si le pirate remplace son IP par une autre adresse, la cible enverra ses réponses à l'adresse falsifiée.
+\item C'est gênant car l'initialisation d'une session TCP passe par une séquence de SYN,SYN-ACK,ACK.
+\item Si le pirate ne peut pas répondre au SYN-ACK, il ne peut envoyer des données.
+\end{itemize}
+Dans certains cas on peut contourner ce problème.
+\end{frame}
+
+\begin{frame}
+\frametitle{TCP spoofing dans le même sous-réseau}
+
+Si l'attaquant est dans le même sous-réseau que l'adresse falsifiée:
+\begin{itemize}
+\item il pourra observer les réponses même si elles ne lui sont pas destinées.
+\item il verra l'ISN que le serveur propose dans le SYN-ACK.
+\item il pourra faire une réponse ACK valide, et envoyer des données avec une fausse adresse IP.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{TCP spoofing à l'aveugle}
+\begin{itemize}
+\item Si l'attaquant n'est ni dans le sous-réseau de la cible ni dans celui de la machine dont l'adresse IP est usurpée il ne n'observera pas le paquet SYN-ACK.
+\bigskip
+
+\item Pour qu'il puisse répondre sans recevoir le SYN-ACK, il faut qu'il devine l'ISN contenu dans le SYN-ACK:
+\begin{itemize}
+\item Si la méthode de génération de l'ISN est simple,  quelques échantillons peuvent suffirent pour générer les prochains ISN.
+\item De vieilles versions  de Windows et d'Unix utilisaient de simple incrément.
+%\item Aujourd'hui des générateurs aléatoires plus efficaces ont été mis en place. L'attaquant peut toujours tenter sa chance en envoyant plusieurs paquets avec différents ISN, les mauvais numéros seront ignorés le bon accepté.
+\end{itemize} 
+\end{itemize} 
+\end{frame}
+
+\subsection{Sniffing}
+
+\begin{frame}
+\frametitle{Sniffing}
+\begin{itemize}
+\item Le sniffing consiste à capturer du trafic qui circule sur une partie du réseau.
+\item Le but du sniffing est d'exploiter le fait que beaucoup de méthode d'authentification transmettent les mots de passe en clair sur le réseau.
+\item C'est utilisé par les pirates pour étendre leurs attaques/réseaux de bots en prenant le contrôle de nouvelles machines.
+\begin{itemize}
+\item Dans les réseaux locaux sans fils, c'est plus facile car le pirate a accès à toutes les données qui transitent.
+\item Dans réseaux locaux câblés en général les machines sont connectés directement à des hubs et \alert{donc les trafics sont cloisonnés}.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Sniffing avec de l'ARP spoofing}
+\begin{itemize}
+\item Dans le cas des réseaux locaux cablés, le pirate peut utiliser une attaque de type ARP spoofing pour contourner le cloisonnement:
+\item  L'ARP spoofing consiste à diffuser de fausses répondes ARP pour donner l'adresse Ethernet du pirate en lieu et place de celle de la cible.
+\end{itemize}
+\begin{center}
+\includegraphics[width=7cm]{ARP-poisening1.jpg}
+\end{center}
+
+%\begin{itemize}
+
+%\item Le protocole ARP sert à faire le lien entre adresse IP et adresse Ethernet: pour connaître l'adresse Ethernet associé à une adresse IP on diffuse une requete ARP contenant l'IP.
+%\item Les requêtes ARP sont transmises à toutes les machines d'un même sous réseau.
+%\item La machine reconnaissant son IP répond en indiquant son adresse Ethernet.
+%\item L'ARP spoofing consiste à diffuser de fausses répondes ARP pour donner l'adresse Ethernet du pirate en lieu et place de celle de la cible.
+%\item Le trafic sera alors redirigé vers la machine du pirate. 
+%\end{itemize}
+
+%Notons que l'exécution d'un sniffeur demande des droits root sur une machine.
+\end{frame}
+
+\subsection{Vol de session}
+\begin{frame}
+\frametitle{Vol de session (session hijacking) }
+\begin{block}{Vol de session : }
+%Le \textit{\color{red} session hijacking} ou \textit{\color{red}vol de session} est un moyen de pénétrer dans un système sans avoir besoin de connaître login et password:
+\begin{itemize}
+\item Le pirate attend qu'un utilisateur légitime se connecte à distance au système.
+\item Une fois que l'utilisateur s'est authentifié et que la connexion est établie, le pirate prend le contrôle de la connexion.
+\end{itemize}
+\end{block}
+
+\begin{itemize}
+\item La notion de session peut concerner la couche application ou la couche transport comme dans TCP.
+\item Un vol de session TCP  peut provoquer des \alert{avalanches de paquet d'acquitement} : cela perturbe l'ordre normal des numéros de séquence du client.
+\end{itemize}
+\end{frame}
+
+
+%\begin{frame}
+%\frametitle{Vol de session TCP}
+%Un pirate espionne un client se connectant à un serveur par TCP (par exemple par Telnet).
+%\begin{itemize}
+%\item Des l'authentification établie, le pirate peut forger des paquets TCP et envoyer des commandes à la place du client.
+%\item Cela peut provoquer des avalanches de paquet d'aquitement car cela perturbe l'ordre normal des numéros de séquence du client.
+%\item Cette attaque est plus efficace si l'attaquant bloque la connexion du client avec un déni de service.
+%\end{itemize}
+%\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Vol de session HTTP}
+{\color{blue} Session HTTP :}
+\begin{itemize}
+\item Le protocole HTTP n'utilise pas vraiment la notion de session.
+\item En effet chaque requête pour une page web (page HTML, image, etc. ) est traitée de manière indépendante.
+\item Les développeur web contourne ce problème en identifiant les utilisateurs grâce à des cookies et des données stockées sur une base de données.
+\end{itemize}
+\bigskip
+\pause 
+
+{\color{blue} Vol de session :}
+\begin{itemize}
+\item Si un pirate peut espionner les requêtes échangées entre un client et un serveur web:
+\begin{itemize} 
+\item il peut attendre que le client se soit authentifié puis envoyer une requête à sa place. 
+\item Ayant vu tous les échanges précédents le pirate connaît l'identifiant de connexion et peut donc le réutiliser. 
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% Pare-feux: translation, filtrage, et proxies %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Pare-feux}
+
+
+\begin{frame}
+\frametitle{Qu'est ce qu'un pare-feu}
+\begin{itemize}
+\item Les pare-feux sont des composants d'un réseau utilisés chaque fois que l'on désire interconnecter deux réseaux possédant un niveau de sécurité différent.
+
+\item La fonction primitive d'un pare-feu est d'éviter la propagation d'un incendie.
+
+\item De fa\c con analogue dans le contexte des réseaux, un pare-feu doit prévenir la propagation d'une attaque entre les différents réseaux qu'il relie.
+
+\end{itemize}
+\end{frame}
+
+%\begin{frame}
+%\frametitle{Principes de base}
+
+%\begin{itemize}
+%\item {\color{blue} Moindre privilège:}  chaque utilisateur et chaque module d'un système ne doit posséder que des droits minimaux nécessaires.
+
+%\textit{{\color{grey} Exemple :} un serveur Web a des droits minimaux (nobody pour UNIX et IUSR pour Window): lecture des documents et écriture dans des journaux. }
+%\item {\color{blue} Défense en profondeur:}  consiste à utiliser plusieurs mécanismes de protection redondants.  
+
+
+%\textit{{\color{grey} Exemple :} si les connexions entrantes FTP sont bloquées, il est nécessaire de désactiver les serveurs FTP inutilisés installés par défaut. }
+%\item {\color{blue} Goulet d'étranglement:} Limiter les points d'entrée à un réseau: il vaut mieux que le trafic passe par un seul point dans lequel tout ce qui transite sera analysé.
+%\end{itemize}
+
+%\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Principes de base}
+
+\begin{itemize}
+\item {\color{blue} Maillon le plus faible :}  Un système sera aussi solide que son maillon le plus faible.
+
+
+\item {\color{blue} Déni par défaut :}  Deux stratégies possibles: 
+
+\alert{\textit{tout permettre sauf ce qui est explicitement interdit}} (dangereux)  ou plus sur
+\alert{
+\textit{tout interdire sauf ce qui est explicitement permis}. 
+}
+
+
+\bigskip 
+\item {\color{blue} Participation des utilisateurs :} 
+\begin{itemize}
+\item Un système de sécurité n'est efficace que si tous les utilisateurs adhèrent à ses principes. 
+\item Si  le système met trop de contrainte aux utilisateurs, ils auront tendance à contourner ces règles, créant des failles de sécurité.
+\end{itemize}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Types de pare-feu}
+\begin{itemize}
+\item {\color{blue}Logiciel ou matériel :} 
+\begin{itemize}
+\item Logiciel : souvent utilisés dans les systèmes des PCs (zonealarm, etc).
+\item  Matériel  dédié : moins sensible aux multiple failles des OS généralistes.
+\end{itemize}
+\bigskip
+\item {\color{blue}Avec ou sans état :} 
+\begin{itemize} 
+\item Sans état : cela signifie que les paquets sont analysés indépendemment des uns des autres. 
+\item Avec mémoire : l'analyse se fait sur un flux de paquet (connexion TCP par exemple).
+\medskip
+
+\textit{{\color{grey} Exemple :}  un paquet d'acquittement TCP ne peut être recu avant l'échange des paquets SYN et ACK.
+ }
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Pare-feu avec état :   SYN retardée}
+
+\begin{center}
+\includegraphics[height=7cm]{FiguresNAT/strategie2-blocage-syn}
+\end{center}
+Ici le pare-feu mémorise temporairement les SYN entrant en attendant d'avoir la réponse ACK évitant un SYN flooding.
+\end{frame}
+
+
+
+\subsection{Translation d'adresse}
+
+\begin{frame}
+\frametitle{Translation d'adresse - Rappel}
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/nat0.pdf}
+\end{center}
+\begin{small}
+\begin{tabular}{cc}
+\begin{tabular}{cc}
+Tous les datagrammes quittant le \\
+réseau local ont \\
+la même adresse IP source:\\
+138.76.29.7 \\ 
+mais différents numéros de port \\
+source 
+\end{tabular}
+\begin{tabular}{cc}
+Les datagrammes avec une source \\
+ou une destination dans ce réseau \\
+ont 10.0.0.0/24 pour adresse \\
+réseau pour la source (ou \\
+la destination) \\
+\end{tabular}
+\end{tabular}
+\end{small}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Translation d'adresse - Rappel}
+\begin{itemize}
+\item Il permet à plusieurs machines d'accéder à Internet en utilisant une seule adresse externe.
+\item Le principe est d'identifier les \alert{adresse+port} du sous réseau 10.0.0.0 par un \alert{numéro de port}.
+\item Le routeur est alors chargé de faire les changements \alert{adresse/port} par \alert{adresse publique/port} associé lorsque les paquets sortent ou rentrent.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+%Il permet à plusieurs machines d'accéder à Internet en utilisant une seule adresse externe.
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/nat1.pdf}
+\end{center}
+\begin{small}
+\begin{tabular}{cc}
+\begin{tabular}{l}
+\ding{192} L'hote 10.0.0.1 envoie un \\
+datagramme à 128.119.40.186, 80. \\
+\ding{193} le routeur NAT change  \\
+adresse/port source 10.0.0.1, 3345  \\
+en 138.76.29.7, 5001. \\
+\ding{194} La réponse arrive: adresse de \\
+destination est 138.76.29.7, 5001. \\
+\ding{195} Le routeur change adresse/port \\
+de destination 138.76.29.7, 5001 \\
+en 10.0.0.1, 3345. \\
+\end{tabular}
+ \begin{tabular}{|c|c|}
+\hline
+\multicolumn{2}{|c|}{Table de translation } \\
+\hline
+addr. côté WAN & addr côté LAN \\
+138.76.29.7, 5001 & 10.0.0.1, 3345 \\
+$\cdots\cdots$ & $\cdots\cdots$ \\
+\hline
+\end{tabular}
+\end{tabular}
+\end{small}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{NAT dynamique et NAT statique}
+
+\begin{itemize}
+\item Le NAT dynamique est le mode le plus utilisé (déjà vu dans le chapitre couche réseau): la table de translation se rempli et se vide au fur et a mesure que les connexions sont ouvertes ou fermées.
+\item La translation statique consiste à prédéfinir des relations entre adresse/port publique et adresse/port privé. Cela permet de donner accès au monde extérieur à des serveurs de la zone privée.
+\end{itemize}
+
+\begin{center}
+\begin{tabular}{|cccc|cccc|}
+\multicolumn{4}{c}{externe} & \multicolumn{4}{c}{interne} \\
+\hline
+source & port & dest. & port & source & port & dest. & port \\
+\hline
+10.0.0.1 & 25 & &  & 172.1.3.2 & 25 & &  \\
+10.0.0.2 & 8080 & &  & 172.1.3.2 & 80 & &  \\
+\hline
+\end{tabular}
+\end{center}
+
+
+\end{frame}
+
+
+\subsection{Architecture de pare-feux}
+\begin{frame}
+\frametitle{Pare-feu personnel}
+Un pare-feu peut être utilisé pour sécuriser un simple PC connecté à Internet via un modem.
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{center}
+\includegraphics[height=5cm]{FiguresNAT/pare-feu-simple.pdf}
+\end{center}
+\end{column}
+
+
+\begin{column}{0.5\textwidth}
+\begin{itemize}
+\item Par défauts ces logiciels pare-feu bloquent toutes les connexions entrantes et sortantes.
+\item A chaque nouvelle connexion un message s'affiche, demandant l'autorisation de l'utilisateur.
+\item Cette autorisation peut être appliquée durablement dans le temps.
+\end{itemize}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+\begin{frame}
+\frametitle{NAT et filtrage}
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/pare-feu-et-nat}
+\end{center}
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{NAT et filtrage}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Translation dynamique d'adresses pour toutes les adresses internes.
+\item Translation statique d'adresses pour les serveurs devant être accessibles depuis Internet (SMTP, accès HTTP, pour le serveur de courrier électronique).
+\item filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires.% (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+\item Filtrage des connexions entrantes pour interdire les connexions directes sur le pare-feu.
+
+\end{itemize}
+
+\item  {\color{blue} Limitations.} 
+\begin{itemize}
+\item Il n'existe pas d'analyse de contenu (comme de la recherche de virus) du trafic venant d'Internet.
+
+\item Depuis Internet, des connexions directes sont effectuées sur les serveurs internes.
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis : peu élevé.
+\item Peu adapté pour les serveurs qui nécessitent d'être accessibles à un large public (tels que les serveurs web).
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarizée}
+
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/pare-feu-et-dmz}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée (NAT +DMZ)}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Les machines internes ne sont pas autorisés à se connecter à Internet, elles peuvent uniquement communiquer avec le proxy dans la DMZ.
+
+\item Seul le proxy est autorisé à établir une connexion à destination d'Internet.
+
+\item Translation dynamique d'adresses pour toutes les connexions sortantes.
+
+\item Translation statique d'adresses en direction du proxy pour les communications entrantes autorisées (SMTP accès HTTP au serveur de courrier électronique).
+
+\item Filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires en direction du proxy (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+\item Filtrage des connexions entrantes pour interdire les connexions directes vers le pare-feu.
+
+\end{itemize}
+\end{itemize}
+\end{small}
+\end{frame}
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée (NAT +DMZ) }
+\begin{small}
+
+\begin{itemize}
+\item  {\color{blue} Limitations.} 
+\begin{itemize}
+\item Le pare-feu est un point critique. Toute vulnérabilité du pare-feu peut être exploitée pour accéder à l'ensemble du réseau interne.
+\item Tous les services  passent au travers du proxy. Si l'un des services est vulnérable aux attaques c'est tout le trafic qui peut être compromis (espionné, bloqué, redirigé, modifié,  \ldots).
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis: moyen.
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Pare-feu avec zone démilitarisée en sandwitch}
+
+\begin{center}
+\includegraphics[width=7.5cm]{FiguresNAT/pare-feux-et-dmz-sandwitch}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{DMZ en sandwitch}
+\begin{small}
+\begin{itemize}
+\item {\color{blue} Configuration standard.} 
+\begin{itemize}
+\item Les machines internes ne sont pas autorisés à se connecter à Internet, elles peuvent uniquement communiquer avec les proxies dans la DMZ et de plus uniquement avec les protocoles respectifs aux proxies.% (par exemple HTTP, HTTPS, FTP, SMTP, DNS).
+
+\item Seuls les proxies sont autorisés à établir des connexions en direction d'Internet.
+
+\item Les fonctions de routage sont désactivées sur les proxies.
+
+\item Translation dynamique d'adresses pour toutes les connexions sortantes.
+
+\item Translation statique d'adresses en direction des proxies pour les protocoles autorisés à entrer.
+
+
+\item Filtrage des connexions sortantes pour autoriser uniquement les protocoles nécessaires en direction des proxies.
+\item Filtrage des connexions entrantes pour interdire toute connexion directe sur le pare-feu.
+
+\end{itemize}
+\item  {\color{blue} Applications.} 
+\begin{itemize}
+\item Niveau de sécurité requis: élevé.
+\end{itemize}
+
+\end{itemize}
+\end{small}
+\end{frame}
+
+\subsection{Proxies}
+
+\begin{frame}
+\frametitle{Proxies : qu'est ce c'est? }
+
+\begin{itemize}
+\item Les proxies (ou serveur relais) sont des relais au niveau applicatif (et non plus au niveau IP ou TCP).
+
+
+\item Les proxies travaillent sous forme de relais de connexion : %les applis source communique avec l'applis destinataires sans avoir à se connecter directement au serveur.
+
+\begin{center}
+\includegraphics[width=9cm]{FiguresNAT/proxy}
+\end{center}
+
+\item Dans les couches de protocoles les proxies se situe:
+
+
+\begin{center}
+\includegraphics[height=4cm]{FiguresNAT/couche-tcpip-proxy}
+\end{center}
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Proxies : qu'est ce c'est?}
+\begin{itemize}
+\item Un proxy peut être intégré dans un pare-feu, mais ils sont en général sur des machines séparées.
+\item Pour limiter les risques, on interdit généralement les connexions directes entre machines d'un réseau protégé et internet.
+\item Un proxy peut examiner le contenu des données échangées pour filtrer éventuellement si le contenu est inapproprié.
+\end{itemize}
+
+Il existe des proxies dédiés pour la plupart des applications réseau: HTTP, FTP, SMTP,  DNS.
+
+\end{frame}
+
+
+\subsection{Filtrage}
+
+
+
+\begin{frame}
+\frametitle{Filtrage : généralité}
+\begin{itemize}
+\item Le filtrage consiste à autoriser ou bloquer du trafic à entrer ou sortir non d'une partie du réseau.
+\item  Le filtrage consiste à applique certaines règles concernants les critères suivants:
+\begin{itemize}
+\item Adresse IP source ou destination.
+\item Protocole (TCP, UDP, ICMP, ...) et port.
+\item Drapeaux et options : TCP SYN, ACK, ICMP.
+\end{itemize}
+
+\item {\color{blue} Exemple :} le filtage d'adresse IP permet de contrer des attaques par spoofing.
+
+\item {\color{blue} Exemple :} le filtage sur les drapeaux SYN et ACK permet de contrer une attaque SYN.
+
+
+\item {\color{blue} Exemple :} le filtage sur ICMP peut autoriser des \texttt{echo-requests} que dans une direction (sortante).
+\end{itemize}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{ Filtrage : généralité}
+
+\begin{itemize}
+\item Un pare-feu est configuré via une liste de règles de filtrage.
+
+\item Pour chaque règle on doit spécifier les caractéristiques du paquet (adresses source et/ou destination, ports, drapeaux, \ldots) auxquelles la règle s'applique.
+
+\item Chaque règle contient aussi l'action à effectuée avec les paquets sélectionnés par exemple les laisser passer ou les détruire. 
+
+
+\item Pour chaque paquet re\c cu le pare-feu parcourt la liste des règles jusqu'à ce qu'il en trouve une qui s'applique. 
+
+\item L'ordre dans lequel ces règles sont lues est donc \alert{très important!}.
+\end{itemize} 
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exemple 1 - règles de filtage : autorisation vers un serveur SMTP} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP & permis \\
+2 & 10.0.0.1 & 25 & $\ast$ & $\ast$ & TCP & permis \\
+\hline
+3 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP & permis \\
+4 & $\ast$ & 25 & 10.0.01 & $\ast$ & TCP & permis \\
+\hline
+5 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+\only<1>{
+\begin{itemize}
+\item Les règles 1 et 2 laissent passer n'importe quel paquet entre une machine/port quelconque et le serveur SMTP (10.0.0.1, port 25).
+\item Les règles 3 et 4 autorisent le serveur de courrier électronique à se connecter au port 25 de n'importe quel autre serveur pour déposer du courrier.
+\item La dernière règle interdit toute autre type de connexion.
+\end{itemize}
+}
+
+\only<2>{
+{\color{blue} Problèmes : pare feu trop permissif}
+\begin{itemize}
+\item Les règles 1 et 2 autorisent la connexion d'un client sur le port 25 du serveur SMTP à se connecter sur n'importe quel machine/port.
+\item Les règles 3 et 4 autorisent un client sur  le port 25 de n'importe quel machine de se connecter sur \alert{n'importe quel port} du serveur SMTP.
+\end{itemize}
+\textit{On peut corriger ces problemes en ajoutant des conditions sur les flags SYN et ACK.}
+}
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{Exemple 2 - règles de filtage : autorisation vers un serveur SMTP} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & ACK set? & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP &  $\ast$  & permis \\
+2 & 10.0.0.1 & 25 & $\ast$ & $\ast$ & TCP & oui  & permis \\
+\hline
+3 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP &  $\ast$& permis \\
+4 & $\ast$ & 25 & 10.0.01 & $\ast$ & TCP & oui & permis \\
+\hline
+5 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+\only<1>{
+\begin{itemize}
+\item La modification dans la règle 2 interdit l'ouverture de connexion par \textit{10.0.0.1 port 25} vers une autre machine. 
+\item La modification dans la règle 4 interdit l'ouverture d'une connexion d'une machine quelconque (port 25) vers le serveur (port quelconque).
+\end{itemize}
+}
+
+\only<2>{
+{\color{blue} Problème persistant:}
+\begin{itemize}
+\item Si un pirate forge des paquets avec les drapeaux appropriés, le pare-feu les laissera passer.
+\item Le pare feu n'ayant pas de mémoire il ne peut faire la distinction  entre un paquet TCP forgé d'un paquet TCP authentique.
+\item C'est la limite des pare-feu sans mémoire !
+\end{itemize}
+%\textit{On peut corriger ces problemes en ajoutant des conditions sur les flags SYN et ACK.}
+}
+\end{frame}
+
+
+
+
+\begin{frame}
+\frametitle{Exemple 3 -  autorisation vers un serveur SMTP - pare-feu avec mémoire} 
+
+%\begin{comment}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  10.0.0.1 & 25 & TCP &   permis \\
+\hline
+2 & 10.0.0.1 & $\ast$ & $\ast$ & 25 & TCP &  permis \\
+\hline
+3 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+%\end{comment}
+
+
+\begin{itemize}
+\item Les pare-feu avec mémoire savent qu'un paquet SYN doit être suivi d'un paquet SYN-ACK.
+\item On peut donc spécifier le sens de la connexion (source = client initiateur de la connexion TCP, destinataire = serveur).
+\item La table de filtrage est plus simple !
+\end{itemize}
+
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Organisation des règles de filtrage}
+
+\begin{itemize}
+\item Les règles sont parcourues séquentiellement.
+
+\item Si une règle a pour but d'interdire un service est précédée d'une règle l'autorisant cette règle n'a aucun effet.
+
+\item Pare-feu dans une DMZ : 
+\begin{itemize}
+\item Pour les serveurs web:  connexions entrantes autorisées,   connexions sortantes refusées.
+\item Les machines internes ne devraient être autorisées à accéder qu'aux proxies.
+\end{itemize}
+
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Règles de filtrage DMZ}
+
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+1 & $\ast$ & $\ast$ &  dmz-web & 80 & TCP &   permis \\
+\hline
+2 & interne & $\ast$ &  proxy & 80 & TCP &   permis \\
+3 & interne & $\ast$ &  $\ast$ & $\ast$ & $\ast$ &   interdit \\
+\hline
+4 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+On remarque que la première règle autorise toute les machines  à se connecter au dmz-web.
+\pause
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c||c|}
+\hline
+& source & port & dest & port & protocole & action \\
+\hline
+2 & interne & $\ast$ &  proxy & 80 & TCP &   permis \\
+3 & interne & $\ast$ &  $\ast$ & $\ast$ & $\ast$ &   interdit \\
+\hline
+1 & $\ast$ & $\ast$ &  dmz-web & 80 & TCP &   permis \\
+\hline
+4 & $\ast$ & $\ast$ & $\ast$ & $\ast$ & $\ast$ &  interdit \\
+\hline
+\end{tabular}
+\end{center}
+Ce problème est corrigé en intervertissant l'ordre des règles 1 et 2. 
+
+
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Organisation des règles}
+ Une manière systématique de traiter les configurations complexes consiste à
+\begin{itemize}
+\item définir différents niveaux de sécurité pour chaque zone
+\item créer des règles en ordre décroissant de niveau de sécurité. 
+\end{itemize}
+Pour chaque zone et chaque direction 
+\begin{itemize}
+\item des règles sont créées pour autoriser le trafic désiré.
+\item suivies d'une règle interdisant tout le reste du trafic.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Exemple : table de filtrage pour DMZ}
+\begin{small}
+Ici les zones sont rangées comme suit:
+\begin{itemize}
+\item Sécurité très élevé : zone interne.
+\item Sécurité élevé : zone dmz-proxy  (zone en sandwitch).
+\item Sécurité moyenne : zone  dmz-web (zone en sandwitch).
+\item Sécurité basse : $\ast$ (le reste du réseau).
+\end{itemize}
+\end{small}
+
+\begin{scriptsize}
+\begin{center}
+\begin{tabular}{|c|c|c||c|}
+\hline
+& source  & dest &  action \\
+\hline
+1 & trafic autorisé & interne &  permis \\
+2 & $\ast$ & internet &  interdit \\
+\hline
+3 & interne & trafic autorisé & permis  \\
+4 & interne & $\ast$ & interdit  \\
+\hline
+5 &  trafic autorisé & dmz-proxy &  permis \\
+6 & $\ast$ & dmz-proxy &  interdit \\
+\hline
+7 & dmz-proxy & trafic autorisé & permis  \\
+8 & dmz-proxy &    $\ast$   & interdit  \\
+\hline
+9 &  trafic autorisé & dmz-web &  permis \\
+10 & $\ast$ & dmz-web &  interdit \\
+\hline
+11 & dmz-web & trafic autorisé & permis  \\
+12 & dmz-web &    $\ast$   & interdit  \\
+\hline
+13 & $\ast$ & $\ast$ & interdit \\
+\hline
+\end{tabular}
+\end{center}
+\end{scriptsize}
+
+
+
+
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  Authentification  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\begin{frame}
+\frametitle{Références}
+
+\begin{itemize}
+\item \textit{Sécurité informatique - cours et exercices corrigés.} G. Avoine, P. Junod et Philippe Oechslin. 2eme ed. Vuibert.
+
+\item \textit{Analyse structurée des réseaux.} J. Kurose et K. Ross. Pearson education.
+
+\item \textit{Techniques de hacking.} J. Erickson.  Pearson.
+
+\end{itemize}
+
+\end{frame}
+
+
+
+\end{document}
+
+
+
+
+
+\section{Courrier électronique} 
+
+\subsection{Courriel forgé}
+
+\begin{frame}
+
+
+\frametitle{Courrier électronique forgé}
+
+Forger un courrier électronique peut être utilisé à des fins: 
+\begin{itemize}
+\item criminelles,
+\item pour du harcèlement,
+\item de la diffamation,
+\item soutirer ou révéler des informations sensibles.
+\end{itemize}
+
+C'est  l'une des attaques les plus faciles à mettre en oeuvre. 
+\begin{itemize}
+\item Le protocole SMTP repose sur quatre commandes: \texttt{HELO, MAIL FROM, RCPT TO, DATA}.
+\item Un message peut être directement envoyé à un serveur SMTP via une connexion telnet.
+\item Aucune vérification de l'adresse de l'expéditeur n'est effectuée!
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple d'envoi d'email via SMTP}
+\begin{verbatim}
+$telnet smpt.univ-perp.fr 25
+HELO elysee.fr
+Trying 194.167.137.6...
+Connected to smtp.univ-perp.fr.
+Escape character is '^]'.
+MAIL FROM: chirac@elysee.fr
+250 OK
+RCPT TO: cedric.legrand@univ-perp.fr
+250 OK
+DATA
+Ceci est un mail forge.
+.
+250 OK
+QUIT
+connection closed by forein host.
+\end{verbatim}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple d'envoi d'email  : mail re\c cu}
+
+\begin{center}
+\includegraphics[width=10cm]{courriel-forge-chirac.jpeg}
+\end{center}
+
+\end{frame}
+
+
+
+
+
+\begin{frame}[fragile]
+\frametitle{Source du mail re\c cu}
+\begin{tiny}
+\begin{verbatim}
+Return-Path: <chirac@elysee.fr>
+Received: from cyrus.univ-perp.fr ([unix socket])
+	 by cyrus (Cyrus v2.2.12-Invoca-RPM-2.2.12-3.RHEL4.1) with LMTPA;
+	 Fri, 05 Apr 2013 17:17:41 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost [127.0.0.1])
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 8BDD72CB3BF
+	for <clegrand@cyrus.univ-perp.fr>; Fri,  5 Apr 2013 17:17:41 +0200 (CEST)
+Received: from cyrus.univ-perp.fr ([127.0.0.1])
+ by localhost (cyrus.univ-perp.fr [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 29817-10 for <clegrand@cyrus.univ-perp.fr>;
+ Fri,  5 Apr 2013 17:17:41 +0200 (CEST)
+Received: from smtp.univ-perp.fr (smtp.univ-perp.fr [194.167.137.6])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id C07832CB2E8
+	for <clegrand@cyrus.univ-perp.fr>; Fri,  5 Apr 2013 17:17:40 +0200 (CEST)
+Received: from elysee.fr (delldali.univ-perp.fr [194.167.138.24])
+          by smtp.univ-perp.fr (8.13.1/jtpda-5.4) with SMTP id r35FGQUv009974
+          for cedric.legrand@univ-perp.fr; Fri, 5 Apr 2013 17:16:54 +0200
+Date: Fri, 5 Apr 2013 17:16:26 +0200
+From: chirac@elysee.fr
+Message-Id: <201304051516.r35FGQUv009974@smtp.univ-perp.fr>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-3.0 (smtp.univ-perp.fr [194.167.137.6]); Fri, 05 Apr 2013 17:16:54 +0200 (CEST)
+To: undisclosed-recipients: ;
+X-Virus-Scanned: amavisd-new at univ-perp.fr
+
+Ceci est un mail forge.
+\end{verbatim}
+\end{tiny}
+
+\end{frame}
+
+
+\begin{frame}
+Plusieurs lignes ont été rajoutées dans l'entête:
+\begin{itemize}
+\item Chaque serveur recevant/retransmettant le courriel insère une ligne {\color{blue}\texttt{Received:}} qui indique le nom et l'IP de la machine  lui ayant  transmis
+ le courriel.
+\item Il est possible de tracer l'email jusqu'à la machine source: ici machine avec l'IP 194.167.138.24.
+\item Cette source peut être masquée par l'utilisation de machine publique (cyber café) ou réseau publique et adresse MAC clonée.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Phishing}
+\begin{itemize}
+\item Le phishing consiste à envoyer un courriel \textit{contrefait} se faisant passer par exemple pour un administrateur réseau ou un courrier officiel d'une banque demandant des informations sensibles.
+\item
+La récupération d'information peut se faire par le biais d'un site web falsifié mimant le site officiel de la banque ou autre.
+\end{itemize}
+\end{frame}
+\begin{frame}
+\frametitle{Phishing : Exemple}
+\begin{center}
+\includegraphics[width=8cm]{Email_account_phishing_fr.jpg}
+\end{center}
+\end{frame}
+
+\subsection{Courriel indésirable}
+
+\begin{frame}
+\frametitle{Courrier électronique indésirable (SPAM)}
+
+\begin{itemize}
+\item Le fait que les courriels peuvent être envoyés avec de fausses adresses permet l'envoi massif d'email 
+\item L'auteur du mail se protège en masquant son identité.
+\item Ce type d'email indésirable est communément appelé SPAM (ou plus rarement pourriel).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Courrier électronique indésirable (SPAM)}
+
+La notion de courrier \textit{indésirables} étant subjective  la classification d'un courrier envoyé en masse comme du spam est délicate:
+\begin{itemize}
+\item La CNIL propose la définition suivante:
+
+\begin{itshape}
+Constituent des spam les messages adressés sur la base d'une collecte irrégulière de courriel soit au moyen de moteurs de recherche dans les espaces publics de l'Internet soit que les adresses aient été cédées sans que les personnes en aient été informées et sans qu'elles aient été en mesure de s'y opposer ou d'y consentir. 
+\end{itshape}
+\item L'aspect concernant la collecte d'adresse est discutable, le Syndicat National de la Communication Directe propose la définition suivante
+
+\begin{itshape}
+Adresses collectées de manière déloyale, envoi ne respectant pas les modalités d'utilisation précisées lors de la collecte; courriel ne permettant pas une désinscription sélective ou totale. 
+\end{itshape}
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Historique}
+
+Il est difficile de dater l'apparition du premier spam:
+\begin{itemize}
+\item Certains l'attribue à Gary Thuerk employé chez DEC qui envoya en 1978 un courrier publicitaire à l'ensemble des utilisateurs d'ARPAnet ($\cong$ une centaines de personnes).
+
+
+\item D'autres l'attribue à L. Canter et M. Siegel, deux avocats spécialisé dans les affaires d'immigration, qui ont envoyé en 1994 un seul spam à plusieurs millions de personnes. 
+\item Ils ont envoyés sur 6000 groupes de diffusion un message faisant la publicité de leur service pour l'obtention de la \textit{green card}, ils ont recu 25 000 réponses, leur rapportant 100 000 dollars.
+\item En contrepartie ils ont été plusieurs fois condamnés et même Canter a été radié du barreau en 1997. 
+\end{itemize}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Technique de diffusion du spam - Relais ouverts}
+
+\begin{itemize}
+\item Le fait de recevoir un spam est surtout une nuisance.
+\item C'est la fa\c con dont il est distribué qui crée des problèmes de sécurité.
+\item L'envoi d'email à des millions d'adresses nécessite des ressources importantes.
+\item Un serveur relais est un serveur de courriel d'une entreprise qui est utilisé par des utilisateurs extérieurs (auteurs de spam) pour envoyer leur propre courriel.
+\end{itemize}
+\end{frame}
+
+
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam : Serveur Relais}
+\begin{itemize}
+\item Il est plus efficace pour l'auteur d'un spam qu'il l'envoie une copie à plusieurs serveurs de courrier (SMTP) et une liste de plusieurs milliers d'adresse email.
+\item Pour l'entreprise dont le serveur mail est abusé:
+\begin{itemize}
+\item Durant le temps de l'envoie des mails (qq minutes ou heures) le serveur est surchargé par l'envoie des spams. 
+\item Le serveur ne peut même plus gérer les emails interne à l'entreprise.
+\item Si l'entreprise est de petite taille, la connexion internet est elle aussi surchargée. 
+\item Le disque dur du serveur se remplit de log de confirmation de courriers bien délivrés.
+\item La boîte de courriel de l'admin se remplit de message d'erreur pour les adresses email invalides. 
+\item Le FAI de l'entreprise peut menacer de couper la connexion internet s'il recoit des plaintes de destinataires de spam. 
+\item Le serveur abusé risque d'être placé sur liste noire, et les futurs courriels  ``normaux'' risqueront d'être rejetés.
+\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple de  spam}
+
+%\includegraphics[width=12cm]{spam.jpeg}
+\includegraphics[width=12cm]{spam-scxn1.png}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Exemple de  spam - code source}
+\begin{tiny}
+\begin{verbatim}
+Return-Path: <lilnxfxtdw@abcna.com>
+Received: from cyrus.univ-perp.fr ([unix socket])
+	 by cyrus (Cyrus v2.2.12-Invoca-RPM-2.2.12-3.RHEL4.1) with LMTPA;
+	 Sat, 20 Apr 2013 23:47:30 +0200
+X-Sieve: CMU Sieve 2.2
+Received: from localhost (localhost [127.0.0.1])
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 24C912CAD05
+	for <clegrand@cyrus.univ-perp.fr>; Sat, 20 Apr 2013 23:47:30 +0200 (CEST)
+Received: from cyrus.univ-perp.fr ([127.0.0.1])
+ by localhost (cyrus.univ-perp.fr [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 21776-07 for <clegrand@cyrus.univ-perp.fr>;
+ Sat, 20 Apr 2013 23:47:30 +0200 (CEST)
+Received: from smtp.univ-perp.fr (unknown [IPv6:2001:660:6302:1:218:feff:fe7c:5a12])
+	(using TLSv1 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by cyrus.univ-perp.fr (Postfix) with ESMTP id 09B732CAB36
+	for <clegrand@cyrus.univ-perp.fr>; Sat, 20 Apr 2013 23:47:30 +0200 (CEST)
+Received: from 46.18.68.132 (132-68-18-46-pppoe-dynamic-ip.ultel-dot-net [46.18.68.132] (may be forged))
+          by smtp.univ-perp.fr (8.13.1/jtpda-5.4) with SMTP id r3KLlQEe020156
+          for <cedric.legrand@univ-perp.fr>; Sat, 20 Apr 2013 23:47:28 +0200
+Received: from unknown (HELO nsbz) ([105.215.113.91])
+	by 132-68-18-46-pppoe-dynamic-ip.ultel-dot-net with ESMTP; Sun, 21 Apr 2013 02:52:13 +0400
+Message-ID: <000a01ce3e10$a2a2cc20$69d7715b@Usernsbz>
+From: "Marian Mackey" <lilnxfxtdw@abcna.com>
+To: <cedric.legrand@univ-perp.fr>
+Subject: This Stock Destined for Explosive Growth
+Date: Sun, 21 Apr 2013 02:44:39 +0400
+
+Should S C X N become the next acquisition prospect for BP?
+BP invested 41 Billion fixing their latest oil leakage. What amount 
+would Brit Petroleum pay to reduce its 41 Bill expense, minimize 
+danger to the environment and firm's reputation?
+The Scout Exploration, Inc. delivers a better and essential tool for oil 
+spill solution. Trade S C X N before it reaches it's business worth 
+trade shares below $1 on Apr 22nd!
+\end{verbatim}
+\end{tiny}
+\end{frame}
+
+
+
+
+
+
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam - Règles pour éviter l'utilisation d'un serveur relais}
+
+%Un serveur relais est un serveur de courriel d'une entreprise qui est utilisé par des utilisateurs extérieurs (auteurs de spam) pour envoyer leur propre courriel.
+
+
+Pour éviter qu'un serveur de courriel ne devienne un relais ouvert on doit appliquer les règles suivantes:
+\begin{enumerate}
+\item Pour qu'un message soit accepté par le serveur de courrier, soit l'adresse de l'expéditeur, soit celle du destinataire doit appartenir au domaine du serveur : cela évite l'utilisation du serveur comme  relais.
+\item Seuls les systèmes appartenant au même domaine que le serveur peuvent envoyer du courrier avec un expéditeur faisant partie du domaine : cela empêche des utilisateurs extérieurs de se faire passer pour des utilisateurs locaux.
+\end{enumerate}
+
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Diffusion du spam :Spambots}
+
+Aujourd'hui une part importante du trafic de spam provient de spambot (ou robot spammeur):
+\begin{itemize}
+\item Un \textit{robot} est une machine compromise qui obéit aux ordres d'un maître.
+\item La compromission d'une machine peut se faire grâce à un virus ou via des failles de sécurité de la machine.
+\item Un robot élémentaire consiste en un relais SMTP ouvert à tous et en particulier aux auteurs du spam
+\item Un robot plus élaboré se connecte à un serveur de discussion (par exemple un canal IRC = Internet Relay Chat) et se met en écoute des commandes du maître.
+Le maître se connecte sur le canal et envoie ses ordres à tous les robots connectés au canal.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Diffusion du spam : Messagerie gratuite en ligne}
+
+Une dernière technique pour diffuser du spam consiste à abuser des messageries gratuites en lignes (Hotmail, Yahoo mail, gmail, ...):
+\begin{itemize}
+\item Tous ces webmails limitent le nombre de courriels qui peuvent être envoyés.
+\item Les diffuseurs de spam créent des scripts pour ouvrir automatiquement des milliers de nouveaux comptes.
+\item Les scripts alors envoient pour chacun des comptes une quantité limité de courriels.
+\item Les opérateurs de messagerie en ligne se protège contre les créations de comptes automatiques par des \textit{captchas}, devinettes graphiques sensées être déchiffrable que par un humain.  
+\end{itemize}
+\end{frame}
+
+\subsection{Lutte contre le spam}
+
+\begin{frame}
+\frametitle{Filtrage}
+
+Le filtrage peut porter 
+\begin{itemize}
+\item sur le contenu contient-il les mots clefs Viagra, XXL, etc. ;
+\item des paramètres de l'en-tête du courrier (temps de transit, ...) ;
+\item le format des messages (titre du message en lettre capitales, ...).
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Filtrage : Spamassassin}
+
+
+Spamassassin est un logiciel de lutte contre le spam qui utilise des règles de filtrage:
+\begin{itemize}
+\item Des centaines de règles peuvent être appliquées lors du traitement ;
+\item A chaque règle est attribuée un poids relié l'importance de la règle.
+\item A l'issu de l'analyse les poids sont combiné pour donner un score au message : au dessous d'un certain seuil les message est accepté, au dessous le message est rejeté.
+\end{itemize}
+
+Ce type d'approche a clairement des limites: si les règles sont mal ajustés des spams peuvent passer à travers le filtre et des mails réguliers peuvent êtres rejetés par erreur.
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Spamassassin, un exemple de scoresheet}
+
+\begin{tiny}
+\begin{verbatim}
+Received: from localhost (unknown [81.185.105.205])
+     by mwinf8216.laposte.net (SMTP Server) with ESMTP id 3CDC73C0008D for
+     john.smith@laposte.net; Mon, 08 Jun 2009 23:37:51 +02000 (CEST)
+Date: Mon, 08 Jun 2009 23:10:34 +0200
+From Information 34556299773-send@yahoo.fr
+Subject: Spam? Pour votre information.
+(...)
+X-SpamCheck: polluriel, SpamAssassin
+   score=19.452,
+   requis 5,
+   BAYES_50 1.00,
+   DCC_CHECK 2.17, 
+   DIGEST_MULTIPLE  0.00,
+   FROM_LOCAL_DIGITS  0.00,
+   FROM_LOCAL_HEX 1.40,
+   FROM_STARTS_WITH_NUMS 1.50,
+   HTML_IMAGE_ONLY 1.53,
+   HTML_IMAGE_RATIO_02  0.38,
+   HTML_MESSAGE  0.00, 
+   MIME_HTML_MOSTLY  0.00,
+   NUMERIC_HTTP_ADDR 0.00,
+   RAZOR2_CF_RANGE_51_100 0.50,
+   RAZOR2_CF_RANGE_E4_51_100 1.50,
+   RAZOR2_CF_RANGE_E8_51_100 1.50,
+   RAZOR2_CHECK 0.50,
+   RCVD_IN_DNSWL_LOW -1.00,
+   RCVD_IN_SORBS 2.00,
+   SARE_FROM_SPAM_WORD3 0.10,
+   UNPARSEABLE_RELAY 0.00,
+   URIBL_JP_SURBL 3.00,
+   URIBL_WS_SURBL 3.00, 
+   URI_HEX 0.37
+X-Spam-Status: Yes
+\end{verbatim}
+\end{tiny}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{Liste noires et liste blanches}
+
+Une approche de lutte contre le spam consiste à utiliser des listes noires et blanches:
+\begin{itemize}
+\item Une liste noire contient des adresses IP de machines qui envoient du spam.% Il peut s'agir de machines utilisées exclusivement pour cela ou des machines compromises qui le font à leur insu.
+Exemple de liste : celle gérée par Spamhous Project.
+\item  Une liste blanche contient des adresses IP, noms de domaines ou expéditeurs de confiance.% c'est à dire qui sont connus pour ne pas envoyer de spam. Une liste blanche est généralement.
+ Utilisée en complément d'une autre méthode de lutte contre le spam pour éviter le rejet de mail de correspondant régulier.
+
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Signature de spam}
+\begin{itemize}
+\item Un spam est envoyé à des millions d'exemplaire sur des plage de temps relativement longue (plusieurs jours à plusieurs mois) 
+\item On peut mutualiser les efforts : des bases de données de signature de spams (signature = portion  discriminante du message)  sont stockées sur des serveurs.
+\item  Il est alors possible d' interroger la base de données pour vérifier si un courriel suspect est un spam ou non.
+\item L'alimentation de la base de données se fait soit de facon collaborative ou par utilisation/diffusion d'adresse mail cible facile de spammeurs.
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{Liste grise}
+
+Cette technique consiste à détecter les comportement ``bourrin'' de certains diffuseurs de spams:
+\begin{itemize}
+\item Lors de la réception d'un email d'un expéditeur: le mail est bloqué, l'adresse IP et l'adresse email de l'émetteur est stockée et l'email est jeté.
+\item Le protocole SMTP prévoit, lors de la perte d'un message, la ré-émission du message par le serveur SMTP expéditeur.
+\item Lorsque le message est recu pour la seconde fois, le message est alors remis dans la boîte au lettre du destinataire.
+\item Les serveurs qui envoient des spams par grosse quantité ne se soucis pas de ré-émettre des messages perdus ou rejetés. Ce sont eux que détecte la technique de la liste grise.
+\item Cette technique est inefficace contre les spambots.
+\end{itemize}
+\end{frame}
+
+\subsection{Modèle économique du spam}
+
+\begin{frame}
+\frametitle{Modèle économique du spam}
+
+Le modèle économique de Canter et Siegel dans les années 90 était simple:
+\begin{itemize}
+\item l'envoie de spam avait pour objectif de faire connaître leur activité, 
+\item les bénéfices qu'ils en retiraient provenaient ensuite exclusivement de leur travail d'avocat.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Modèle économique du spam}
+Aujourd'hui la situation est plus complexe, une économie s'est mise en place:
+\begin{itemize}
+\item Ceux qui collectent les adresses peuvent vendre ou louer leur liste d'adresse. Cette activité
+est légale car les adresses sont collectées sur le domaine publique et lors de la vente 
+les acheteurs attestent du fait qu'ils ne vont pas utiliser les adresses pour envoyer des pourriels.
+
+\item Ceux qui envoient du spam sont rémunérés en louant leurs serveurs ou leurs services comme la mise à disposition de réseau de spambot.
+
+\item Les auteurs des spams à proprement dit qui diffusent une information pouvant avoir un intérêt directe vente en lignes engendrés par le message ou la publicité.
+
+\item Le but du spam lui même peut servir à collecter des adresses.
+
+\end{itemize}
+
+
+\end{frame}
+
+%\section{Vulnérabilité des applications et des réseaux}

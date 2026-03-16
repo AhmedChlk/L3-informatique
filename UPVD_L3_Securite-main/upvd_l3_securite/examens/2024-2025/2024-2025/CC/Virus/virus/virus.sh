@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+chaine=$(cat $0 | tr ' \n' '#@')
+n=$(echo -n $chaine | wc -c )
+for fichier in *.sh
+do    
+    nbw=$(wc -w $fichier | cut -d" " -f1)    
+    if [ $fichier != $(basename $0) -a $nbw -gt $n ]
+    then        
+        output="${fichier}.cg"
+        l=$(wc -l $fichier | cut -d" " -f1)
+        i=1
+        j=0
+        echo "" > $output
+        while [ $i -le $l ]
+        do
+            ligne=$(cat $fichier | head -n $i |  tail -n 1)            
+            for mot in $ligne
+            do            
+                if [ $j -lt $n ]
+                then
+                    echo -n "$mot${chaine:$j:1} "  >> $output                   
+                else
+                    echo -n "$mot " >> $output
+                fi
+                j=$(($j+1))
+            done
+            echo ""  >> $output
+            i=$(($i+1))
+        done
+    fi
+done

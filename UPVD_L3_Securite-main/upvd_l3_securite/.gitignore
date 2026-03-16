@@ -1,0 +1,38 @@
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.vrb
+*.nav
+*.snm
+*.bbl
+*.blg
+*.lof
+*.lot
+*.idx
+*.ind
+*.ilg
+
+# Fichiers intermédiaires
+*.dvi
+
+# Éditeurs
+*.swp
+*~
+.DS_Store
+*.bak
+
+# Compilés
+*.o
+a.out
+
+# Dossiers temporaires
+.tmp/
+tmp/
+
+# Claude Code
+MEMORY.md

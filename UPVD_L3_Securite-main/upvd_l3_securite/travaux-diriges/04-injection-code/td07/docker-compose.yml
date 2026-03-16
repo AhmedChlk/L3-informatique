@@ -1,0 +1,32 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    volumes:
+      - ./exemples/Fichiers-TD5:/var/www/html/td7
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: l2info
+      MYSQL_USER: l2info
+      MYSQL_PASSWORD: l2info
+    volumes:
+      - ./exemples/Fichiers-TD5/bd.sql:/docker-entrypoint-initdb.d/01-bd.sql
+      - ./exemples/Fichiers-TD5/create-db-film.sql:/docker-entrypoint-initdb.d/02-films.sql
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  db_data:

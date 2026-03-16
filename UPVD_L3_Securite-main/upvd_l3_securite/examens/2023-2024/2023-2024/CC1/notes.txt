@@ -1,0 +1,12 @@
+1) <script> alert() </script>  réponse vue en cours et en TD.
+
+2) La page a été sécurisé en remplacant les < par des &lt; et > des &gt; rendant impossible d'injecter des balises, en particulier des balise de script.
+Pour faire l'injection, on met dans l'entree du formulaire 
+31.jpg" onerror="alert()" alt="1
+qui a pour effet de provoquer une erreur avec une image qui n'existe pas,le code pointé par onerror est alors exécuté.
+
+3) Il faut rendre vide la recherche normale sur le titre, en faisant un AND 0=1.
+ Puis on fait une union avec un SELECT sur la table Users qui concatene toutes les données de la table Users. 
+On termine par un # et un ' pour fermer le ' qui suivra.
+
+Durant' AND '1'='0' UNION SELECT CONCAT(login,',',passwd,',',email) AS titre FROM Users; # '

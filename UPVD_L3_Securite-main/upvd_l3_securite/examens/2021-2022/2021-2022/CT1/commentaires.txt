@@ -1,0 +1,202 @@
+Aghri : 1
+ exo1
+  1) 0 
+  2) 0 
+ exo2
+  1) 0
+  2) 0
+  3) 0
+  4) 0
+  
+Allal: 10.5  
+ exo1:
+  1) 2 c'est bon
+  2) 2 c'est bon
+ exo2
+  1) 5 c'est bon ( à un détail pres)
+  2) 2 c'est confus 
+  3) 0 il a juste acollé les deux codes 
+  4) 0.5
+
+
+Bah: 11.5 
+ exo1:
+ 1) 2
+ 2) 1.5 (une erreur decompte/parcourt des lignes)
+ exo2:
+ 1) 4.5 (bug à cause de mon erreur enoncé), code simplifiable
+ 2) 2.5 (marche pas à cause du s ?? )
+ 3) 1 (peu avancé : seule bouche sur les fichier sh)
+ 4) pas de réponse 
+
+
+Bekhtaoui: 14 
+ exo1
+ 1) 1.5 (boucle en trop)
+ 2) 2 (bien)
+ exo2
+ 1) 4.5 (ok sauf derniere boucle non gérée)
+ 2) 5
+ 3) 1 (ebauche)
+ 4) 0 (mauvaise reponse)
+
+
+Chbouk : 13 
+ exo1:
+ 1) 2
+ 2) 2
+ exo2:
+ 1) 5 
+ 2) 4 
+ 3) 0 
+ 4) 0 
+
+
+Ellouzati: 7 
+  exo1:
+  1) 2
+  2) 2
+  exo2:
+  1) 3
+  2) 0
+  3) 0
+  4) 0
+
+Grignon : 16
+  exo1:
+  1)2
+  2)2
+  exo2:
+  1) 5 
+  2) 5 
+  3) 1.5
+  4) 0.5
+
+Herpoux : 7
+  exo1:
+  1) 2
+  2) 1 
+  exo2:
+  1) 1.5
+  2) 1.5
+  3) 0.5 
+  4) 0.5
+
+Kraouch: 10.5
+  exo1:
+   1) 2
+   2) 1.5
+   exo2:
+   1) 2
+   2) 5
+   3) 0
+   4) 0
+
+Lima : 14
+  exo1:
+   1) 2
+   2) 2
+   exo2:
+   1) 5
+   2) 5 
+   3) 0
+   4) 0
+
+Liu : 4.5
+ exo1:
+  1) 2
+  2) 1 (ne compte pas les éléments) 
+exo2:
+  1) 1.5
+  2) 0
+  3) 0
+  4) 0
+
+
+Manongo: 6
+ exo1: 3.5 (utilisation de ligne in $(cat pour parcourir le fichier)
+   1) 
+   2) 
+ exo2:
+   1) 2 (la section des lignes n'est pas bonne)
+   2) 0
+   3) 0 
+   4) 0.5
+
+
+
+Moral: 14.5
+  exo1:
+    1) 2
+    2) 2
+  exo2:
+    1) 4
+    2) 5
+    3) 1
+    4) 0.5 
+
+
+Pleutin: 11.5
+exo1:
+  1) 2
+  2) 2 
+exo2:
+  1) 4.5
+  2) 3
+
+
+Rebiere: 9 
+  exo1: 4
+   1)
+   2)
+  exo2:
+   1) 5 
+   2)
+   3)
+   4)
+
+Rogalle: 15.5 
+  exo1: 4
+  exo2
+   1) 5
+   2) 5
+   3) 1
+   4) 0.5
+
+
+Saim: 15 
+  exo1: 4
+  exo2:
+  1) 5
+  2) 5 
+  3) 1 
+  4) 
+
+
+Sangerma: 5.5
+ exo1:4
+ exo2:
+ 1) 1.5
+ 2)
+ 3)
+ 4)
+
+Seraye:  7 
+  exo1: 3 (problemes dans la question 2, et les parentheses)
+  exo2: 
+   1)2 (les valeurs des compteurs sont pas bons)
+   2)2 ( meme choses) 
+
+
+Thivend: 13 
+  exo1:  4 (bien)
+  exo2:
+  1) 4
+  2) 5
+  3) 0
+
+Tighilt: 14 
+ exo1: 4
+ exo2: 4+5 
+ exo3: 1
+

@@ -1,0 +1,1341 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{booktabs}
+
+% --- Packages added for pedagogical enrichment ---
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{hyperref}
+
+%%%%%%%%%%%%%%% LISTINGS CONFIGURATION %%%%%%%%%%%%%%%%%%%
+
+\definecolor{codegreen}{rgb}{0.25,0.49,0.25}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codered}{rgb}{0.7,0.1,0.1}
+\definecolor{codeblue}{rgb}{0.0,0.0,0.7}
+\definecolor{backcolour}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    language=C,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    stringstyle=\color{codered},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    numberstyle=\tiny\color{codegray},
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=4,
+    frame=single,
+    rulecolor=\color{codegray},
+    xleftmargin=1.5em,
+    framexleftmargin=1.5em,
+    literate={é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {à}{{\`a}}1 {ù}{{\`u}}1 {î}{{\^i}}1 {ô}{{\^o}}1
+}
+
+%%%%%%%%%%%%%%% TCOLORBOX ENVIRONMENTS %%%%%%%%%%%%%%%%%%
+
+% Course reminder (light blue background)
+\newtcolorbox{rappel}[1][]{
+    colback=blue!5!white,
+    colframe=blue!50!black,
+    fonttitle=\bfseries,
+    title={\large Course Reminder},
+    #1
+}
+
+% Key takeaway (light green background)
+\newtcolorbox{pointcle}[1][]{
+    colback=green!5!white,
+    colframe=green!40!black,
+    fonttitle=\bfseries,
+    title={Key Takeaway},
+    #1
+}
+
+% Warning (light orange background)
+\newtcolorbox{attention}[1][]{
+    colback=orange!8!white,
+    colframe=orange!60!black,
+    fonttitle=\bfseries,
+    title={Warning},
+    #1
+}
+
+% Ethical disclaimer (red background)
+\newtcolorbox{ethique}[1][]{
+    colback=red!5!white,
+    colframe=red!60!black,
+    fonttitle=\bfseries\large,
+    title={Ethical and Legal Disclaimer},
+    #1
+}
+
+%%%%%%%%%%%%%%% COMMANDS %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemma}
+\newtheorem{algorithme}{Algorithm}
+\newtheorem{corolaire}{Corollary}
+\newtheorem{propriete}{Property}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{correction}{Answer}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercise}
+\newtheorem{remarque}{Remark}
+\newtheorem{exemple}{Example}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue!60!black,
+    urlcolor=blue!60!black
+}
+
+%%%%%%%%%%%%%% DOCUMENT %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{University of Perpignan} \hfill  L3 Computer Science \\
+ \hfill C. Legrand \hfill  Year \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large Lab Work 2 - Security -- Solutions}  \\
+ Infection Techniques and Polymorphism
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+
+\bigskip
+
+% --- Ethical disclaimer ---
+\begin{ethique}
+The techniques presented in this lab work are studied within a \textbf{strictly academic context} in order to understand the mechanisms used by malicious software and thus be better able to defend against them.
+
+\textbf{Any use of these techniques outside the educational context is illegal} and punishable by criminal penalties (Chapter III of the French Penal Code, Articles 323-1 to 323-8 -- \textit{Offences against Automated Data Processing Systems}):
+\begin{itemize}
+    \item Unauthorized access to or remaining in an ADPS (Art.~323-1): \textbf{3 years} imprisonment and \textbf{\texteuro{}100,000} fine
+    \item Obstructing the operation of an ADPS (Art.~323-2): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+    \item Fraudulent introduction of data into an ADPS (Art.~323-3): \textbf{5 years} imprisonment and \textbf{\texteuro{}150,000} fine
+\end{itemize}
+Penalties increased to \textbf{7 years} and \textbf{\texteuro{}300,000} when the targeted system processes personal data operated by the State, and up to \textbf{10 years} and \textbf{\texteuro{}300,000} for organized crime (Art.~323-4-1). \textit{Penalties updated by the LOPMI law no.~2023-22 of January 24, 2023.}
+\end{ethique}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 1: Logic Bomb with Temporal Trigger
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Logic Bomb with Temporal Trigger]
+
+A \textit{logic bomb} is a malicious program that installs itself in a system and waits for a specific event called a \textbf{trigger} to execute its offensive function (the \textbf{payload}).
+
+Consider the following C program:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <time.h>
+
+int check_trigger() {
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    // Trigger condition
+    if (t->tm_mon == 3 && t->tm_mday == 1) {
+        return 1;
+    }
+    return 0;
+}
+
+void payload() {
+    printf("=== PAYLOAD ACTIVATED ===\n");
+    printf("All your files have been encrypted!\n");
+}
+
+void normal_operation() {
+    printf("System running normally...\n");
+}
+
+int main() {
+    if (check_trigger()) {
+        payload();
+    } else {
+        normal_operation();
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Identify the \textit{trigger} used in this program and explain precisely how it works. On which date will the payload be activated?
+
+\item Modify the \texttt{check\_trigger()} function so that the trigger only activates if the program has been executed more than 100 times.
+
+\item Propose two techniques to make the \textit{trigger} harder to detect during static code analysis.
+
+\item From an antivirus perspective, what techniques could be used to detect this type of malicious program?
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{Logic bomb:} a malicious program that remains inactive (dormant) until a specific condition is met. Unlike a virus, a logic bomb does not replicate: it waits for its \textit{trigger} then executes its \textit{payload}.
+
+\medskip
+\textbf{Common trigger types:}
+\begin{itemize}
+    \item \textbf{Temporal:} specific date or time (e.g., April 1st, Friday the 13th)
+    \item \textbf{Counter:} after $N$ executions or $N$ days of use
+    \item \textbf{Event-based:} deletion of a user account, no login for $N$ days
+    \item \textbf{Network:} receipt of a specific packet, contact with a C\&C server
+    \item \textbf{Environmental:} presence/absence of a file, process, or registry key
+\end{itemize}
+
+\medskip
+\textbf{Historical examples:}
+\begin{itemize}
+    \item \textbf{Omega Engineering (1996)} -- Timothy Lloyd, a fired system administrator, had planted a logic bomb that deleted the company's design and manufacturing programs 20 days after his departure. Estimated damages: \$10 million.
+    \item \textbf{Dark Seoul (2013)} -- Attack against South Korean banks and media. The malware waited for a specific date (March 20, 2013 at 2:00 PM) to wipe the hard drives of thousands of machines simultaneously.
+\end{itemize}
+\end{rappel}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Trigger identification:}
+
+The trigger is \textbf{temporal}. It uses the \texttt{time()} and \texttt{localtime()} functions to get the current date, then checks two conditions:
+\begin{itemize}
+\item \texttt{t->tm\_mon == 3}: the month equals 3
+\item \texttt{t->tm\_mday == 1}: the day of month equals 1
+\end{itemize}
+
+\begin{attention}
+In the C language \texttt{struct tm} structure, the \texttt{tm\_mon} field is indexed \textbf{starting from 0} (January = 0, February = 1, \ldots, December = 11). This is a classic pitfall!
+
+Therefore \texttt{tm\_mon == 3} corresponds to \textbf{April} (not March). The payload will be activated on \textbf{April 1st} (April Fools' Day!).
+\end{attention}
+
+\textbf{Complete table of \texttt{struct tm} fields:}
+
+\medskip
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+\textbf{Field} & \textbf{Meaning} & \textbf{Range} & \textbf{Note} \\
+\midrule
+\texttt{tm\_sec}   & Seconds          & 0--60  & 60 for leap second \\
+\texttt{tm\_min}   & Minutes          & 0--59  & \\
+\texttt{tm\_hour}  & Hours            & 0--23  & \\
+\texttt{tm\_mday}  & Day of month     & 1--31  & Starts at 1 \\
+\texttt{tm\_mon}   & Month            & 0--11  & \textbf{0 = January} \\
+\texttt{tm\_year}  & Year             & since 1900 & \textbf{Add 1900} \\
+\texttt{tm\_wday}  & Day of week      & 0--6   & 0 = Sunday \\
+\texttt{tm\_yday}  & Day of year      & 0--365 & 0 = January 1\textsuperscript{st} \\
+\texttt{tm\_isdst} & Daylight saving  & $>$0, 0, $<$0 & Positive = DST active \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\item \textbf{Modification for execution counter:}
+
+\begin{lstlisting}[language=C]
+int check_trigger() {
+    int count = 0;
+    FILE *f = fopen("/tmp/.counter", "r");
+    if (f) {
+        fscanf(f, "%d", &count);
+        fclose(f);
+    }
+
+    count++;
+
+    f = fopen("/tmp/.counter", "w");
+    if (f) {
+        fprintf(f, "%d", count);
+        fclose(f);
+    }
+
+    return (count > 100) ? 1 : 0;
+}
+\end{lstlisting}
+
+\textbf{Notes:}
+\begin{itemize}
+\item The file \texttt{/tmp/.counter} stores the counter persistently
+\item The ``\texttt{.}'' prefix makes the file hidden on Linux
+\item The path \texttt{/tmp/} is writable by all users
+\end{itemize}
+
+\item \textbf{Trigger obfuscation techniques:}
+
+\textbf{Technique 1: Constant encryption}
+
+Instead of writing values 3 and 1 directly, store them encrypted and decrypt at runtime:
+\begin{lstlisting}[language=C]
+int month_trigger = 0x41 ^ 0x42;  // 3, but not directly visible
+int day_trigger = 0x43 ^ 0x42;    // 1, but not directly visible
+\end{lstlisting}
+
+\textbf{Technique 2: Indirect calculations}
+
+Use arithmetic expressions to mask values:
+\begin{lstlisting}[language=C]
+if (t->tm_mon == (15 / 5) && t->tm_mday == (10 - 9))
+\end{lstlisting}
+
+\textbf{Other possible techniques:}
+\begin{itemize}
+\item Store the target date in an external configuration file
+\item Use environment variables
+\item Retrieve the date from a remote server
+\end{itemize}
+
+\item \textbf{Antivirus detection techniques:}
+
+\begin{itemize}
+\item \textbf{Behavioral analysis:} Monitor calls to \texttt{time()}, \texttt{localtime()} followed by conditional branching
+\item \textbf{Heuristic detection:} Identify ``dormant code'' patterns with temporal conditions
+\item \textbf{Sandboxing with time manipulation:} Execute the program in a virtual environment while accelerating system time to trigger the payload
+\item \textbf{Static analysis:} Search for comparisons on \texttt{struct tm} fields
+\item \textbf{Emulation:} Simulate program execution with different dates
+\end{itemize}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item A \textbf{logic bomb} is a dormant program that waits for an event (\textit{trigger}) to execute its payload.
+    \item The \texttt{tm\_mon} field of the \texttt{struct tm} structure is indexed starting from \textbf{0} (classic C pitfall).
+    \item Constant obfuscation (XOR, indirect calculations) complicates static analysis but does not prevent dynamic analysis.
+    \item Modern antivirus software combines multiple techniques (static, dynamic, heuristic) to detect logic bombs.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 2: XOR Encryption and Polymorphism
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[XOR Encryption and Polymorphism]
+
+\textbf{Polymorphism} is a technique used by viruses to evade signature-based detection. By encrypting the viral code with different keys for each copy, the virus produces different binary signatures while maintaining the same behavior.
+
+\textbf{XOR} (exclusive or) encryption is often used because it has an interesting property: applying the same operation twice with the same key returns the original value.
+
+Consider the following C program:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+
+void xor_crypt(char *data, int len, char key) {
+    for (int i = 0; i < len; i++) {
+        data[i] = data[i] ^ key;
+    }
+}
+
+int main() {
+    char payload[] = "FORMAT C: /Y";
+    char key = 0x42;
+
+    printf("Original : %s\n", payload);
+
+    // Encryption
+    xor_crypt(payload, strlen(payload), key);
+    printf("Encrypted: ");
+    for (int i = 0; i < strlen(payload); i++) {
+        printf("%02X ", (unsigned char)payload[i]);
+    }
+    printf("\n");
+
+    // Decryption
+    xor_crypt(payload, strlen(payload), key);
+    printf("Decrypted: %s\n", payload);
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Explain mathematically why the XOR operation allows both encryption and decryption using the same function.
+
+\item Mentally execute the program with key \texttt{0x42}. What is the first byte of the encrypted payload? (The ASCII code for 'F' is 0x46)
+
+\item Modify the \texttt{xor\_crypt()} function to use a multi-byte key (e.g., \texttt{"SECRET"}) instead of a single byte.
+
+\item From an antivirus perspective:
+\begin{enumerate}
+\item Why does this technique make signature-based detection ineffective?
+\item What alternative technique could the antivirus use to detect this type of polymorphic code?
+\end{enumerate}
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{The XOR (exclusive or) operation} is a bitwise logical operation denoted $\oplus$. It returns 1 if and only if the two input bits are different.
+
+\medskip
+\textbf{Truth table:}
+
+\begin{center}
+\begin{tabular}{cc|c}
+\toprule
+$A$ & $B$ & $A \oplus B$ \\
+\midrule
+0 & 0 & 0 \\
+0 & 1 & 1 \\
+1 & 0 & 1 \\
+1 & 1 & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Viral polymorphism:} a technique consisting of encrypting the virus body with a different key for each copy. Only the decryption routine remains in plaintext. Thus, each copy of the virus has a different binary signature, making signature-based detection impossible.
+
+\medskip
+\textbf{Connection to the Vernam cipher (One-Time Pad):} XOR is at the heart of the Vernam cipher, the only cryptographic system proven to be \textbf{theoretically unbreakable} (Shannon, 1949). Required conditions: the key must be (1) as long as the message, (2) perfectly random, and (3) used only once. In practice, viruses reuse short keys, making the encryption vulnerable to frequency analysis.
+\end{rappel}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Mathematical explanation of XOR:}
+
+The XOR operation ($\oplus$) has the following properties:
+\begin{itemize}
+\item \textbf{Associativity:} $(A \oplus B) \oplus C = A \oplus (B \oplus C)$
+\item \textbf{Commutativity:} $A \oplus B = B \oplus A$
+\item \textbf{Identity element:} $A \oplus 0 = A$
+\item \textbf{Self-inverse:} $A \oplus A = 0$ (every element is its own inverse)
+\end{itemize}
+
+\textbf{Proof:} $A \oplus K \oplus K = A \oplus (K \oplus K) = A \oplus 0 = A$
+
+Thus, if $C = A \oplus K$ (encryption), then $C \oplus K = A \oplus K \oplus K = A$ (decryption).
+
+The same operation with the same key allows both encryption and decryption.
+
+\item \textbf{Calculation of encrypted bytes:}
+
+\textbf{First byte:}
+
+\begin{itemize}
+\item Character 'F' in hexadecimal: \texttt{0x46} = \texttt{01000110} in binary
+\item Key \texttt{0x42} = \texttt{01000010} in binary
+\end{itemize}
+
+Bitwise XOR calculation:
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white}]
+  01000110  (0x46 = 'F')
+^ 01000010  (0x42 = key)
+----------
+  00000100  (0x04)
+\end{lstlisting}
+
+The first encrypted byte is \textbf{0x04} (EOT control character -- End Of Transmission).
+
+\medskip
+\textbf{Complete XOR encryption table for \texttt{"FORMAT C: /Y"} with key \texttt{0x42}:}
+
+\medskip
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+\toprule
+\textbf{Character} & \textbf{ASCII (hex)} & \textbf{Key (hex)} & \textbf{XOR (hex)} & \textbf{XOR (decimal)} \\
+\midrule
+\texttt{F} & \texttt{0x46} & \texttt{0x42} & \texttt{0x04} & 4 \\
+\texttt{O} & \texttt{0x4F} & \texttt{0x42} & \texttt{0x0D} & 13 \\
+\texttt{R} & \texttt{0x52} & \texttt{0x42} & \texttt{0x10} & 16 \\
+\texttt{M} & \texttt{0x4D} & \texttt{0x42} & \texttt{0x0F} & 15 \\
+\texttt{A} & \texttt{0x41} & \texttt{0x42} & \texttt{0x03} & 3 \\
+\texttt{T} & \texttt{0x54} & \texttt{0x42} & \texttt{0x16} & 22 \\
+\texttt{\ } (space) & \texttt{0x20} & \texttt{0x42} & \texttt{0x62} & 98 \\
+\texttt{C} & \texttt{0x43} & \texttt{0x42} & \texttt{0x01} & 1 \\
+\texttt{:} & \texttt{0x3A} & \texttt{0x42} & \texttt{0x78} & 120 \\
+\texttt{\ } (space) & \texttt{0x20} & \texttt{0x42} & \texttt{0x62} & 98 \\
+\texttt{/} & \texttt{0x2F} & \texttt{0x42} & \texttt{0x6D} & 109 \\
+\texttt{Y} & \texttt{0x59} & \texttt{0x42} & \texttt{0x1B} & 27 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+Complete encrypted result: \texttt{04 0D 10 0F 03 16 62 01 78 62 6D 1B}
+
+\begin{attention}
+Beware of common XOR calculation errors: you must operate bit by bit, not byte by byte. For example, \texttt{0x20} $\oplus$ \texttt{0x42} = \texttt{0x62} (and not \texttt{0x22} which would be a simple addition).
+\end{attention}
+
+\item \textbf{Function with multi-byte key:}
+
+\begin{lstlisting}[language=C]
+void xor_crypt(char *data, int len, const char *key) {
+    int key_len = strlen(key);
+    for (int i = 0; i < len; i++) {
+        data[i] = data[i] ^ key[i % key_len];
+    }
+}
+\end{lstlisting}
+
+The modulo operator (\texttt{\%}) allows ``wrapping'' around the key: when reaching the end of the key, we start over from the beginning.
+
+Example with \texttt{"SECRET"} (6 characters) on \texttt{"FORMAT C: /Y"} (12 characters):
+\begin{itemize}
+\item Position 0: 'F' $\oplus$ 'S'
+\item Position 1: 'O' $\oplus$ 'E'
+\item \ldots
+\item Position 6: ' ' $\oplus$ 'S' (back to key start)
+\end{itemize}
+
+\item \textbf{Antivirus perspective:}
+
+\begin{enumerate}
+\item \textbf{Why signature detection is ineffective:}
+
+Each virus copy uses a different, randomly generated key. The encrypted code therefore produces a different byte sequence each time.
+
+Example with payload \texttt{"FORMAT C: /Y"}:
+\begin{itemize}
+\item With key 0x42: \texttt{04 0D 10 0F 03 16 62 01 78 62 6D 1B}
+\item With key 0x5A: \texttt{1C 15 08 17 1B 0E 7A 19 60 7A 75 03}
+\end{itemize}
+
+Impossible to create a unique signature to detect all variants.
+
+\item \textbf{Alternative detection techniques:}
+
+\begin{itemize}
+\item \textbf{Emulation / Sandboxing:} Execute the code in a controlled environment to observe its behavior after decryption
+\item \textbf{Decryptor detection:} The decryption routine (unencrypted part) has recognizable patterns (XOR loop)
+\item \textbf{Heuristic analysis:} Detect code sequences characteristic of XOR decryption
+\item \textbf{Entropy analysis:} Encrypted code has high entropy (quasi-random byte distribution)
+\end{itemize}
+
+\end{enumerate}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item XOR is \textbf{self-inverse}: applying the same operation twice with the same key returns the original value ($A \oplus K \oplus K = A$).
+    \item \textbf{Polymorphism} makes each virus copy unique in binary, preventing signature-based detection.
+    \item With a single-byte key, there are only 255 possible variants (key 0x00 = no encryption). Brute-force is trivial.
+    \item The \textbf{Vernam cipher} (One-Time Pad) is the only system proven to be unbreakable, but it requires a key as long as the message, random, and single-use.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 3: Companion Virus and PATH Hijacking
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Companion Virus and PATH Hijacking]
+
+A \textbf{companion virus} is a type of malware that does not modify existing files but places itself alongside them to be executed in their place. A common technique involves exploiting the \texttt{PATH} environment variable to intercept the execution of system commands.
+
+\textbf{Attack principle:} When a user types a command (for example \texttt{ls}), the system searches for the executable in the directories listed in \texttt{PATH}, in order. If an attacker places a fake \texttt{ls} in a higher-priority directory, this malicious program will be executed instead.
+
+Consider the following C program, designed to replace the \texttt{ls} command:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[]) {
+    // Phase 1: Malicious code (simulation)
+    FILE *f = fopen("/tmp/log.txt", "a");
+    if (f) {
+        fprintf(f, "Intercepted command: ls\n");
+        fprintf(f, "Directory: %s\n", getcwd(NULL, 0));
+        fclose(f);
+    }
+
+    // Phase 2: Execute the real command
+    execvp("/bin/ls", argv);
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Explain how this program works. Why doesn't the user notice that their system is compromised?
+
+\item How could an attacker install this companion virus on a Linux system? Propose two different methods.
+
+\item What happens if the attacker forgets the line \texttt{execvp("/bin/ls", argv)}? What consequences would this have on the stealthiness of the attack?
+
+\item Propose two countermeasures that the user or system administrator could implement to protect against this type of attack.
+
+\item \textbf{Bonus:} Modify the program to also record the arguments passed to the \texttt{ls} command.
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{Command resolution via PATH:}
+
+When a user types a command without an absolute path (e.g., \texttt{ls} instead of \texttt{/bin/ls}), the shell searches for the executable in the directories listed in the \texttt{PATH} environment variable, \textbf{in order}.
+
+\medskip
+\textbf{Typical PATH example on Linux:}
+\begin{lstlisting}[numbers=none,language=bash]
+$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin
+\end{lstlisting}
+
+The shell searches in order: \texttt{/usr/local/bin}, then \texttt{/usr/bin}, then \texttt{/bin}, etc. The \textbf{first} executable found is the one that gets launched.
+
+\medskip
+\textbf{The \texttt{execvp()} function:}
+\begin{itemize}
+    \item \textbf{Replaces} the current process with a new program (the calling process ceases to exist)
+    \item The \texttt{v} means arguments are passed as an array (\texttt{argv})
+    \item The \texttt{p} means the program is searched for in PATH (unless an absolute path is given)
+    \item Unlike \texttt{system()}, \texttt{execvp()} does not create a subprocess (no implicit \texttt{fork}) and does not go through an intermediate shell
+\end{itemize}
+
+\medskip
+\textbf{Difference between \texttt{execvp()} and \texttt{system()}:}
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+& \texttt{execvp()} & \texttt{system()} \\
+\midrule
+Process & Replaces the process & Creates a subprocess \\
+Return & Does not return (if successful) & Returns the exit code \\
+Shell & No intermediate shell & Goes through \texttt{/bin/sh} \\
+Security & Safer (no shell injection) & Vulnerable to injection \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{rappel}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Program operation:}
+
+The program executes in two phases:
+
+\textbf{Phase 1 -- Malicious code:}
+\begin{itemize}
+\item Opens file \texttt{/tmp/log.txt} in append mode (\texttt{"a"})
+\item Records that the \texttt{ls} command was intercepted
+\item Records the current directory (activity spying)
+\item Closes the file
+\end{itemize}
+
+\textbf{Phase 2 -- Cover:}
+\begin{itemize}
+\item \texttt{execvp("/bin/ls", argv)} replaces the current process with the real \texttt{ls}
+\item Original arguments are fully transmitted
+\item The displayed result is identical to the real command
+\end{itemize}
+
+\textbf{Why it's stealthy:} The user sees the normal \texttt{ls} output. The malicious phase is invisible because it produces no screen output.
+
+\item \textbf{Installation methods:}
+
+\textbf{Method 1: User PATH modification}
+\begin{lstlisting}[language=bash,numbers=none]
+# In ~/.bashrc or ~/.profile
+export PATH="$HOME/.malware:$PATH"
+# Then place fake ls in ~/.malware/ls
+\end{lstlisting}
+
+\textbf{Method 2: Using current directory}
+\begin{lstlisting}[language=bash,numbers=none]
+# If PATH contains "." first
+export PATH=".:$PATH"
+# Place fake ls in victim's working directory
+\end{lstlisting}
+
+\textbf{Other methods:}
+\begin{itemize}
+\item Exploit a vulnerability to write to \texttt{/usr/local/bin} (often before \texttt{/bin} in PATH)
+\item Create an alias in \texttt{.bashrc}: \texttt{alias ls='/path/malware'}
+\end{itemize}
+
+\begin{attention}[title={Why you should never put ``\texttt{.}'' in PATH}]
+If the current directory (\texttt{.}) is in PATH (especially in the first position), an attacker can place a malicious executable named \texttt{ls}, \texttt{cat}, or \texttt{sudo} in \textbf{any directory} visited by the victim (e.g., \texttt{/tmp}, a shared folder). The victim only needs to run a common command in that directory to launch the malware.
+
+This is why modern Linux distributions \textbf{never} include \texttt{.} in PATH by default. On Windows, the current directory is searched first, which has historically caused numerous vulnerabilities (DLL hijacking, etc.).
+\end{attention}
+
+\item \textbf{Without the execvp() line:}
+
+\begin{itemize}
+\item The real \texttt{ls} command is never executed
+\item The user sees no output (or just return code 0)
+\item The user immediately notices something is wrong
+\item They will investigate and probably discover the malware
+\item \textbf{Stealthiness is completely compromised}
+\end{itemize}
+
+This is why the companion virus technique always requires executing the original program after the malicious code.
+
+\item \textbf{Countermeasures:}
+
+\textbf{Countermeasure 1: Use absolute paths}
+\begin{lstlisting}[language=bash,numbers=none]
+alias ls='/bin/ls'
+alias cat='/bin/cat'
+# Or directly use /bin/ls instead of ls
+\end{lstlisting}
+
+\textbf{Countermeasure 2: Secure the PATH}
+\begin{itemize}
+\item Never put ``\texttt{.}'' in PATH
+\item Regularly check PATH contents
+\item Ensure priority directories are write-protected
+\end{itemize}
+
+\textbf{Other countermeasures:}
+\begin{itemize}
+\item Enable SELinux or AppArmor
+\item Monitor modifications to \texttt{.bashrc} and \texttt{.profile}
+\item Use \texttt{type -a ls} to see all available \texttt{ls} commands
+\end{itemize}
+
+\item \textbf{Bonus -- Recording arguments:}
+
+\begin{lstlisting}[language=C]
+FILE *f = fopen("/tmp/log.txt", "a");
+if (f) {
+    fprintf(f, "Intercepted command: ls\n");
+    fprintf(f, "Directory: %s\n", getcwd(NULL, 0));
+    fprintf(f, "Arguments (%d):\n", argc);
+    for (int i = 0; i < argc; i++) {
+        fprintf(f, "  argv[%d]: %s\n", i, argv[i]);
+    }
+    fclose(f);
+}
+\end{lstlisting}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item A \textbf{companion virus} does not modify any existing file: it places itself ``alongside'' to be executed instead of the legitimate program.
+    \item The search order in \textbf{PATH} is critical: the first directory has priority.
+    \item The \texttt{execvp()} function replaces the current process, ensuring transparency for the user.
+    \item \textbf{Never} include \texttt{.} (current directory) in PATH.
+    \item The \texttt{type -a <cmd>} command allows checking all locations of a command.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 4: Target File Search Routine
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Target File Search Routine]
+
+Before being able to infect files, a virus must first locate them on the system. This \textbf{target search} phase is crucial: it must be efficient to maximize propagation while remaining stealthy to avoid detection.
+
+Consider the following C program that recursively traverses a directory looking for files with a specific extension:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+
+void search_targets(const char *path, const char *extension) {
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
+
+    struct dirent *entry;
+    char fullpath[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        // Ignore . and ..
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(fullpath, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            // Recurse into subdirectories
+            search_targets(fullpath, extension);
+        } else if (S_ISREG(st.st_mode)) {
+            // Check the extension
+            char *ext = strrchr(entry->d_name, '.');
+            if (ext && strcmp(ext, extension) == 0) {
+                printf("Target found: %s (%ld bytes)\n",
+                       fullpath, st.st_size);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 3) {
+        printf("Usage: %s <directory> <extension>\n", argv[0]);
+        return 1;
+    }
+
+    printf("Searching for %s files in %s...\n", argv[2], argv[1]);
+    search_targets(argv[1], argv[2]);
+
+    return 0;
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Analyze the code and explain the role of the functions \texttt{opendir()}, \texttt{readdir()}, \texttt{stat()}, and \texttt{closedir()}.
+
+\item Why is it important to ignore the "." and ".." entries when traversing a directory? What would happen otherwise?
+
+\item Modify the \texttt{search\_targets()} function to search for executable files (having execution permission) instead of filtering by extension.
+
+\item Recursive traversal can be problematic on large file systems. Propose a modification to limit the recursion depth to a maximum of $N$ levels.
+
+\item From an antivirus perspective, what suspicious behaviors could this type of program trigger? How could a behavioral antivirus detect this activity?
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{File system traversal in C (POSIX):}
+
+Under Unix/Linux, a directory is a special file that contains a list of entries (name $\rightarrow$ inode). Traversal is done via the POSIX API: \texttt{opendir()}, \texttt{readdir()}, \texttt{closedir()}.
+
+\medskip
+\textbf{Special entries in every directory:}
+\begin{itemize}
+    \item \texttt{.} (dot): reference to the directory itself
+    \item \texttt{..} (two dots): reference to the parent directory
+\end{itemize}
+
+\medskip
+\textbf{File type test macros} (defined in \texttt{<sys/stat.h>}):
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Macro} & \textbf{Meaning} \\
+\midrule
+\texttt{S\_ISREG(m)} & Regular file \\
+\texttt{S\_ISDIR(m)} & Directory \\
+\texttt{S\_ISLNK(m)} & Symbolic link \\
+\texttt{S\_ISCHR(m)} & Character device \\
+\texttt{S\_ISBLK(m)} & Block device \\
+\texttt{S\_ISFIFO(m)} & Named pipe (FIFO) \\
+\texttt{S\_ISSOCK(m)} & Socket \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Execution permission bits:}
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\textbf{Constant} & \textbf{Octal value} & \textbf{Meaning} \\
+\midrule
+\texttt{S\_IXUSR} & 0100 & Execution by owner (\texttt{--x------}) \\
+\texttt{S\_IXGRP} & 0010 & Execution by group (\texttt{-----x---}) \\
+\texttt{S\_IXOTH} & 0001 & Execution by others (\texttt{--------x}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{Unix octal permissions reminder:}
+\begin{center}
+\begin{tabular}{ccl}
+\toprule
+\textbf{Octal} & \textbf{Binary} & \textbf{Permission} \\
+\midrule
+0 & 000 & None \\
+1 & 001 & Execute (\texttt{x}) \\
+2 & 010 & Write (\texttt{w}) \\
+3 & 011 & Write + Execute (\texttt{wx}) \\
+4 & 100 & Read (\texttt{r}) \\
+5 & 101 & Read + Execute (\texttt{rx}) \\
+6 & 110 & Read + Write (\texttt{rw}) \\
+7 & 111 & Read + Write + Execute (\texttt{rwx}) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Example: \texttt{chmod 755 file} $\rightarrow$ \texttt{rwxr-xr-x} (owner: all, group and others: read + execute).
+\end{rappel}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Role of functions:}
+
+\begin{itemize}
+\item \texttt{opendir(path)}: Opens a directory and returns a \texttt{DIR*} pointer for traversal. Returns \texttt{NULL} on error (non-existent directory, insufficient permissions).
+
+\item \texttt{readdir(dir)}: Reads the next directory entry. Returns a pointer to a \texttt{struct dirent} containing the filename (\texttt{d\_name}). Returns \texttt{NULL} when all entries have been read.
+
+\item \texttt{stat(path, \&st)}: Gets file metadata (size, permissions, type, dates). Fills the \texttt{struct stat} passed as parameter. Returns -1 on error.
+
+\item \texttt{closedir(dir)}: Closes the directory and frees resources allocated by \texttt{opendir()}. Important to avoid file descriptor leaks.
+\end{itemize}
+
+\item \textbf{Importance of ignoring ``\texttt{.}'' and ``\texttt{..}'':}
+
+\begin{itemize}
+\item \texttt{"."} represents the current directory
+\item \texttt{".."} represents the parent directory
+\end{itemize}
+
+\textbf{Without this filtering:}
+\begin{itemize}
+\item With \texttt{"."}: The program would enter the same directory indefinitely $\rightarrow$ \textbf{infinite loop}
+\item With \texttt{".."}: The program would go up to root then back down $\rightarrow$ infinite traversal of the entire system
+\item In both cases: \textbf{stack overflow} due to infinite recursion
+\end{itemize}
+
+\begin{attention}
+Forgetting to filter ``\texttt{.}'' and ``\texttt{..}'' is a classic programming error during recursive directory traversal. The program enters infinite recursion and ends with a \textit{segmentation fault} (stack overflow). It is also a risk for a virus that could self-infect indefinitely or crash before being able to propagate.
+\end{attention}
+
+\item \textbf{Search by execution permissions:}
+
+\begin{lstlisting}[language=C]
+void search_targets(const char *path) {
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
+
+    struct dirent *entry;
+    char fullpath[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(fullpath, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            search_targets(fullpath);
+        } else if (S_ISREG(st.st_mode)) {
+            // Check execution permission (owner)
+            if (st.st_mode & S_IXUSR) {
+                printf("Executable found: %s (%ld bytes)\n",
+                       fullpath, st.st_size);
+            }
+        }
+    }
+    closedir(dir);
+}
+\end{lstlisting}
+
+\textbf{Note:} You can also check \texttt{S\_IXGRP} (group) and \texttt{S\_IXOTH} (others) for a more complete search:
+\begin{lstlisting}[language=C,numbers=none]
+if (st.st_mode & (S_IXUSR | S_IXGRP | S_IXOTH))
+\end{lstlisting}
+
+\item \textbf{Limiting recursion depth:}
+
+\begin{lstlisting}[language=C]
+void search_targets(const char *path, const char *ext,
+                    int depth, int max_depth) {
+    if (depth > max_depth) return;  // Limit reached
+
+    DIR *dir = opendir(path);
+    if (dir == NULL) return;
+
+    struct dirent *entry;
+    char fullpath[1024];
+
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 ||
+            strcmp(entry->d_name, "..") == 0)
+            continue;
+
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", path, entry->d_name);
+
+        struct stat st;
+        if (stat(fullpath, &st) == -1) continue;
+
+        if (S_ISDIR(st.st_mode)) {
+            // Increment depth for subdirectories
+            search_targets(fullpath, ext, depth + 1, max_depth);
+        } else if (S_ISREG(st.st_mode)) {
+            char *e = strrchr(entry->d_name, '.');
+            if (e && strcmp(e, ext) == 0) {
+                printf("Target: %s\n", fullpath);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+// Initial call with depth=0
+search_targets("/home", ".c", 0, 3);  // Max 3 levels
+\end{lstlisting}
+
+\item \textbf{Behavioral antivirus detection:}
+
+\textbf{Detectable suspicious behaviors:}
+\begin{itemize}
+\item Rapid, massive file tree traversal
+\item Read access to numerous executable files
+\item Characteristic pattern: many \texttt{opendir}/\texttt{readdir}/\texttt{stat} calls
+\item Access to sensitive directories (\texttt{/bin}, \texttt{/usr/bin})
+\end{itemize}
+
+\textbf{Detection techniques:}
+\begin{itemize}
+\item \textbf{Rate limiting:} Alert if a process opens too many directories per second
+\item \textbf{Access pattern analysis:} Detect systematic traversal by extension
+\item \textbf{System call monitoring:} Count \texttt{stat()} calls on executables
+\item \textbf{Honeypots:} Place ``bait'' files and alert if accessed
+\end{itemize}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item Recursive directory traversal uses the trio \texttt{opendir()} / \texttt{readdir()} / \texttt{closedir()}.
+    \item \textbf{Always} filter ``\texttt{.}'' and ``\texttt{..}'' to avoid infinite loops.
+    \item The macros \texttt{S\_ISDIR}, \texttt{S\_ISREG} test the file \textit{type}; the constants \texttt{S\_IXUSR/S\_IXGRP/S\_IXOTH} test \textit{permissions}.
+    \item An efficient virus limits its search depth to remain stealthy and avoid crashes.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+\bigskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% EXERCISE 5: Code Injection by Appending
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{exercice}[Code Injection by Appending]
+
+\textbf{Appending infection} is a classic technique where the virus adds its code to the end of a target file. To avoid infecting the same file multiple times (which could corrupt it or make it suspicious), the virus uses an \textbf{infection marker}.
+
+Consider the following C program that simulates this mechanism on text files:
+
+\begin{lstlisting}[language=C]
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+#define MARKER "[[INFECTED]]"
+#define PAYLOAD "\n--- MALICIOUS CODE SIMULATION ---\n"
+
+int is_infected(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) return -1;
+
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), f) != NULL) {
+        if (strstr(buffer, MARKER) != NULL) {
+            fclose(f);
+            return 1;  // Already infected
+        }
+    }
+    fclose(f);
+    return 0;  // Not infected
+}
+
+int infect_file(const char *filename) {
+    if (is_infected(filename) == 1) {
+        printf("[SKIP] %s is already infected\n", filename);
+        return 0;
+    }
+
+    FILE *f = fopen(filename, "a");
+    if (f == NULL) {
+        printf("[ERROR] Cannot open %s\n", filename);
+        return -1;
+    }
+
+    fprintf(f, "%s", PAYLOAD);
+    fprintf(f, "%s\n", MARKER);
+    fclose(f);
+
+    printf("[INFECTED] %s\n", filename);
+    return 1;
+}
+
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Usage: %s <file1> [file2] ...\n", argv[0]);
+        return 1;
+    }
+
+    for (int i = 1; i < argc; i++) {
+        infect_file(argv[i]);
+    }
+    return 0;
+}
+\end{lstlisting}
+
+\begin{enumerate}
+\item Explain the role of the infection marker (\texttt{MARKER}). What would happen if the virus did not use a marker?
+
+\item Why is the file opened in "a" (append) mode in the \texttt{infect\_file()} function? What would be the effect of using "w" mode instead?
+
+\item The \texttt{is\_infected()} function scans the entire file line by line. Propose a more efficient method.
+
+\item The marker \texttt{[[INFECTED]]} is easily detectable by an antivirus. Propose a modification to make the marker less visible.
+
+\item From an antivirus perspective, what characteristics of this program could be used to detect it?
+\end{enumerate}
+
+\end{exercice}
+
+% --- Course reminder ---
+\begin{rappel}
+\textbf{File infection techniques:}
+
+A virus can infect an executable file in three main ways:
+
+\begin{enumerate}
+    \item \textbf{Overwriting:} The virus replaces the beginning of the file with its own code. Simple but \textbf{destructive}: the original program is destroyed and no longer works. Immediate detection by the user.
+
+    \item \textbf{Appending:} The virus adds its code to the \textbf{end} of the file and modifies the entry point to execute itself first, then hands control back to the original program. The file remains functional.
+
+    \item \textbf{Prepending:} The virus inserts its code at the \textbf{beginning} of the file and shifts the original code. More complex but the virus executes first naturally.
+\end{enumerate}
+
+\medskip
+\textbf{Textual diagram -- appending infection:}
+
+\begin{lstlisting}[numbers=none,frame=none,backgroundcolor=\color{white}]
+BEFORE infection:           AFTER infection:
++-------------------+       +-------------------+
+| Original          |       | Original          |
+| program           |       | program           |
+|                   |       |                   |
++-------------------+       +-------------------+
+                            | Virus code        |
+                            | (payload)         |
+                            +-------------------+
+                            | Marker            |
+                            | [[INFECTED]]      |
+                            +-------------------+
+\end{lstlisting}
+
+The original program remains intact, the virus is appended after it. The marker at the end of the file prevents reinfection.
+\end{rappel}
+
+\begin{correction}
+
+\begin{enumerate}
+\item \textbf{Role of the infection marker:}
+
+The marker identifies already infected files to \textbf{avoid reinfection}.
+
+\textbf{Without a marker, problems:}
+\begin{itemize}
+\item The file grows with each virus execution (payload added multiple times)
+\item File size becomes abnormally large $\rightarrow$ easy detection
+\item The file may become corrupted or unusable
+\item Degraded performance (increasingly long files)
+\item Risk of filling the hard drive
+\end{itemize}
+
+The marker is placed at the end of the infected file for quick verification.
+
+\item \textbf{``a'' mode vs ``w'' mode:}
+
+\textbf{Comparison table of file opening modes in C:}
+
+\medskip
+\begin{center}
+\begin{tabular}{c|p{2.5cm}|p{2.5cm}|p{2.5cm}|c}
+\toprule
+\textbf{Mode} & \textbf{Read} & \textbf{Write} & \textbf{Initial position} & \textbf{Existing file} \\
+\midrule
+\texttt{"r"}  & Yes & No  & Beginning & Must exist \\
+\texttt{"w"}  & No  & Yes & Beginning & \textbf{Truncated / Created} \\
+\texttt{"a"}  & No  & Yes & End       & Preserved / Created \\
+\texttt{"r+"} & Yes & Yes & Beginning & Must exist \\
+\texttt{"w+"} & Yes & Yes & Beginning & \textbf{Truncated / Created} \\
+\texttt{"a+"} & Yes & Yes & End       & Preserved / Created \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\textbf{``a'' (append) mode:}
+\begin{itemize}
+\item Positions the cursor at the end of the file
+\item Writes are appended after the existing content
+\item The original content is \textbf{preserved}
+\item The infected program/file remains functional
+\end{itemize}
+
+\textbf{``w'' (write) mode:}
+\begin{itemize}
+\item Erases all existing content
+\item The file is \textbf{emptied} then rewritten from the beginning
+\item The original content is \textbf{destroyed}
+\item The infected program no longer works at all
+\end{itemize}
+
+A virus must preserve infected file functionality to:
+\begin{itemize}
+\item Remain stealthy (the user notices nothing)
+\item Enable propagation (the program must execute)
+\end{itemize}
+
+\item \textbf{Optimizing is\_infected():}
+
+Since the marker is always added at the end of the file, we can read directly from the end using \texttt{fseek()}:
+
+\begin{lstlisting}[language=C]
+int is_infected(const char *filename) {
+    FILE *f = fopen(filename, "r");
+    if (f == NULL) return -1;
+
+    // Position at end minus marker size
+    int marker_len = strlen(MARKER) + 2;  // +2 for possible \n
+
+    if (fseek(f, -marker_len, SEEK_END) == 0) {
+        char buffer[64];
+        if (fread(buffer, 1, marker_len, f) > 0) {
+            buffer[marker_len] = '\0';
+            if (strstr(buffer, MARKER) != NULL) {
+                fclose(f);
+                return 1;  // Infected
+            }
+        }
+    }
+
+    fclose(f);
+    return 0;  // Not infected
+}
+\end{lstlisting}
+
+\textbf{Explanation of \texttt{fseek()}:}
+\begin{itemize}
+\item \texttt{fseek(f, offset, origin)} moves the read/write cursor in the file
+\item \texttt{SEEK\_SET}: from the \textbf{beginning} of the file (offset $\geq 0$)
+\item \texttt{SEEK\_CUR}: from the \textbf{current position} (positive or negative offset)
+\item \texttt{SEEK\_END}: from the \textbf{end} of the file (offset usually $\leq 0$)
+\end{itemize}
+
+Here, \texttt{fseek(f, -marker\_len, SEEK\_END)} positions the cursor \texttt{marker\_len} bytes before the end of the file, allowing to read only the last bytes.
+
+\medskip
+\textbf{Advantages:}
+\begin{itemize}
+\item O(1) complexity instead of O(n)
+\item Very fast even for large files
+\item Fewer disk accesses
+\end{itemize}
+
+\item \textbf{Marker obfuscation:}
+
+\textbf{Technique 1: XOR encryption}
+\begin{lstlisting}[language=C]
+// Encrypted marker (key = 0x42)
+#define MARKER_ENC "\x0e\x0e\x09\x0c\x04\x07\x25\x07\x04\x06\x0f\x0f"
+// Decrypt before comparison
+\end{lstlisting}
+
+\textbf{Technique 2: File hash}
+
+Instead of a textual marker, store a hash of the first bytes. If the hash matches, the file is infected.
+
+\textbf{Technique 3: Marker in metadata}
+
+Use file extended attributes (xattr) or modify the modification date in a characteristic way.
+
+\textbf{Technique 4: Non-printable characters}
+\begin{lstlisting}[language=C]
+#define MARKER "\x01\x02\x03\x04\x05\x06\x07\x08"
+\end{lstlisting}
+
+\item \textbf{Antivirus detection techniques:}
+
+\begin{itemize}
+\item \textbf{Marker signature:} Search for the string \texttt{[[INFECTED]]} in files
+
+\item \textbf{File access monitoring:} Detect append-mode opening patterns on many files
+
+\item \textbf{Executable integrity:} Compare file hashes with a reference database (modification = alert)
+
+\item \textbf{Growth analysis:} Alert if executable size increases suspiciously
+
+\item \textbf{Behavioral analysis:} Detect a program that reads then writes to many executable files
+
+\item \textbf{Static analysis:} Search for characteristic code patterns (fopen mode ``a'' + fprintf on variable files)
+\end{itemize}
+
+\end{enumerate}
+
+\begin{pointcle}
+\begin{itemize}
+    \item The \textbf{infection marker} prevents reinfection and ensures that files remain functional.
+    \item The \texttt{"a"} (append) mode is essential: it preserves the original file content, unlike \texttt{"w"} mode which destroys it.
+    \item \texttt{fseek(f, -n, SEEK\_END)} allows reading the last $n$ bytes of a file in O(1), a crucial optimization for infection checking.
+    \item Marker obfuscation techniques (XOR, hash, metadata) complicate detection but do not prevent behavioral analysis.
+\end{itemize}
+\end{pointcle}
+
+\end{correction}
+
+
+\end{document}

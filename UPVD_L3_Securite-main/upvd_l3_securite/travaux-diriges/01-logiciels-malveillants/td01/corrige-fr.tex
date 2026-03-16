@@ -1,0 +1,236 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{fullpage}
+%\usepackage[all]{xy}
+\usepackage[latin1]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float}
+\usepackage{color}
+\usepackage{comment}
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+%\newenvironment{correction}{\begin{comment}}{\end{comment}
+%\newenvironment{correction}[1]{\begin{#1}}{\end{#1}}
+%\includecomment{correction}
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+\newtheorem{correction}{Correction}
+
+\theoremstyle{definition}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  \\
+ \hfill C. Legrand \hfill  Année \the\year \\
+\smallskip
+\begin{center}
+{
+  {\scshape \large TD2 Sécurité}  \\
+ Programmes malveillants 
+}
+
+
+
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.9pt width \textwidth}}
+%\hline
+
+\bigskip
+
+\bigskip
+
+
+\begin{exercice}
+\begin{enumerate}
+\item Dans quelle mesure les vers sont-ils plus dangereux que les virus?
+\item Certains vers qui se propagent sur Internet ne provoquent aucun dommage sur les machines atteintes. Pourquoi sont-ils cependant nuisibles?
+\item Rappeler deux techniques qui permettent à des virus de ne pas être détectés par des logiciels antivirus.
+\end{enumerate}
+\end{exercice}
+
+%\begin{comment}
+\begin{correction}
+\begin{enumerate}
+\item L'efficacité des programmes malveillants repose en partie sur leur capacité à se propager rapidement/facilement. Du fait que les vers exploitent le réseaux, ils ont donc plus de facilité à se propager et à nuire un plus grand nombre de machine.
+\item Même s'ils ne provoquent aucun dommage sur les machines ces vers dans un moindre mesure utilisent les ressources du réseau pour se propager au détriment du réseau utile, mais surtout exploitent les machines verolées pour effectuer des attaques à de plus grandes échelles.
+\item On cite en vrac: le polymorphisme afin de n'avoir jamais de \textit{signature} identifiable, des techniques de camouflages: le code malicieux n'augment pas la taille du code infecté, ou alors il est caché dans une partie du disque vu comme non disponible par le système, processus n'apparaissant pas dans la liste des processus, etc.
+\end{enumerate}
+\end{correction}
+%\end{comment}
+
+
+\begin{exercice}
+On considère le programme (en langage C) suivant
+\begin{verbatim}
+//... les includes sont omis
+int main(int argc, char **argv)
+{
+  if(argc >= 1)
+    {	
+       system("./cp argv[0] argv[1]");
+    }
+}
+\end{verbatim}
+est ce un virus? 
+\end{exercice}
+
+%\begin{comment}
+\begin{correction}
+C'est un virus dans le sens ou il duplique son propre code dans un fichier (denomé \texttt{argv[1]}), et qu'il est nefaste dans le sens ou il détruit ce fichier.
+\end{correction}
+%\end{comment}
+
+
+\begin{exercice}
+On considère dans cet exercice une variante du ver W32/Beagle. Ce ver se présente sous forme d'un courrier électronique possédant un fichier joint, qui est à la fois compressé et chiffré. Le mot de passe pour déchiffrer le fichier est contenu dans le corps du message. Si la victime exécute le fichier obtenu après décompression avec le mot de passe fourni (qui est un fichier avec une extension \texttt{.exe}), alors le ver se propage en choisissant la prochaine victime dans le carnet d'adresses de la victime courante. 
+
+Pourquoi le fichier compressé est-il chiffré puisque le mot de passe est fourni dans le message?
+
+\end{exercice}
+
+%\begin{comment}
+\begin{correction}
+Le fichier est chiffré afin d'assurer un camouflage à une analyse d'un anti-virus non-averti de cette techinque: le fichier chiffré change à chaque chiffrement si la clef change, ce qui assure un polymorphisme.
+\end{correction}
+%\end{comment}
+
+
+%\begin{exercice}
+%\'Ecrire un virus par écrasement de code (en Langage C, ou en un langage de script). Imaginer une/des stratégie pour que la taille du fichier infecté ne change pas.
+%\end{exercice}
+
+
+\begin{exercice}
+Voici une descrition d'un logiciel malveillant \texttt{Kork} 
+\begin{verbatim}
+Kork
+ALIAS:	Linux/Kork, Unix/Kork, 
+
+Kork  uses the known vulnerability in lpd service to propagate from a vulnerable 
+Linux system to another. This service is part of the default installation of Red 
+Hat Linux 7.0.
+
+VARIANT:	Kork.A
+If Kork.A finds a vulnerable host, it first creates two users, "kork" and "kork2", 
+to the system without a password. "kork2" user has a root priviledge. Kork also 
+adds an open shell to port 666.
+
+Next it attempts to download a trojanized login and the main part of the trojan 
+from a web site. Since April 26th, 2001, neither of these files are available, so 
+it cannot replicate any further. However, already infected machines are able to 
+compromise other vulnerable machines by adding an open shell and users to the 
+system.
+
+If the download is completed, Kork install an infected "/bin/login" and "/bin/ps" 
+to the system. It attemps to send sensitive system data propably to the author of 
+Kork. Original "/bin/ps" is copied to "/usr/bin/.ps" and the original "/bin/login" 
+is copied to "/bin/.login". Finally Kork starts to scan random Class-B subnets for 
+vulnerable hosts. 
+\end{verbatim}
+
+\begin{enumerate}
+\item Dire de quel type de programme malveillant est Kork (bombe logique, cheval de troie, etc.) ?
+\item Quels sont les cibles potentielles du virus, et évaluer brièvement son impact.
+\end{enumerate}
+\end{exercice}
+
+%\begin{comment}
+\begin{correction}
+\begin{enumerate}
+\item On remarque que Kork se propage via le réseau et le service d'impression \texttt{lpd} sur des systèmes RedHad. Il télécharge des chevaux de Troie (utilitaire \texttt{login} et \texttt{ps} sont corrompus). Et tente d'infecter d'autres machines. On remarque que Kork se duplique via le réseau donc il est en partie un ver, mais aussi il a une fonctionnalité de cheval de Troie. 
+\item Les cibles potentielles sont les systèmes RedHat qui sont peu utilisés par les utilisateurs moyens. Mais sont un peu plus largement utilisé pour des serveurs.
+\end{enumerate}
+
+\end{correction}
+%\end{comment}
+
+
+\begin{exercice}
+On considère un rapport concernant un exécutable malveillant nommé \texttt{Staog}.
+\begin{verbatim}
+NAME: Staog
+SIZE: 4744
+
+Staog spreads only under Linux operating system, infecting
+Elf-style executables.Its first appearance was  in the fall of 1996, 
+
+Staog is written in assembler. It attempts to stay resident and
+infect binaries as they are executed by any user. Stoag tries to
+subvert root access via three known vulnerabilities (mount buffer
+overflow, tip buffer overflow and one suidperl bug).
+
+Staog contains several text strings, including:
+
+Staog by Quantum / VLAD
+/dev/kmemx/etc/mtab~
+/sbin/mount
+/tmp/t.dip
+/bin/sh
+/sbin/dip /tmp/t.dip
+chatkey
+/tmp/hs
+#!/bin/sh\nchmod 666 /dev/kmem\n/tmp/hs
+#!/usr/bin/suidperl -U\n$ENV{PATH}=\"/bin:/usr/bin\";
+\n$>=0;$<=0;\nexec(\"chmod 666 /dev/kmem\");\n
+
+
+Staog can be detected by searching all binaries for the following hex
+search string:
+
+215B31C966B9FF0131C0884309884314B00FCD80
+
+Staog is not known to be in the wild at the time of this writing
+(February 1997).
+\end{verbatim}
+
+\begin{enumerate}
+\item Dire de quel type de programme malveillant est Staog (bombe logique, cheval de troie, etc.) ?
+\item Quels sont ses cibles potentielles et son mode d'action, et évaluer brièvement son impact.
+\item Quelle est sa statégie de furtivité et sa faiblesse ?
+\end{enumerate}
+
+\end{exercice}
+
+%\begin{comment}
+\begin{correction}
+\begin{enumerate}
+\item Staog est un virus classique.
+\item Les cibles sont les exécutables binaires (ELF) du système Linux. L'impact ce réduit au système linux, qui peut avoir des dommages important pour les serveurs. 
+\item Son mode de propagation est relativement lent car il ne se propage que par copie de fichier. Il n'utilise pas le réseau.
+\end{enumerate}
+\end{correction}
+%\end{comment}
+
+\end{document}

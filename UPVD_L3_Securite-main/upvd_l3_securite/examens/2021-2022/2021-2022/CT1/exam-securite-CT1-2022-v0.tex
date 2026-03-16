@@ -1,0 +1,275 @@
+\documentclass[a4paper,9pt]{article}
+
+\usepackage{fullpage}
+\usepackage[all]{xy}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amsthm}
+\usepackage{amsfonts}
+%\usepackage{algorithm}
+\usepackage{graphicx}
+%\usepackage[compatible,noend]{algpseudocode}
+\usepackage{latexsym}
+\usepackage{float,color}
+\usepackage{xcolor}
+\usepackage{framed}
+
+
+\definecolor{shadecolor}{RGB}{0,0,0}
+
+
+\newenvironment{terminal}{\color{white}\begin{snugshade*}}
+{\end{snugshade*}\color{black}}
+
+
+%%%%%%%%%%%%%%% COMMANDES %%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\itemb}{\item[$\bullet$]}
+
+%% Les ensembles de modelisation
+\newcommand{\Ki}{\mathcal{K}}
+\newcommand{\Ci}{\mathcal{C}}
+\newcommand{\Mi}{\mathcal{M}}
+\newcommand{\Ei}{\mathcal{E}}
+\newcommand{\Di}{\mathcal{D}}
+
+\newcommand{\Fd}{\mathbb{F}}
+\newcommand{\Znat}{\mathbb{Z}}
+\newcommand{\Nnat}{\mathbb{N}}
+\newcommand{\pgcd}{\mbox{pgcd}}
+%%%%%%%%%%%%%%% ENVIRONEMENTS %%%%%%%%%%%%%%%%%%%%%%%
+
+
+\theoremstyle{plain}
+\newtheorem{lemme}{Lemme}
+\newtheorem{algorithme}{ Algorithme }
+\newtheorem{corolaire}{Corollaire}
+\newtheorem{propriete}{Propri\'et\'e}
+\newtheorem{proposition}{Proposition}
+\newtheorem{theoreme} {Th\'eor\`eme}
+\newtheorem{definition}{D\'efinition}
+
+\theoremstyle{definition}
+\newtheorem*{probleme}{ProblÃ¨me}
+\newtheorem*{cout}{CoÃ»t}
+\newtheorem*{fait}{Fait}
+\newtheorem*{notation}{Notation}
+\newtheorem*{complexite}{Complexit\'e}
+\newtheorem{exercice}{Exercice}
+%\theoremstyle{remark}
+\newtheorem{remarque}{Remarque}
+\newtheorem{exemple}{Exemple}
+
+
+%%%%%%%%%%%%%% DOCUMENTS %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+
+
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+\noindent \textbf{Université de Perpignan} \hfill  Année \the\year \\
+Licence 3 Informatique \hfill C. Legrand \\
+
+\begin{center}
+  {  {\scshape \large Contrôle Terminal 1} \\
+    \vrule depth 0pt height 0.5pt width 1cm
+    \medskip
+    
+{\scshape    S\'ecurit\'e Informatique}  \\
+}
+\end{center}
+\hbox{\raisebox{0.4em}{\vrule depth 0pt height 0.5pt width \textwidth}}
+
+\bigskip
+
+\bigskip
+
+
+\noindent\textit{Recommandations :}
+\begin{itemize}
+\item Durée: 3h.
+\item Notes de cours et de TD autorisées.
+  \item Documents du moodle autorisés. 
+  \end{itemize}
+\noindent\textit{Commandes bash utiles :} \verb|head|, \verb|tail| et \verb|cut|. Pour \verb|cut| on définit le délimiteur avec l'option \verb|-d| et le numéro du champs \verb|n| sélectionné avec \verb|-fn|.  Voici un exemple où l'on récupère le second champs:
+\begin{small}
+\begin{terminal}
+\begin{verbatim}
+clegrand@mon-pc:~$  cat fichier.txt 
+nom prenom age
+Durand Michel 19
+Esposito Anna 35
+Dufour Elsa 47
+clegrand@mon-pc:~$ cat fichier.txt | cut -d " " -f2
+prenom
+Michel
+Anna
+Elsa
+\end{verbatim}
+\end{terminal}
+\end{small}
+%\begin{itemize}
+%\item Tout document (papier ou électronique (pdf, doc, txt) ) est  autorisé.
+%\item Vous devrez rendre une copie \'electronique (en format .txt) de l'examen.
+%\item Vous l'enverrez en pi\`ece jointe à l'adresse email suivante
+%\begin{center}
+%\texttt{cedric.legrand@univ-perp.fr}
+%\end{center}
+%ou me la transmettrez sur une clef usb.
+%\end{itemize}
+
+\begin{exercice}[Parcours de fichier ligne à ligne]
+  \begin{enumerate}
+\item Faire un script \verb|bash| qui prend en argument un nom de fichier \verb|F| et un entier \verb|n|. Le script affiche sur la sortie standard la \verb|n|-ième ligne du fichier \verb|F| (utilisez \verb|head| et \verb|tail|). %  la commande \verb|bash| qui à partir d'un fichier \verb|f| affich
+\item Faire un script qui prend un fichier en argument et affiche sur la sortie standard chaque ligne précédée de \verb|ligne <numero-ligne>:|. Voici une illustration (le scrit de cette question doit agir comme \verb|exo1-q2.sh|):
+  \begin{small}
+\begin{terminal}
+\begin{verbatim}
+clegrand@mon-pc:~$ cat chiffre.txt
+zero
+un
+deux
+trois
+quatre
+cinq
+six
+sept
+huit
+neuf
+clegrand@mon-pc:~$ ./exo1-q2.sh chiffre.txt
+ligne 1: zero
+ligne 2: un
+ligne 3: deux
+ligne 4: trois
+ligne 5: quatre
+ligne 6: cinq
+ligne 7: six
+ligne 8: sept
+ligne 9: huit
+ligne 10: neuf
+clegrand@clegrand-OptiPlex-990:~/Desktop/Securite/Exam2022/CT1$ 
+\end{verbatim}
+\end{terminal}
+\end{small}
+
+  \end{enumerate}
+\end{exercice}
+
+%\bigskip
+\newpage
+
+\begin{exercice}[Virus bash par entrelacement]
+%// Virus script bash par entrelacement (faire un mini exemple)
+
+Le but de cet exercice est d'écrire le  code en script bash d'un virus qui va disséminer son code dans le code hote de la manière suivante:
+\begin{center}
+\includegraphics[width=7cm]{entrelacement} 
+\end{center}
+
+\begin{enumerate}
+\item Ecrire le  un script bash \texttt{entrelacement.sh} qui prend deux fichiers (\texttt{cible.sh} et \texttt{codeviral.sh}) en argument et qui fabrique un troisième fichier \texttt{resultat.sh} comme suit:
+\begin{itemize}
+\item si le nombre de ligne de \texttt{cible.sh} est inférieur à \texttt{codeviral.sh} alors ne rien faire.
+\item si le nombre de ligne de \texttt{cible.sh} est supérieur à \texttt{codeviral.sh} alors définir 
+  $$s=\left\lfloor\frac{\mbox{nombre de ligne de \texttt{cible.sh}}}{\mbox{nombre de ligne de \texttt{codeviral.sh}}}\right\rfloor.$$
+  Rappel : $\lfloor x \rfloor = $ partie entière de $x$.
+\item remplir le fichier \texttt{resultat.sh} en ajoutant alternativement $s$ lignes de  \texttt{cible.sh} suivies d'une ligne de \texttt{codeviral.sh}.
+\end{itemize}
+
+%\noindent\textit{Indication.} Vous pourrez utiliser la boucle suivante
+%\begin{verbatim}
+%while read ligne
+%do
+%
+%done < $file
+%\end{verbatim}
+%qui lit le fichier \texttt{\$file} ligne par ligne.
+
+\item Faire un script  \texttt{restauration.sh} qui prend en argument  le nombre \verb|s| et  un fichier \texttt{resultat.sh} fabriqué dans la question précédente. Le script  restaure les  deux fichiers (\texttt{cible.sh} et \texttt{codeviral.sh}). 
+\medskip
+
+
+
+\item Combiner les deux scripts \texttt{entrelacement.sh} et \texttt{restauration.sh} pour fabriquer votre virus qui infectera uniquement le répertoire courant:
+  \begin{itemize}
+  \item Le code de restauration restaure le code hote et le code viral dans deux fichiers temporaires, il exécute d'abord le code viral, puis il exécute le code hote.
+  \item Le code viral parcourt les fichiers \verb|*.sh| du répertoire courant et ajoute son code par entrelacement comme dans le question 1).
+    \end{itemize}
+\item Expliquez une stratégie possible pour rendre la segmentation dans la partie \texttt{entrelacement.sh} aléatoire : les nombre de lignes du code hôte consécutive ne sont plus fixes (égaux à \verb|s|) mais varient de façon aléatoire.
+\end{enumerate}
+\end{exercice}
+
+
+\end{document}
+
+
+
+
+\begin{exercice}
+Tentative d'attaque du ver \texttt{Code Red}: les logs d'un serveur web contient une série d'entrées du type [\texttt{adresse source, date, requête, résultat, octet transférer}]. Expliquez la particularité du log suivant:
+\begin{verbatim}
+64.163.156.186-[10/Feb/2005:02:37:24 +0100] << GET /default.ida ? NNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN%u9090%u6858%ucbd3%u7801%u9090%u6858%ucbd3%
+u7801%u9090%u6858%ucb%u78011%u90901%u9090%8190%u00c3%u0003%u8b00%531b%u53ff%u0078%u0
+000%u00=a HTTP/1.0" 400 333
+\end{verbatim}
+
+\end{exercice}
+
+
+%% la suite N sert a priori de bourrage 
+%% pour que la fin de la chaine deborde du tampon
+%% et qu'un code malicieux soit executé à la place 
+%% du code du serveur web
+
+\begin{exercice}
+Soit le site \texttt{www.unsitecomplice.fr}, le moyen de vérifier qu'il est vulnérable à une attaque \textit{cross site scripting} est de demander l'affichage d'une page inexistante. La particularité du nom de cette page est le fait qu'il contient des balises HTML:
+\begin{verbatim}
+   http://wwww.unsitecomplice.fr/<B>nimportequoi</B>&g.html
+\end{verbatim}
+Erreur la page nimportequoi.html est introuvable.
+
+\begin{enumerate}
+\item Pour quelles raisons le site est-il vulnérable? 
+\item Qui peut-être la victime : les internautes ou le site web?
+\item Donner un scénario d'attaque possible via un \texttt{www.unsitecomplice.fr} (par exemple en utilisant l'ingénierie sociale).
+\end{enumerate}
+\end{exercice}
+
+%% il est vulnerable car les balises html du nom de fichier ont ete interprete
+%% le site web peut servir de ``complice''. 
+%% Par ingenieurie sociale on redirige vers le site en metant dans la barre 
+%% d'adresse un faux fichier contenant une fausse page html
+%% et un script pour pouvoir recuperer, par exemple, un mot de passe 
+
+
+%// Lecture d'un virus du giant black book
+
+%// Virus/programmation systeme (l'idée etait quoi deja???)
+
+\begin{exercice}
+Modifier le virus \texttt{vcomp\_ex}  vu en cours afin que celui-ci exécute le code viral et le code cible en parallèle. 
+\medskip
+
+\noindent\textit{Indication.} Vous pourrez utiliser la fonction 
+\begin{verbatim}
+int pthread_create(pthread_t * thread, 
+                   pthread_attr_t * attributs,
+                   void * (* fonction)(void * argument),
+                   void *argument); 
+\end{verbatim}
+de \texttt{<pthread.h>}.
+Discuter ensuite des avantages et inconvénients de cette approche.
+\end{exercice}
+
+\begin{exercice}
+Modifier le virus résident vu en TD (exercice 1, Feuille TD 4 sur les vers), pour qu'il change de nom régulièrement:
+\begin{enumerate}
+\item Première approche: vous modifierez le nom en ajoutant  le \texttt{pid} (du père ou du fils) dans le nom du programme.
+\item Deuxième approche: vous analyserez les processus en cours d'exécution et utiliserez de façon aléatoire le nom de l'un d'eux  pour le nom du programme lors du rafraîchissement.
+\end{enumerate}
+\end{exercice}
+
